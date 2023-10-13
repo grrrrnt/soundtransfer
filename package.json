@@ -1,0 +1,30 @@
+{
+  "name": "music-streaming-adapter",
+  "version": "0.0.1",
+  "description": "",
+  "main": "index.ts",
+  "scripts": {
+    "start": "ts-node index.ts",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/grrrrnt/music-streaming-adapter.git"
+  },
+  "keywords": [
+    "music"
+  ],
+  "author": "",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/grrrrnt/music-streaming-adapter/issues"
+  },
+  "homepage": "https://github.com/grrrrnt/music-streaming-adapter#readme",
+  "dependencies": {
+    "ts-node": "^10.9.1",
+    "yargs": "^17.7.2"
+  },
+  "devDependencies": {
+    "@types/yargs": "^17.0.28"
+  }
+}
