@@ -1,9 +1,44 @@
+import { types } from "../types";
+
 /*
   Within the directory, the following JSON files are relevant:
     1. YourLibrary.json
     2. StreamingHistory{0..n}.json
     3. Playlist1.json                 // Unsure if what the "1" is about
+*/
+const ingest = (args: string[]): void => {
+  // args = [path to directory containing JSON files]
+  console.log(`ingesting spotify; args = ${args}`);
 
+  // Get the path to the directory containing the JSON files
+  const path: string = args[0];
+
+  // Get the JSON files
+  const fs = require("fs");
+  const libraryJSON = JSON.parse(fs.readFileSync(`${path}/YourLibrary.json`));
+  const streamingHistoryJSON = JSON.parse(
+    fs.readFileSync(`${path}/StreamingHistory0.json`)
+  );
+  const playlistsJSON = JSON.parse(fs.readFileSync(`${path}/Playlist1.json`));
+
+  // FIXME: handle multiple streaming history files
+  // FIXME: handle multiple playlists files
+
+  // Populate the library
+  const library: types.Library = populateLibrary(libraryJSON);
+
+  // Populate the listen history
+  const listenHistory: types.ListenHistory =
+    populateListenHistory(streamingHistoryJSON);
+
+  // Populate the playlists
+  const playlists: types.Playlist[] = populatePlaylists(playlistsJSON);
+  library.playlists = playlists;
+
+  // TODO: Do what with the library and listen history?
+};
+
+/*
   YourLibrary.json
     JSON object
     Contains information about saved songs, albums, artists and podcasts
@@ -62,7 +97,30 @@
         "bannedArtists": [],
         "other": []
       }
+*/
+const populateLibrary = (libraryJSON: any): types.Library => {
+  // Initialize the library
+  const library: types.Library = {
+    playlists: [],
+    songs: [],
+    artists: [],
+    albums: [],
+  };
 
+  // Populate the songs
+  libraryJSON.tracks.forEach((track: any) => {
+    const song: types.Song = {
+      isrc: getISRCFromSpotifyURI(track.uri),
+      title: track.track,
+      artists: [track.artist],
+    };
+    library.songs.push(song);
+  });
+
+  return library;
+};
+
+/*
   StreamingHistory{0..n}.json
     JSON array
     Contains information about listening history
@@ -81,7 +139,34 @@
           "msPlayed" : 150400
         }
       ]
+*/
+const populateListenHistory = (
+  streamingHistoryJSON: any
+): types.ListenHistory => {
+  // Initialize the listen history
+  const listenHistory: types.ListenHistory = [];
 
+  // Populate the listen history
+  streamingHistoryJSON.forEach((item: any) => {
+    const historyItem: types.HistoryItem = {
+      timeStamp: new Date(item.endTime),
+      country: "TODO",
+      song: {
+        isrc: "TODO",
+        title: item.trackName,
+        artists: [item.artistName],
+      },
+      durationPlayedMs: item.msPlayed,
+      trackReference: "TODO",
+      // TODO: Other fields
+    };
+    listenHistory.push(historyItem);
+  });
+
+  return listenHistory;
+};
+
+/*
   Playlist1.json
     JSON object
     Contains information about playlists
@@ -140,9 +225,48 @@
         ]
       }
 */
+const populatePlaylists = (playlistsJSON: any): types.Playlist[] => {
+  // Initialize the playlists
+  const playlists: types.Playlist[] = [];
 
-const ingest = (args: string[]): void => {
-  console.log(`ingesting spotify; args = ${args}`);
+  // Populate the playlists
+  playlistsJSON.playlists.forEach((playlist: any) => {
+    const playlistItem: types.PlaylistItem = {
+      song: {
+        isrc: "TODO",
+        title: "TODO",
+        artists: ["TODO"],
+      },
+      addedDate: new Date(playlist.addedDate),
+    };
+    const p: types.Playlist = {
+      name: playlist.name,
+      songs: [playlistItem],
+      description: playlist.description,
+      imageUrl: "TODO",
+      lastModifiedDate: new Date(playlist.lastModifiedDate),
+      owner: "TODO",
+    };
+    playlists.push(p);
+  });
+
+  return playlists;
+};
+
+const getISRCFromSpotifyURI = (spotifyURI: string): string => {
+  // Example: spotify:track:1GIPP103zfsythULEpsmdw
+
+  // Get the URI
+  const split = spotifyURI.split(":");
+  if (split.length !== 3) {
+    console.log(`Error in spotifyURI format: ${spotifyURI}`);
+    return "";
+  }
+  const uri = split[2];
+
+  // TODO: Get the ISRC using Spotify API
+
+  return "";
 };
 
 export default ingest;

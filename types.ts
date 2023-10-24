@@ -1,74 +1,76 @@
-interface SpotifyArtist {} // how do you deal with favourite artists?
-interface AppleMusicArtist {}
-interface SpotifyAlbum {}
-interface ArtistMap extends Map<MusicProvider, URL> {}
-// 'artist_id': { 'AppleMusic': 'some_id', 'Spotify': 'some_id' }
+export namespace types {
+  export interface SpotifyArtist {} // how do you deal with favourite artists?
+  export interface AppleMusicArtist {}
+  export interface SpotifyAlbum {}
+  export interface ArtistMap extends Map<MusicProvider, URL> {}
+  // 'artist_id': { 'AppleMusic': 'some_id', 'Spotify': 'some_id' }
 
-// For data translation
-type ISRC = string;
-type MusicProvider = 'AppleMusic' | 'Spotify';
-type ListenHistory = HistoryItem[];
+  // For data translation
+  export type ISRC = string;
+  export type MusicProvider = "AppleMusic" | "Spotify";
+  export type ListenHistory = HistoryItem[];
 
-interface Library {
-  playlists: Playlist[];
-  songs: Song[];
-  artists: string[]; // FIXME
-  albums: Album[];
-}
+  export interface Library {
+    playlists: Playlist[];
+    songs: Song[];
+    artists: string[]; // FIXME
+    albums: Album[];
+  }
 
-interface Playlist {
-  name: string;
-  songs: PlaylistItem[];
-  description?: string;
-  imageUrl?: string;
-  lastModifiedDate?: Date;
-  owner?: string;
-}
+  export interface Playlist {
+    name: string;
+    songs: PlaylistItem[];
+    description?: string;
+    imageUrl?: string;
+    lastModifiedDate?: Date;
+    owner?: string;
+  }
 
-interface PlaylistItem {
-  song: Song;
-  addedDate: Date;
-}
+  export interface PlaylistItem {
+    song: Song;
+    addedDate: Date;
+  }
 
-interface Song {
-  isrc: ISRC;
-  title?: string;
-  version?: string;
-  year?: number;
-  duration?: number;
-  artists: string[];
-}
+  export interface Song {
+    isrc: ISRC;
+    title?: string;
+    version?: string;
+    year?: number;
+    duration?: number;
+    artists: string[];
+  }
 
-interface Album {
-  title: string;
-  songs: Song[];
-  artists: string[];
-}
+  export interface Album {
+    title: string;
+    songs: Song[];
+    artists: string[];
+  }
 
-interface HistoryItem {
-  timeStamp: Date;
-  country: string;
-  song: Song;
-  durationPlayedMs: number;
-  mediaType?: string;
-  endReason?: string;
-  sourceType?: string;
-  playCount?: number;
-  skipCount?: number;
-  ignoreForRecommendations?:boolean;
-  description?: string;
-  trackReference: ISRC;
-}
+  export interface HistoryItem {
+    timeStamp: Date;
+    country: string;
+    song: Song;
+    durationPlayedMs: number;
+    mediaType?: string;
+    endReason?: string;
+    sourceType?: string;
+    playCount?: number;
+    skipCount?: number;
+    ignoreForRecommendations?: boolean;
+    description?: string;
+    trackReference: ISRC;
+  }
 
-// For visualization
+  // For visualization
 
-interface SpotifySong extends Song {
-  album: SpotifyAlbum;
-  href: URL;
-  id: string;
-  popularity: number;
-  previewUrl: URL;
-  explicit: boolean;
-  durationMs: number;
-  spotifyArtists: SpotifyArtist[];
+  export interface SpotifySong extends Song {
+    album: SpotifyAlbum;
+    href: URL;
+    id: string;
+    popularity: number;
+    previewUrl: URL;
+    explicit: boolean;
+    durationMs: number;
+    spotifyArtists: SpotifyArtist[];
+  }
 }
