@@ -1,0 +1,79 @@
+{
+  "tracks": [
+    {
+      "artist": "Muse",
+      "album": "Simulation Theory",
+      "track": "Pressure",
+      "uri": "spotify:track:3eSyMBd7ERw68NVB3jlRmW"
+    },
+    {
+      "artist": "Cage The Elephant",
+      "album": "Melophobia",
+      "track": "Cigarette Daydreams",
+      "uri": "spotify:track:6EThJr4Dq1Y93JspecGU2F"
+    },
+    {
+      "artist": "Peggy Hsu",
+      "album": "雪人",
+      "track": "蠅",
+      "uri": "spotify:track:0yLHg7GU6sUDpQ016x4YnN"
+    },
+    {
+      "artist": "Arctic Monkeys",
+      "album": "AM",
+      "track": "Do I Wanna Know?",
+      "uri": "spotify:track:3jfr0TF6DQcOLat8gGn7E2"
+    },
+    {
+      "artist": "The Japanese House",
+      "album": "Chewing Cotton Wool",
+      "track": "Something Has to Change",
+      "uri": "spotify:track:2KWI43agrQEFVLM3soOmKW"
+    },
+    {
+      "artist": "Ed Sheeran",
+      "album": "Castle on the Hill",
+      "track": "Castle on the Hill",
+      "uri": "spotify:track:66qlqxhEMpSHOzjRK4il0b"
+    },
+    {
+      "artist": "John Mayer",
+      "album": "I Guess I Just Feel Like",
+      "track": "I Guess I Just Feel Like",
+      "uri": "spotify:track:1HNywa8Bk0TmzRwQrzhtPo"
+    }
+  ],
+  "shows": [
+    {
+      "name": "Economist Podcasts",
+      "publisher": "The Economist",
+      "uri": "spotify:show:2ZFDmgDS2Z6xccP51s1zFQ"
+    }
+  ],
+  "episodes": [],
+  "bannedTracks": [],
+  "artists": [
+    {
+      "name": "AARCADE",
+      "uri": "spotify:artist:7FcsmP4uqRlBKh2Y7Q9kd0"
+    },
+    {
+      "name": "Catfish and the Bottlemen",
+      "uri": "spotify:artist:2xaAOVImG2O6lURwqperlD"
+    },
+    {
+      "name": "Charlie Burg",
+      "uri": "spotify:artist:0ubGY2CcC0tvR0eE6hJaT8"
+    },
+    {
+      "name": "Dayglow",
+      "uri": "spotify:artist:6eJa3zG1QZLRB3xgRuyxbm"
+    },
+    {
+      "name": "Florist",
+      "uri": "spotify:artist:0VIiIxTNLeJOPoMLabwNtr"
+    }
+  ],
+  "bannedArtists": [],
+  "other": []
+}

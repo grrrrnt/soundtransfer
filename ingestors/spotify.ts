@@ -1,4 +1,8 @@
 import { types } from "../types";
+import axios from "axios";
+
+const fs = require("fs");
+const querystring = require("node:querystring");
 
 /*
   Within the directory, the following JSON files are relevant:
@@ -7,14 +11,12 @@ import { types } from "../types";
     3. Playlist1.json                 // Unsure if what the "1" is about
 */
 const ingest = (args: string[]): void => {
-  // args = [path to directory containing JSON files]
   console.log(`ingesting spotify; args = ${args}`);
-
-  // Get the path to the directory containing the JSON files
-  const path: string = args[0];
+  const clientId: string = args[0];
+  const clientSecret: string = args[1];
+  const path: string = args[2];
 
   // Get the JSON files
-  const fs = require("fs");
   const libraryJSON = JSON.parse(fs.readFileSync(`${path}/YourLibrary.json`));
   const streamingHistoryJSON = JSON.parse(
     fs.readFileSync(`${path}/StreamingHistory0.json`)
@@ -24,18 +26,24 @@ const ingest = (args: string[]): void => {
   // FIXME: handle multiple streaming history files
   // FIXME: handle multiple playlists files
 
-  // Populate the library
-  const library: types.Library = populateLibrary(libraryJSON);
+  // Get Spotify access token using clienId and clientSecret
+  authorizeSpotify(clientId, clientSecret).then((accessToken) => {
+    console.log(`Using Spotify access token: ${accessToken}`);
 
-  // Populate the listen history
-  const listenHistory: types.ListenHistory =
-    populateListenHistory(streamingHistoryJSON);
+    // Populate the library
+    populateLibrary(libraryJSON, accessToken).then((library) => {
+      // Populate the listen history
+      const listenHistory: types.ListenHistory =
+        populateListenHistory(streamingHistoryJSON);
 
-  // Populate the playlists
-  const playlists: types.Playlist[] = populatePlaylists(playlistsJSON);
-  library.playlists = playlists;
+      // Populate the playlists
+      const playlists: types.Playlist[] = populatePlaylists(playlistsJSON);
+      library.playlists = playlists;
 
-  // TODO: Do what with the library and listen history?
+      // TODO: Do what with the library and listen history?
+      console.log(library);
+    });
+  });
 };
 
 /*
@@ -98,25 +106,34 @@ const ingest = (args: string[]): void => {
         "other": []
       }
 */
-const populateLibrary = (libraryJSON: any): types.Library => {
+const populateLibrary = async (
+  libraryJSON: any,
+  accessToken: string
+): Promise<types.Library> => {
   // Initialize the library
-  const library: types.Library = {
+  let library: types.Library = {
     playlists: [],
     songs: [],
     artists: [],
     albums: [],
   };
 
+  // TODO: Populate songs in batch: https://developer.spotify.com/documentation/web-api/reference/get-several-tracks
+
   // Populate the songs
-  libraryJSON.tracks.forEach((track: any) => {
+  const songsPromises = libraryJSON.tracks.map(async (track: any) => {
+    const songData = await getSongDataFromSpotifyURI(track.uri, accessToken);
     const song: types.Song = {
-      isrc: getISRCFromSpotifyURI(track.uri),
+      isrc: songData.isrc,
       title: track.track,
       artists: [track.artist],
+      year: songData.year,
+      duration: songData.duration,
     };
-    library.songs.push(song);
+    return song;
   });
 
+  library.songs = await Promise.all(songsPromises);
   return library;
 };
 
@@ -144,7 +161,7 @@ const populateListenHistory = (
   streamingHistoryJSON: any
 ): types.ListenHistory => {
   // Initialize the listen history
-  const listenHistory: types.ListenHistory = [];
+  let listenHistory: types.ListenHistory = [];
 
   // Populate the listen history
   streamingHistoryJSON.forEach((item: any) => {
@@ -227,7 +244,7 @@ const populateListenHistory = (
 */
 const populatePlaylists = (playlistsJSON: any): types.Playlist[] => {
   // Initialize the playlists
-  const playlists: types.Playlist[] = [];
+  let playlists: types.Playlist[] = [];
 
   // Populate the playlists
   playlistsJSON.playlists.forEach((playlist: any) => {
@@ -253,7 +270,10 @@ const populatePlaylists = (playlistsJSON: any): types.Playlist[] => {
   return playlists;
 };
 
-const getISRCFromSpotifyURI = (spotifyURI: string): string => {
+const getSongDataFromSpotifyURI = async (
+  spotifyURI: string,
+  accessToken: string
+): Promise<any> => {
   // Example: spotify:track:1GIPP103zfsythULEpsmdw
 
   // Get the URI
@@ -264,9 +284,41 @@ const getISRCFromSpotifyURI = (spotifyURI: string): string => {
   }
   const uri = split[2];
 
-  // TODO: Get the ISRC using Spotify API
+  // Get the song data using Spotify API
+  const response = await axios.get(`https://api.spotify.com/v1/tracks/${uri}`, {
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+    },
+  });
+  const songData = response.data;
 
-  return "";
+  return {
+    isrc: songData.external_ids.isrc,
+    year: songData.album.release_date.split("-")[0], // Do we want the release date or just the year?
+    duration: songData.duration_ms,
+  };
+};
+
+const authorizeSpotify = async (
+  clientId: string,
+  clientSecret: string
+): Promise<string> => {
+  const response = await axios.post(
+    "https://accounts.spotify.com/api/token",
+    querystring.stringify({
+      grant_type: "client_credentials",
+      client_id: clientId,
+      client_secret: clientSecret,
+    }),
+    {
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded",
+      },
+    }
+  );
+
+  const accessToken = response.data.access_token;
+  return accessToken;
 };
 
 export default ingest;
