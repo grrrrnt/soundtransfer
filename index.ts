@@ -38,7 +38,7 @@ yargs(hideBin(process.argv))
       });
     },
     (args: ArgumentsCamelCase<IngestCommandOptions>) => {
-      (() => {
+      const ret: void | Promise<void> = (() => {
         switch (args.source) {
           case IngestSource.Spotify:
             return ingestSpotify;
@@ -53,6 +53,12 @@ yargs(hideBin(process.argv))
             return (_: string[]) => {}; // no-op
         }
       })()(args.args);
+
+      // stupid TypeScript doesn't consider that void functions actually return undefined
+      const ret2 = ret as undefined | Promise<void>;
+      if (ret2 instanceof Promise) {
+        ret2.catch(console.error);
+      }
     })
   .demandCommand()
   .parseSync();

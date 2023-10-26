@@ -1,4 +1,4 @@
-import { types } from "../types";
+import "../types";
 import axios from "axios";
 
 const fs = require("fs");
@@ -33,11 +33,11 @@ const ingest = (args: string[]): void => {
     // Populate the library
     populateLibrary(libraryJSON, accessToken).then((library) => {
       // Populate the listen history
-      const listenHistory: types.ListenHistory =
+      const listenHistory: ListenHistory =
         populateListenHistory(streamingHistoryJSON);
 
       // Populate the playlists
-      const playlists: types.Playlist[] = populatePlaylists(playlistsJSON);
+      const playlists: Playlist[] = populatePlaylists(playlistsJSON);
       library.playlists = playlists;
 
       // TODO: Do what with the library and listen history?
@@ -109,9 +109,9 @@ const ingest = (args: string[]): void => {
 const populateLibrary = async (
   libraryJSON: any,
   accessToken: string
-): Promise<types.Library> => {
+): Promise<Library> => {
   // Initialize the library
-  let library: types.Library = {
+  let library: Library = {
     playlists: [],
     songs: [],
     artists: [],
@@ -123,7 +123,7 @@ const populateLibrary = async (
   // Populate the songs
   const songsPromises = libraryJSON.tracks.map(async (track: any) => {
     const songData = await getSongDataFromSpotifyURI(track.uri, accessToken);
-    const song: types.Song = {
+    const song: Song = {
       isrc: songData.isrc,
       title: track.track,
       artists: [track.artist],
@@ -159,13 +159,13 @@ const populateLibrary = async (
 */
 const populateListenHistory = (
   streamingHistoryJSON: any
-): types.ListenHistory => {
+): ListenHistory => {
   // Initialize the listen history
-  let listenHistory: types.ListenHistory = [];
+  let listenHistory: ListenHistory = [];
 
   // Populate the listen history
   streamingHistoryJSON.forEach((item: any) => {
-    const historyItem: types.HistoryItem = {
+    const historyItem: HistoryItem = {
       timeStamp: new Date(item.endTime),
       country: "TODO",
       song: {
@@ -242,13 +242,13 @@ const populateListenHistory = (
         ]
       }
 */
-const populatePlaylists = (playlistsJSON: any): types.Playlist[] => {
+const populatePlaylists = (playlistsJSON: any): Playlist[] => {
   // Initialize the playlists
-  let playlists: types.Playlist[] = [];
+  let playlists: Playlist[] = [];
 
   // Populate the playlists
   playlistsJSON.playlists.forEach((playlist: any) => {
-    const playlistItem: types.PlaylistItem = {
+    const playlistItem: PlaylistItem = {
       song: {
         isrc: "TODO",
         title: "TODO",
@@ -256,7 +256,7 @@ const populatePlaylists = (playlistsJSON: any): types.Playlist[] => {
       },
       addedDate: new Date(playlist.addedDate),
     };
-    const p: types.Playlist = {
+    const p: Playlist = {
       name: playlist.name,
       songs: [playlistItem],
       description: playlist.description,
