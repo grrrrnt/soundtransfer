@@ -116,6 +116,7 @@ const populateLibrary = async (
     songs: [],
     artists: [],
     albums: [],
+    favourites: [],
   };
 
   // TODO: Populate songs in batch: https://developer.spotify.com/documentation/web-api/reference/get-several-tracks
@@ -124,6 +125,7 @@ const populateLibrary = async (
   const songsPromises = libraryJSON.tracks.map(async (track: any) => {
     const songData = await getSongDataFromSpotifyURI(track.uri, accessToken);
     const song: Song = {
+      __type: 'Song',
       isrc: songData.isrc,
       title: track.track,
       artists: [track.artist],
@@ -169,6 +171,7 @@ const populateListenHistory = (
       timeStamp: new Date(item.endTime),
       country: "TODO",
       song: {
+        __type: 'Song',
         isrc: "TODO",
         title: item.trackName,
         artists: [item.artistName],
@@ -250,6 +253,7 @@ const populatePlaylists = (playlistsJSON: any): Playlist[] => {
   playlistsJSON.playlists.forEach((playlist: any) => {
     const playlistItem: PlaylistItem = {
       song: {
+        __type: 'Song',
         isrc: "TODO",
         title: "TODO",
         artists: ["TODO"],

@@ -1,17 +1,25 @@
 import '../types';
 
-import fs from 'fs';
+import fs, { promises as fsAsync } from 'fs';
 import assert from 'assert';
-import * as path from "path";
+import * as path from 'path';
 import * as csvParse from 'csv-parse';
+import { getLibrary, mergeWithLibrary } from '../lib/library';
 
 const appleMusicActivityFolderName = 'Apple Music Activity';
 const playHistoryFileName = 'Apple Music - Play History Daily Tracks.csv';
+const librarySongsFileName = 'Apple Music Library Tracks.json';
+const favouritesFileName = 'Apple Music - Favorites.csv';
 
-const getSong = (trackIdentifier: string): Song => {
+const getSong = (trackIdentifier: string | number): Song => {
   // TODO make API call to Apple Music API
+  if (typeof trackIdentifier === 'number') {
+    trackIdentifier = trackIdentifier.toString(10);
+  }
+
   return {
-    isrc: '1234',
+    __type: 'Song',
+    isrc: `fake ISRC for apple music identifier ${trackIdentifier}`,
     artists: [],
   };
 }
@@ -39,7 +47,7 @@ const parsePlayHistory = async (dataRoot: string) => {
       trackDescription,
     ] = record as string[];
 
-    const parseableDate = `${datePlayed.substring(0, 4)}-${datePlayed.substring(4, 6)}-${datePlayed.substring(6)}`;
+    const parseableDate = `${datePlayed.substring(0, 4)}-${datePlayed.substring(4, 6)}-${datePlayed.substring(6)}T${hours}:00:00`;
 
     history.push({
       country,
@@ -61,6 +69,33 @@ const parsePlayHistory = async (dataRoot: string) => {
   // TODO put history into some DB
 }
 
+const parseLibrarySongs = async (dataRoot: string) => {
+  const filePath = path.join(dataRoot, librarySongsFileName)
+  const buffer = await fsAsync.readFile(filePath);
+  const data = JSON.parse(buffer.toString()) as AppleMusicLibraryTracks;
+  const songs = data.map(item => item['Track Identifier']).map(getSong);
+  mergeWithLibrary({ songs });
+}
+
+const parseFavourites = async (dataRoot: string) => {
+  const filePath = path.join(dataRoot, favouritesFileName);
+  const parser = fs.createReadStream(filePath).pipe(csvParse.parse({columns: true}));
+  const favourites = [];
+
+  for await (const record of parser) {
+    const item = record as AppleMusicFavouritesItem;
+    switch (item['Favorite Type']) {
+      case 'SONG':
+        favourites.push(getSong(item['Item Reference']));
+        break;
+      default:
+        throw new Error(`Unrecognized favouriteType ${item['Favorite Type']}`);
+    }
+  }
+
+  mergeWithLibrary({ favourites });
+}
+
 const ingest = async (args: string[]): Promise<void> => {
   const srcPath = args[0]; // path to decompressed data export
   const files = fs.readdirSync(srcPath).map(x => x);
@@ -71,8 +106,12 @@ const ingest = async (args: string[]): Promise<void> => {
 
   const musicDataRoot = path.join(srcPath, appleMusicActivityFolderName);
   await Promise.all([
-    parsePlayHistory(musicDataRoot),
-  ]);
+    parseLibrarySongs,
+    parsePlayHistory,
+    parseFavourites,
+  ].map(x => x(musicDataRoot)));
+
+  console.log('Library:', getLibrary());
 }
 
 export default ingest;

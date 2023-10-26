@@ -5,6 +5,7 @@ import ingestAppleMusic from "./ingestors/apple-music";
 import ingestAppleMusicApi from "./ingestors/apple-music-api";
 import ingestSpotify from "./ingestors/spotify";
 import ingestSpotifyApi from "./ingestors/spotify-api";
+import { AsyncOrSync } from 'ts-essentials';
 
 enum IngestSource {
   Spotify = 'spotify',
@@ -38,7 +39,7 @@ yargs(hideBin(process.argv))
       });
     },
     (args: ArgumentsCamelCase<IngestCommandOptions>) => {
-      const ret: void | Promise<void> = (() => {
+      const ret: AsyncOrSync<void> = (() => {
         switch (args.source) {
           case IngestSource.Spotify:
             return ingestSpotify;

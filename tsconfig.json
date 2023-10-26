@@ -5,10 +5,11 @@
     "esModuleInterop": true,
     "target": "es2022",
     "types": [
-      "node",
+      "node"
     ],
     "moduleResolution": "node",
     "noImplicitAny": true,
     "noImplicitReturns": true,
-  },
+    "strictNullChecks": true,
+  }
 }
