@@ -107,6 +107,10 @@ interface AppleMusicFavouritesItem {
   'Preference': string;
 }
 
+interface AppleMusicGetCatalogSongResponse {
+  data: object; // TODO https://developer.apple.com/documentation/applemusicapi/get_a_catalog_song
+}
+
 type AppleMusicFavourites = AppleMusicFavouritesItem[];
 
 // For visualization

@@ -1,6 +1,8 @@
 import path from 'path';
 import morgan from 'morgan';
 import express from 'express';
+import assert from 'assert';
+import { AppleMusicAPI } from '../lib/apple-music';
 
 export const port = 8080;
 const app = express();
@@ -17,7 +19,8 @@ const listeningPromise = new Promise<void>((resolve) => {
 });
 
 app.post('/api/apple-music-user-auth', (req, res) => {
-  console.log(req.body);
+  assert(typeof req.body === 'object' && req.body.hasOwnProperty('musicUserToken'));
+  AppleMusicAPI.__unsafe_setUserMusicToken(req.body.musicUserToken);
   res.send();
 });
 
