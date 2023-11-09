@@ -29,13 +29,12 @@ export class AppleMusicAPI {
     issuer: 'X44A27MMDB', // Team ID from Apple developer account
     expiresIn: '1h',
   }
+  private static __unsafe_userMusicToken: string;
+  private static tokenRequestPromiseResolveQueue: ((token: string) => void)[] = [];
   private readonly devToken: string;
   private readonly privateKey: Buffer;
   private readonly storefront = 'US';
   private readonly userMusicToken: string;
-
-  private static __unsafe_userMusicToken: string;
-  private static tokenRequestPromiseResolveQueue: ((token: string) => void)[] = [];
 
   private constructor(args: Readonly<{
     userMusicToken: string;
@@ -61,14 +60,6 @@ export class AppleMusicAPI {
     }
 
     return this.__unsafe_userMusicToken;
-  }
-
-  public getUserMusicToken(): string {
-    return this.userMusicToken;
-  }
-
-  public getDevToken(): string {
-    return this.devToken;
   }
 
   public static getInstance(): AppleMusicAPI {
@@ -99,6 +90,14 @@ export class AppleMusicAPI {
     });
   }
 
+  public getUserMusicToken(): string {
+    return this.userMusicToken;
+  }
+
+  public getDevToken(): string {
+    return this.devToken;
+  }
+
   /**
    * Fetch a song by using its identifier.
    *
@@ -106,7 +105,7 @@ export class AppleMusicAPI {
    * @param trackIdentifier Apple Music internal identifier.
    */
   public async getSong(trackIdentifier: string): Promise<AppleMusicGetCatalogSongResponse> {
-    const data = await fetch( `https://api.music.apple.com/v1/catalog/${this.storefront}/songs/${encodeURIComponent(trackIdentifier)}`, {
+    const data = await fetch(`https://api.music.apple.com/v1/catalog/${this.storefront}/songs/${encodeURIComponent(trackIdentifier)}`, {
       method: 'GET',
       headers: {
         'Authorization': `Bearer ${this.getDevToken()}`,
@@ -122,5 +121,26 @@ export class AppleMusicAPI {
     }
 
     return await data.json() as AppleMusicGetCatalogSongResponse;
+  }
+
+  public async getSongByIsrc(isrc: string): Promise<AppleMusicGetCatalogSongsByISRCResponse> {
+    const url = new URL(`https://api.music.apple.com/v1/catalog/${this.storefront}/songs`);
+    url.searchParams.set('filter[isrc]', isrc);
+
+    const data = await fetch(url, {
+      headers: {
+        Authorization: `Bearer ${this.devToken}`,
+      },
+    });
+
+    if (!data.ok) {
+      throw new AppleMusicAPIError({
+        status: data.status,
+        statusText: data.statusText,
+        body: await data.text(),
+      });
+    }
+
+    return await data.json() as AppleMusicGetCatalogSongsByISRCResponse;
   }
 }

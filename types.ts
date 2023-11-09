@@ -1,12 +1,20 @@
-interface Artist {}
-interface SpotifyArtist extends Artist {} // how do you deal with favourite artists?
-interface AppleMusicArtist extends Artist {}
-interface SpotifyAlbum {}
-interface ArtistMap extends Map<MusicProvider, URL> {}
+interface Artist {
+}
+
+interface SpotifyArtist extends Artist {
+} // how do you deal with favourite artists?
+interface AppleMusicArtist extends Artist {
+}
+
+interface SpotifyAlbum {
+}
+
+interface ArtistMap extends Map<MusicProvider, URL> {
+}
 
 // For data translation
 type ISRC = string;
-type MusicProvider = "AppleMusic" | "Spotify";
+type MusicProvider = 'AppleMusic' | 'Spotify';
 type ListenHistory = HistoryItem[];
 
 interface Library {
@@ -57,7 +65,7 @@ interface HistoryItem {
   sourceType?: string;
   playCount?: number;
   skipCount?: number;
-  ignoreForRecommendations?:boolean;
+  ignoreForRecommendations?: boolean;
   description?: string;
   trackReference: ISRC | undefined;
 }
@@ -66,35 +74,35 @@ interface AppleMusicLibraryTracksItem {
   'Content Type': string;
   'Track Identifier': number;
   'Title': string;
-  'Sort Name' : string;
-  'Artist' : string;
-  'Sort Artist' : string;
-  'Composer' : string;
-  'Is Part of Compilation' : boolean;
-  'Album' : string;
-  'Sort Album' : string;
-  'Album Artist' : string;
-  'Genre' : string;
-  'Track Year' : number;
-  'Track Number On Album' : number;
-  'Track Count On Album' : number;
-  'Disc Number Of Album' : number;
-  'Disc Count Of Album' : number;
-  'Track Duration' : number;
-  'Track Play Count' : number;
-  'Date Added To Library' : string;
-  'Date Added To iCloud Music Library' : string;
-  'Last Modified Date' : string;
-  'Last Played Date' : string;
-  'Skip Count' : number;
-  'Is Purchased' : boolean;
-  'Audio File Extension' : string;
-  'Track Like Rating' : string;
-  'Is Checked' : boolean;
-  'Copyright' : string;
-  'Release Date' : string;
-  'Purchased Track Identifier' : number;
-  'Apple Music Track Identifier' : number;
+  'Sort Name': string;
+  'Artist': string;
+  'Sort Artist': string;
+  'Composer': string;
+  'Is Part of Compilation': boolean;
+  'Album': string;
+  'Sort Album': string;
+  'Album Artist': string;
+  'Genre': string;
+  'Track Year': number;
+  'Track Number On Album': number;
+  'Track Count On Album': number;
+  'Disc Number Of Album': number;
+  'Disc Count Of Album': number;
+  'Track Duration': number;
+  'Track Play Count': number;
+  'Date Added To Library': string;
+  'Date Added To iCloud Music Library': string;
+  'Last Modified Date': string;
+  'Last Played Date': string;
+  'Skip Count': number;
+  'Is Purchased': boolean;
+  'Audio File Extension': string;
+  'Track Like Rating': string;
+  'Is Checked': boolean;
+  'Copyright': string;
+  'Release Date': string;
+  'Purchased Track Identifier': number;
+  'Apple Music Track Identifier': number;
 }
 
 type AppleMusicLibraryTracks = AppleMusicLibraryTracksItem[];
@@ -108,7 +116,62 @@ interface AppleMusicFavouritesItem {
 }
 
 interface AppleMusicGetCatalogSongResponse {
-  data: object; // TODO https://developer.apple.com/documentation/applemusicapi/get_a_catalog_song
+  data: {
+    id: string;
+    type: string;
+    href: string;
+    attributes: {
+      albumName: string;
+      genreName: string[];
+      artwork: {
+        width: number;
+        height: number;
+        url: string;
+        bgColor: string;
+        textColor1: string;
+        textColor2: string;
+        textColor3: string;
+        textColor4: string;
+      };
+      composerName: string;
+      url: string;
+      playParams: {
+        id: string;
+        kind: string;
+      };
+      discNumber: number;
+      hasCredits: boolean;
+      hasLyrics: boolean;
+      isAppleDigitalMaster: boolean;
+      name: string;
+      previews: {
+        url: string;
+      }[];
+      artistName: string;
+    };
+    relationships: {
+      artists: {
+        href: string;
+        data: {
+          id: string;
+          type: string;
+          href: string;
+        }[];
+      };
+      albums: {
+        href: string;
+        data: {
+          id: string;
+          type: string;
+          href: string;
+        }[];
+      };
+    };
+  }[]; // TODO https://developer.apple.com/documentation/applemusicapi/get_a_catalog_song
+}
+
+interface AppleMusicGetCatalogSongsByISRCResponse {
+  data: object[]; // TODO https://developer.apple.com/documentation/applemusicapi/get_multiple_catalog_songs_by_isrc
 }
 
 type AppleMusicFavourites = AppleMusicFavouritesItem[];
