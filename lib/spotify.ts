@@ -180,8 +180,6 @@ export class SpotifyAPI {
       });
     }
 
-    console.log("--------------------");
-    console.log(response.data);
     return response.data;
   };
 }
