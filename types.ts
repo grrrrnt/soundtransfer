@@ -1,20 +1,15 @@
-interface Artist {
-}
+interface Artist {}
 
-interface SpotifyArtist extends Artist {
-} // how do you deal with favourite artists?
-interface AppleMusicArtist extends Artist {
-}
+interface SpotifyArtist extends Artist {} // how do you deal with favourite artists?
+interface AppleMusicArtist extends Artist {}
 
-interface SpotifyAlbum {
-}
+interface SpotifyAlbum {}
 
-interface ArtistMap extends Map<MusicProvider, URL> {
-}
+interface ArtistMap extends Map<MusicProvider, URL> {}
 
 // For data translation
 type ISRC = string;
-type MusicProvider = 'AppleMusic' | 'Spotify';
+type MusicProvider = "AppleMusic" | "Spotify";
 type ListenHistory = HistoryItem[];
 
 interface Library {
@@ -40,7 +35,7 @@ interface PlaylistItem {
 }
 
 interface Song {
-  __type: 'Song',
+  __type: "Song";
   isrc: ISRC;
   title?: string;
   version?: string;
@@ -57,9 +52,9 @@ interface Album {
 
 interface HistoryItem {
   timeStamp: Date;
-  country: string;
   song: Song;
   durationPlayedMs: number;
+  country?: string;
   mediaType?: string;
   endReason?: string;
   sourceType?: string;
@@ -67,52 +62,52 @@ interface HistoryItem {
   skipCount?: number;
   ignoreForRecommendations?: boolean;
   description?: string;
-  trackReference: ISRC | undefined;
+  trackReference?: ISRC | undefined;
 }
 
 interface AppleMusicLibraryTracksItem {
-  'Content Type': string;
-  'Track Identifier': number;
-  'Title': string;
-  'Sort Name': string;
-  'Artist': string;
-  'Sort Artist': string;
-  'Composer': string;
-  'Is Part of Compilation': boolean;
-  'Album': string;
-  'Sort Album': string;
-  'Album Artist': string;
-  'Genre': string;
-  'Track Year': number;
-  'Track Number On Album': number;
-  'Track Count On Album': number;
-  'Disc Number Of Album': number;
-  'Disc Count Of Album': number;
-  'Track Duration': number;
-  'Track Play Count': number;
-  'Date Added To Library': string;
-  'Date Added To iCloud Music Library': string;
-  'Last Modified Date': string;
-  'Last Played Date': string;
-  'Skip Count': number;
-  'Is Purchased': boolean;
-  'Audio File Extension': string;
-  'Track Like Rating': string;
-  'Is Checked': boolean;
-  'Copyright': string;
-  'Release Date': string;
-  'Purchased Track Identifier': number;
-  'Apple Music Track Identifier': number;
+  "Content Type": string;
+  "Track Identifier": number;
+  Title: string;
+  "Sort Name": string;
+  Artist: string;
+  "Sort Artist": string;
+  Composer: string;
+  "Is Part of Compilation": boolean;
+  Album: string;
+  "Sort Album": string;
+  "Album Artist": string;
+  Genre: string;
+  "Track Year": number;
+  "Track Number On Album": number;
+  "Track Count On Album": number;
+  "Disc Number Of Album": number;
+  "Disc Count Of Album": number;
+  "Track Duration": number;
+  "Track Play Count": number;
+  "Date Added To Library": string;
+  "Date Added To iCloud Music Library": string;
+  "Last Modified Date": string;
+  "Last Played Date": string;
+  "Skip Count": number;
+  "Is Purchased": boolean;
+  "Audio File Extension": string;
+  "Track Like Rating": string;
+  "Is Checked": boolean;
+  Copyright: string;
+  "Release Date": string;
+  "Purchased Track Identifier": number;
+  "Apple Music Track Identifier": number;
 }
 
 type AppleMusicLibraryTracks = AppleMusicLibraryTracksItem[];
 
 interface AppleMusicFavouritesItem {
-  'Favorite Type': string;
-  'Item Reference': string;
-  'Item Description': string;
-  'Last Modified': string;
-  'Preference': string;
+  "Favorite Type": string;
+  "Item Reference": string;
+  "Item Description": string;
+  "Last Modified": string;
+  Preference: string;
 }
 
 interface AppleMusicGetCatalogSongResponse {
