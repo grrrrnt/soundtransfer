@@ -15,7 +15,7 @@ const BATCH_SIZE = 50;
     3. Playlist1.json                 // Unsure if what the "1" is about
 */
 const ingest = async (args: string[]): Promise<void> => {
-  console.log(`ingesting spotify; args = ${args}`);
+  console.log(`ingesting spotify data export; args = ${args}`);
   const clientId: string = args[0];
   const clientSecret: string = args[1];
   const path: string = args[2];
