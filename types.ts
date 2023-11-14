@@ -31,7 +31,7 @@ interface Playlist {
 
 interface PlaylistItem {
   song: Song;
-  addedDate: Date;
+  addedDate?: Date;
 }
 
 interface Song {
@@ -110,64 +110,98 @@ interface AppleMusicFavouritesItem {
   Preference: string;
 }
 
-interface AppleMusicGetCatalogSongResponse {
-  data: {
-    id: string;
-    type: string;
-    href: string;
-    attributes: {
-      albumName: string;
-      genreName: string[];
-      artwork: {
-        width: number;
-        height: number;
-        url: string;
-        bgColor: string;
-        textColor1: string;
-        textColor2: string;
-        textColor3: string;
-        textColor4: string;
-      };
-      composerName: string;
+interface AppleMusicSong {
+  id: string;
+  type: string;
+  href: string;
+  attributes: {
+    albumName: string;
+    genreName: string[];
+    artwork: {
+      width: number;
+      height: number;
       url: string;
-      playParams: {
+      bgColor: string;
+      textColor1: string;
+      textColor2: string;
+      textColor3: string;
+      textColor4: string;
+    };
+    isrc: string;
+    releaseDate: string;
+    composerName: string;
+    url: string;
+    playParams: {
+      id: string;
+      kind: string;
+    };
+    discNumber: number;
+    hasCredits: boolean;
+    hasLyrics: boolean;
+    durationInMillis: number;
+    isAppleDigitalMaster: boolean;
+    name: string;
+    previews: {
+      url: string;
+    }[];
+    artistName: string;
+  };
+  relationships: {
+    artists: {
+      href: string;
+      data: {
         id: string;
-        kind: string;
-      };
-      discNumber: number;
-      hasCredits: boolean;
-      hasLyrics: boolean;
-      isAppleDigitalMaster: boolean;
-      name: string;
-      previews: {
-        url: string;
+        type: string;
+        href: string;
       }[];
-      artistName: string;
     };
-    relationships: {
-      artists: {
+    albums: {
+      href: string;
+      data: {
+        id: string;
+        type: string;
         href: string;
-        data: {
-          id: string;
-          type: string;
-          href: string;
-        }[];
-      };
-      albums: {
-        href: string;
-        data: {
-          id: string;
-          type: string;
-          href: string;
-        }[];
-      };
+      }[];
     };
-  }[]; // TODO https://developer.apple.com/documentation/applemusicapi/get_a_catalog_song
+  };
+}
+
+interface AppleMusicGetCatalogSongResponse {
+  data: AppleMusicSong[];
 }
 
 interface AppleMusicGetCatalogSongsByISRCResponse {
-  data: object[]; // TODO https://developer.apple.com/documentation/applemusicapi/get_multiple_catalog_songs_by_isrc
+  data: AppleMusicSong[];
 }
+
+interface AppleMusicPlaylistExportItem {
+  'Container Type': string;
+  'Container Identifier': number;
+  'Title'?: string;
+  'Playlist Item Identifiers': number[];
+  'Description': string;
+  'Public Playlist Identifier': string;
+  'Playlist is Shared': boolean;
+  'Playlist Previously Shared': boolean;
+  'Added Date': string;
+  'Available on Apple Music Profile'?: boolean;
+  'Name or Description Modified Date': string;
+  'Playlist Items Modified Date': string;
+}
+
+interface AppleMusicLibraryActivityItem {
+  'Transaction Type': string;
+  'Transaction Identifier': string;
+  'Transaction Date': string;
+  UserAgent: string;
+  Country: string;
+  Language: string;
+  [key: string]: any;
+}
+
+type AppleMusicLibraryActivity = AppleMusicLibraryActivityItem[];
+
+type AppleMusicPlaylistExport = AppleMusicPlaylistExportItem[];
 
 type AppleMusicFavourites = AppleMusicFavouritesItem[];
 

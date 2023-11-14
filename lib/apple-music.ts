@@ -1,14 +1,17 @@
 import fs from 'fs';
 import jwt from 'jsonwebtoken';
-import { listen, port } from '../web/express';
+import { port } from '../web/express';
+import assert from 'assert';
 
-class AppleMusicAPIError extends Error {
+export class AppleMusicAPIError extends Error {
   public readonly error;
 
   constructor(error: {
     status: number;
     statusText: string;
     body: string;
+    headers: Headers;
+    extraDetails?: object;
   }) {
     super();
     this.error = error;
@@ -28,7 +31,7 @@ export class AppleMusicAPI {
     keyid: 'CHBP53WURA',
     issuer: 'X44A27MMDB', // Team ID from Apple developer account
     expiresIn: '1h',
-  }
+  };
   private static __unsafe_userMusicToken: string;
   private static tokenRequestPromiseResolveQueue: ((token: string) => void)[] = [];
   private readonly devToken: string;
@@ -80,7 +83,6 @@ export class AppleMusicAPI {
       userMusicToken: 'fake-token',
     });
 
-    await listen();
     console.log(`Please visit http://localhost:${port}/apple-music-authorization.html?devToken=${encodeURIComponent(unsafeInstance.getDevToken())}`);
     console.log('Waiting for authorization...');
 
@@ -104,7 +106,7 @@ export class AppleMusicAPI {
    * Wrapper for https://developer.apple.com/documentation/applemusicapi/get_a_catalog_song
    * @param trackIdentifier Apple Music internal identifier.
    */
-  public async getSong(trackIdentifier: string): Promise<AppleMusicGetCatalogSongResponse> {
+  public async getSong(trackIdentifier: string): Promise<AppleMusicSong> {
     const data = await fetch(`https://api.music.apple.com/v1/catalog/${this.storefront}/songs/${encodeURIComponent(trackIdentifier)}`, {
       method: 'GET',
       headers: {
@@ -117,10 +119,16 @@ export class AppleMusicAPI {
         status: data.status,
         statusText: data.statusText,
         body: await data.text(),
+        headers: data.headers,
+        extraDetails: {
+          trackIdentifier,
+        },
       });
     }
 
-    return await data.json() as AppleMusicGetCatalogSongResponse;
+    const responseBody = await data.json() as AppleMusicGetCatalogSongResponse;
+    assert(responseBody.data.length === 1);
+    return responseBody.data[0];
   }
 
   public async getSongByIsrc(isrc: string): Promise<AppleMusicGetCatalogSongsByISRCResponse> {
@@ -138,6 +146,7 @@ export class AppleMusicAPI {
         status: data.status,
         statusText: data.statusText,
         body: await data.text(),
+        headers: data.headers,
       });
     }
 
