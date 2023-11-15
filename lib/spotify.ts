@@ -5,7 +5,7 @@ import { listen, port } from "../web/express";
 
 const querystring = require("node:querystring");
 
-class SpotifyAPIError extends Error {
+export class SpotifyAPIError extends Error {
   public readonly error;
 
   constructor(error: { status: number; body: string }) {
@@ -16,6 +16,9 @@ class SpotifyAPIError extends Error {
 
 export class SpotifyAPI {
   private static instance: SpotifyAPI | undefined = undefined;
+  private static __unsafe_accessToken: string;
+  private static tokenRequestPromiseResolveQueue: ((token: string) => void)[] =
+    [];
   private readonly storefront = "US";
   private readonly clientId: string;
   private readonly clientSecret: string;
@@ -25,10 +28,12 @@ export class SpotifyAPI {
     args: Readonly<{
       clientId: string;
       clientSecret: string;
+      accessToken: string;
     }>
   ) {
     this.clientId = args.clientId;
     this.clientSecret = args.clientSecret;
+    this.accessToken = "fake-access-token";
   }
 
   public static getInstance(): SpotifyAPI {
@@ -39,22 +44,61 @@ export class SpotifyAPI {
     return this.instance;
   }
 
-  public static async init(clientId: string, clientSecret: string) {
+  public static __unsafe_setAccessToken(token: string) {
+    this.__unsafe_accessToken = token;
+    while (this.tokenRequestPromiseResolveQueue.length) {
+      this.tokenRequestPromiseResolveQueue.pop()!(token);
+    }
+  }
+
+  public static async __unsafe_getAccessToken(): Promise<string> {
+    if (this.__unsafe_accessToken == undefined) {
+      return new Promise((resolve) => {
+        this.tokenRequestPromiseResolveQueue.push(resolve);
+      });
+    }
+
+    return this.__unsafe_accessToken;
+  }
+
+  public static async initWithAuthorizationCode(
+    clientId?: string,
+    clientSecret?: string
+  ) {
     if (this.instance) {
       throw new Error("SpotifyAPI already initialized");
     }
 
-    // await listen();
-    // console.log(
-    //   `Please visit http://localhost:${port}/apple-music-authorization.html?devToken=${encodeURIComponent(
-    //     unsafeInstance.getDevToken()
-    //   )}`
-    // );
-    // console.log("Waiting for authorization...");
+    await listen();
+    console.log(
+      `Please visit http://localhost:${port}/spotify-authorization.html?clientId=${process.env.SPOTIFY_CLIENT_ID} to authorize Spotify.`
+    );
+    console.log("Waiting for authorization...");
+
+    const accessToken = await SpotifyAPI.__unsafe_getAccessToken();
+    console.log(`Using Spotify access token: ${accessToken}`);
 
     this.instance = new SpotifyAPI({
-      clientId,
-      clientSecret,
+      clientId: clientId || process.env.SPOTIFY_CLIENT_ID || "",
+      clientSecret: clientSecret || process.env.SPOTIFY_CLIENT_SECRET || "",
+      accessToken: accessToken,
+      // this.getInstance().accessToken = accessToken;
+      // console.log(this.getInstance().accessToken);
+    });
+  }
+
+  public static async initWithClientCredentials(
+    clientId?: string,
+    clientSecret?: string
+  ) {
+    if (this.instance) {
+      throw new Error("SpotifyAPI already initialized");
+    }
+
+    this.instance = new SpotifyAPI({
+      clientId: clientId || process.env.SPOTIFY_CLIENT_ID || "",
+      clientSecret: clientSecret || process.env.SPOTIFY_CLIENT_SECRET || "",
+      accessToken: "fake-access-token",
     });
   }
 

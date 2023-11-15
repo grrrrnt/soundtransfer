@@ -16,12 +16,12 @@ const BATCH_SIZE = 50;
 */
 const ingest = async (args: string[]): Promise<void> => {
   console.log(`ingesting spotify data export; args = ${args}`);
-  const clientId: string = args[0];
-  const clientSecret: string = args[1];
-  const path: string = args[2];
+  const path: string = args[0];
+  const clientId = args[1];
+  const clientSecret = args[2];
 
   // Initialize the Spotify API handler
-  await SpotifyAPI.init(clientId, clientSecret);
+  await SpotifyAPI.initWithClientCredentials(clientId, clientSecret);
   const api = SpotifyAPI.getInstance();
 
   // Get the JSON files

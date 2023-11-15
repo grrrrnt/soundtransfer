@@ -1,23 +1,21 @@
-const ingest = (args: string[]): void => {
-  // const generateRandomString = (length) => {
-  //   const possible =
-  //     "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-  //   const values = crypto.getRandomValues(new Uint8Array(length));
-  //   return values.reduce((acc, x) => acc + possible[x % possible.length], "");
-  // };
-  // const codeVerifier = generateRandomString(64);c
-  //   const encoder = new TextEncoder();
-  //   const data = encoder.encode(plain);
-  //   return window.crypto.subtle.digest("SHA-256", data);
-  // };
-  // const base64encode = (input) => {
-  //   return btoa(String.fromCharCode(...new Uint8Array(input)))
-  //     .replace(/=/g, "")
-  //     .replace(/\+/g, "-")
-  //     .replace(/\//g, "_");
-  // };
-  // const hashed = await sha256(codeVerifier);
-  // const codeChallenge = base64encode(hashed);
+import "../types";
+import axios from "axios";
+import fs, { promises as fsAsync } from "fs";
+import { SpotifyAPI } from "../lib/spotify";
+import { kebabCase } from "lodash";
+import querystring from "querystring";
+import { getLibrary, mergeWithLibrary } from "../lib/library";
+
+const BATCH_SIZE = 50;
+
+const ingest = async (args: string[]): Promise<void> => {
+  console.log(`ingesting spotify API; args = ${args}`);
+  const clientId = args[0];
+  const clientSecret = args[1];
+
+  // Initialize the Spotify API handler
+  await SpotifyAPI.initWithAuthorizationCode(clientId, clientSecret);
+  const api = SpotifyAPI.getInstance();
 };
 
 export default ingest;

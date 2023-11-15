@@ -1,34 +1,37 @@
-import yargs, { ArgumentsCamelCase, Argv } from 'yargs';
-import { hideBin } from 'yargs/helpers';
+import yargs, { ArgumentsCamelCase, Argv } from "yargs";
+import { hideBin } from "yargs/helpers";
+import dotenv from "dotenv";
 
-import ingestAppleMusic from './ingestors/apple-music';
-import ingestAppleMusicApi from './ingestors/apple-music-api';
-import ingestSpotify from './ingestors/spotify';
-import ingestSpotifyApi from './ingestors/spotify-api';
-import { AsyncOrSync } from 'ts-essentials';
-import { listen } from './web/express';
+import ingestAppleMusic from "./ingestors/apple-music";
+import ingestAppleMusicApi from "./ingestors/apple-music-api";
+import ingestSpotify from "./ingestors/spotify";
+import ingestSpotifyApi from "./ingestors/spotify-api";
+import { AsyncOrSync } from "ts-essentials";
+import { listen } from "./web/express";
+
+dotenv.config();
 
 enum IngestSource {
-  Spotify = 'spotify',
-  SpotifyApi = 'spotify-api',
-  AppleMusic = 'apple-music',
-  AppleMusicApi = 'apple-music-api',
+  Spotify = "spotify",
+  SpotifyApi = "spotify-api",
+  AppleMusic = "apple-music",
+  AppleMusicApi = "apple-music-api",
 }
 
 interface IngestCommandOptions {
   source: IngestSource;
   args: string[];
 }
-
 listen().then(() => {
   yargs(hideBin(process.argv))
-    .scriptName('music-streaming-adapter')
-    .usage('$0 <cmd> args')
-    .command('ingest <source> [args..]',
-      'ingest information from source',
+    .scriptName("music-streaming-adapter")
+    .usage("$0 <cmd> args")
+    .command(
+      "ingest <source> [args..]",
+      "ingest information from source",
       (args: Argv) => {
-        args.positional('source', {
-          describe: 'source to ingest user data from',
+        args.positional("source", {
+          describe: "source to ingest user data from",
           choices: [
             IngestSource.Spotify,
             IngestSource.SpotifyApi,
@@ -36,8 +39,8 @@ listen().then(() => {
             IngestSource.AppleMusicApi,
           ],
         });
-        args.positional('args', {
-          describe: 'arguments to the ingestor',
+        args.positional("args", {
+          describe: "arguments to the ingestor",
         });
       },
       (args: ArgumentsCamelCase<IngestCommandOptions>) => {
@@ -52,7 +55,10 @@ listen().then(() => {
             case IngestSource.AppleMusicApi:
               return ingestAppleMusicApi;
             default:
-              yargs.showHelpOnFail(true, `unknown ingest source '${args.source}'`);
+              yargs.showHelpOnFail(
+                true,
+                `unknown ingest source '${args.source}'`
+              );
               return (_: string[]) => {}; // no-op
           }
         })()(args.args);
@@ -62,7 +68,8 @@ listen().then(() => {
         if (ret2 instanceof Promise) {
           ret2.catch(console.error);
         }
-      })
+      }
+    )
     .demandCommand()
     .parseSync();
 });
