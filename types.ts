@@ -9,7 +9,7 @@ interface ArtistMap extends Map<MusicProvider, URL> {}
 
 // For data translation
 type ISRC = string;
-type MusicProvider = "AppleMusic" | "Spotify";
+type MusicProvider = 'AppleMusic' | 'Spotify';
 type ListenHistory = HistoryItem[];
 
 interface Library {
@@ -35,7 +35,7 @@ interface PlaylistItem {
 }
 
 interface Song {
-  __type: "Song";
+  __type: 'Song';
   isrc: ISRC;
   title?: string;
   version?: string;
@@ -66,47 +66,47 @@ interface HistoryItem {
 }
 
 interface AppleMusicLibraryTracksItem {
-  "Content Type": string;
-  "Track Identifier": number;
+  'Content Type': string;
+  'Track Identifier': number;
   Title: string;
-  "Sort Name": string;
+  'Sort Name': string;
   Artist: string;
-  "Sort Artist": string;
+  'Sort Artist': string;
   Composer: string;
-  "Is Part of Compilation": boolean;
+  'Is Part of Compilation': boolean;
   Album: string;
-  "Sort Album": string;
-  "Album Artist": string;
+  'Sort Album': string;
+  'Album Artist': string;
   Genre: string;
-  "Track Year": number;
-  "Track Number On Album": number;
-  "Track Count On Album": number;
-  "Disc Number Of Album": number;
-  "Disc Count Of Album": number;
-  "Track Duration": number;
-  "Track Play Count": number;
-  "Date Added To Library": string;
-  "Date Added To iCloud Music Library": string;
-  "Last Modified Date": string;
-  "Last Played Date": string;
-  "Skip Count": number;
-  "Is Purchased": boolean;
-  "Audio File Extension": string;
-  "Track Like Rating": string;
-  "Is Checked": boolean;
+  'Track Year': number;
+  'Track Number On Album': number;
+  'Track Count On Album': number;
+  'Disc Number Of Album': number;
+  'Disc Count Of Album': number;
+  'Track Duration': number;
+  'Track Play Count': number;
+  'Date Added To Library': string;
+  'Date Added To iCloud Music Library': string;
+  'Last Modified Date': string;
+  'Last Played Date': string;
+  'Skip Count': number;
+  'Is Purchased': boolean;
+  'Audio File Extension': string;
+  'Track Like Rating': string;
+  'Is Checked': boolean;
   Copyright: string;
-  "Release Date": string;
-  "Purchased Track Identifier": number;
-  "Apple Music Track Identifier": number;
+  'Release Date': string;
+  'Purchased Track Identifier': number;
+  'Apple Music Track Identifier': number;
 }
 
 type AppleMusicLibraryTracks = AppleMusicLibraryTracksItem[];
 
 interface AppleMusicFavouritesItem {
-  "Favorite Type": string;
-  "Item Reference": string;
-  "Item Description": string;
-  "Last Modified": string;
+  'Favorite Type': string;
+  'Item Reference': string;
+  'Item Description': string;
+  'Last Modified': string;
   Preference: string;
 }
 
@@ -196,6 +196,7 @@ interface AppleMusicLibraryActivityItem {
   UserAgent: string;
   Country: string;
   Language: string;
+
   [key: string]: any;
 }
 
@@ -204,6 +205,47 @@ type AppleMusicLibraryActivity = AppleMusicLibraryActivityItem[];
 type AppleMusicPlaylistExport = AppleMusicPlaylistExportItem[];
 
 type AppleMusicFavourites = AppleMusicFavouritesItem[];
+
+interface AppleMusicLibraryPlaylists {
+  id: string;
+  type: string;
+  href: string;
+  attributes: {
+    name: string;
+    lastModifiedDate: string;
+    canEdit: boolean;
+    isPublic: boolean;
+    description: {
+      standard: string;
+    };
+    hasCatalog: boolean;
+    playParams: {
+      id: string;
+      kind: string;
+      isLibrary: boolean;
+      globalId: string;
+    };
+    dateAdded: string;
+    artwork: {
+      width: number | null;
+      height: number | null;
+      /**
+       * This is not a usable URL. Some URLs end in /{w}x{h}cc.jpg which need to replaced with
+       * the required width and height values to get a usable image.
+       */
+      url: string;
+    }
+  };
+  relationships: object;
+}
+
+interface AppleMusicLibraryPlaylistsResponse {
+  data: AppleMusicLibraryPlaylists[];
+  next?: string;
+  meta?: {
+    total: number;
+  };
+}
 
 // For visualization
 

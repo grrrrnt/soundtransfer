@@ -9,6 +9,8 @@ const ingest = async (args: string[]): Promise<void> => {
 
   const userMusicToken = api.getUserMusicToken();
   console.log(`Got token: ${userMusicToken}`);
+  await api.getUserPlaylists();
+  await api.getPlaylistTracks('p.b16GBmWfo4LkaVp');
 }
 
 export default ingest;

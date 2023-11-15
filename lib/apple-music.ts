@@ -1,3 +1,4 @@
+import _ from 'lodash';
 import fs from 'fs';
 import jwt from 'jsonwebtoken';
 import { port } from '../web/express';
@@ -24,6 +25,26 @@ export class AppleMusicAPI {
   // create a new class. Init should be wrapped in a mutex but JavaScript!
   // This is all just spaghetti code, but it works and the interfaces to use
   // the API are super clean.
+
+  public static init = _.once(async (privateKeyFilePath: string) => {
+    if (this.instance) {
+      throw new Error('AppleMusicAPI already initialized');
+    }
+
+    const unsafeInstance = new AppleMusicAPI({
+      privateKeyFilePath,
+      userMusicToken: 'fake-token',
+    });
+
+    console.log(`Please visit http://localhost:${port}/apple-music-authorization.html?devToken=${encodeURIComponent(unsafeInstance.getDevToken())}`);
+    console.log('Waiting for authorization...');
+
+    this.instance = new AppleMusicAPI({
+      privateKeyFilePath,
+      userMusicToken: await AppleMusicAPI.__unsafe_getUserMusicToken(),
+    });
+  });
+
   private static instance: AppleMusicAPI | undefined = undefined;
   // noinspection SpellCheckingInspection
   private static readonly jwtOptions: jwt.SignOptions = {
@@ -55,16 +76,6 @@ export class AppleMusicAPI {
     }
   }
 
-  public static async __unsafe_getUserMusicToken(): Promise<string> {
-    if (this.__unsafe_userMusicToken == undefined) {
-      return new Promise((resolve) => {
-        this.tokenRequestPromiseResolveQueue.push(resolve);
-      });
-    }
-
-    return this.__unsafe_userMusicToken;
-  }
-
   public static getInstance(): AppleMusicAPI {
     if (!this.instance) {
       throw new Error('AppleMusicAPI not initialized');
@@ -73,23 +84,14 @@ export class AppleMusicAPI {
     return this.instance;
   }
 
-  public static async init(privateKeyFilePath: string) {
-    if (this.instance) {
-      throw new Error('AppleMusicAPI already initialized');
+  private static async __unsafe_getUserMusicToken(): Promise<string> {
+    if (this.__unsafe_userMusicToken == undefined) {
+      return new Promise((resolve) => {
+        this.tokenRequestPromiseResolveQueue.push(resolve);
+      });
     }
 
-    const unsafeInstance = new AppleMusicAPI({
-      privateKeyFilePath,
-      userMusicToken: 'fake-token',
-    });
-
-    console.log(`Please visit http://localhost:${port}/apple-music-authorization.html?devToken=${encodeURIComponent(unsafeInstance.getDevToken())}`);
-    console.log('Waiting for authorization...');
-
-    this.instance = new AppleMusicAPI({
-      privateKeyFilePath,
-      userMusicToken: await AppleMusicAPI.__unsafe_getUserMusicToken(),
-    });
+    return this.__unsafe_userMusicToken;
   }
 
   public getUserMusicToken(): string {
@@ -151,5 +153,68 @@ export class AppleMusicAPI {
     }
 
     return await data.json() as AppleMusicGetCatalogSongsByISRCResponse;
+  }
+
+  public async getPlaylistTracks(playlistId: string) {
+    const url = new URL(`https://api.music.apple.com/v1/me/library/playlists/${playlistId}/tracks`);
+    url.searchParams.set('extend', 'isrc');
+
+    const response = await fetch(url, {
+      headers: {
+        Authorization: `Bearer ${this.getDevToken()}`,
+        'Music-User-Token': this.getUserMusicToken(),
+      },
+    });
+
+    if (!response.ok) {
+      throw new AppleMusicAPIError({
+        status: response.status,
+        statusText: response.statusText,
+        body: await response.text(),
+        headers: response.headers,
+      });
+    }
+
+    const body = await response.json();
+    console.log(JSON.stringify(body, null, 2));
+  }
+
+  public async getUserPlaylists() {
+    let nextURL: URL | undefined = new URL('https://api.music.apple.com/v1/me/library/playlists');
+    const playlists: AppleMusicLibraryPlaylists[] = [];
+    let totalPlaylistCount: number | undefined = undefined;
+
+    do {
+      const response = await fetch(nextURL, {
+        headers: {
+          Authorization: `Bearer ${this.getDevToken()}`,
+          'Music-User-Token': this.getUserMusicToken(),
+        },
+      });
+
+      if (!response.ok) {
+        throw new AppleMusicAPIError({
+          status: response.status,
+          statusText: response.statusText,
+          body: await response.text(),
+          headers: response.headers,
+        });
+      }
+
+      const body = await response.json() as AppleMusicLibraryPlaylistsResponse;
+      playlists.push(...body.data);
+      totalPlaylistCount = body.meta?.total;
+
+      if (!body.next) {
+        break;
+      }
+
+      nextURL = new URL(body.next, 'https://api.music.apple.com');
+    } while (true);
+
+    assert(playlists.length === (totalPlaylistCount ?? 0));
+    console.log(JSON.stringify(playlists, null, 2));
+
+    // TODO const playlistsWithSongs =
   }
 }
