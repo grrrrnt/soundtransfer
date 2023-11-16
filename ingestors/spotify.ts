@@ -29,11 +29,19 @@ const ingest = async (args: string[]): Promise<void> => {
     fs.readFileSync(`${path}/YourLibrary.json`, "utf8")
   );
 
-  // FIXME: handle multiple streaming history files
-  const streamingHistoryJSON = JSON.parse(
-    fs.readFileSync(`${path}/StreamingHistory0.json`, "utf8")
-  );
+  // Find all the streaming history files
+  const streamingHistoryFiles = fs.readdirSync(path).filter((file) => {
+    return file.startsWith("StreamingHistory");
+  });
 
+  // Merge the streaming history files
+  let streamingHistoryJSON: any[] = [];
+  for (const file of streamingHistoryFiles) {
+    const json = JSON.parse(fs.readFileSync(`${path}/${file}`, "utf8"));
+    streamingHistoryJSON = streamingHistoryJSON.concat(json);
+  }
+
+  // Read the playlists
   const playlistsJSON = JSON.parse(
     fs.readFileSync(`${path}/Playlist1.json`, "utf8")
   );
@@ -56,8 +64,8 @@ const ingest = async (args: string[]): Promise<void> => {
 
   // TODO: Do what with the library and listen history?
   // console.log(JSON.stringify(library, null, 2));
-  // console.log("Listening history size: ", listenHistory.length);
-  // console.log(JSON.stringify(listenHistory, null, 2));
+  console.log("Listening history size: ", listenHistory.length);
+  console.log(JSON.stringify(listenHistory, null, 2));
 };
 
 const populateSongs = async (
