@@ -5,6 +5,15 @@ const client = new MongoClient(url);
 const dbName = 'musicStreamingAdapter';
 const AppleMusicSongCollection = 'appleMusicSongs';
 
+export const storeAppleMusicSongs = async (songs: AppleMusicCatalogSong[]) => {
+  await client.connect();
+  const db = client.db(dbName);
+  const collection = db.collection(AppleMusicSongCollection);
+
+  await collection.insertMany(songs);
+}
+
+
 const getAppleMusicSongFromIdentifier = async (identifier: string) => {
   await client.connect();
   const db = client.db(dbName);

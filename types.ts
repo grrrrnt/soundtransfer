@@ -110,7 +110,7 @@ interface AppleMusicFavouritesItem {
   Preference: string;
 }
 
-interface AppleMusicSong {
+interface AppleMusicCatalogSong {
   id: string;
   type: string;
   href: string;
@@ -167,11 +167,11 @@ interface AppleMusicSong {
 }
 
 interface AppleMusicGetCatalogSongResponse {
-  data: AppleMusicSong[];
+  data: AppleMusicCatalogSong[];
 }
 
 interface AppleMusicGetCatalogSongsByISRCResponse {
-  data: AppleMusicSong[];
+  data: AppleMusicCatalogSong[];
 }
 
 interface AppleMusicPlaylistExportItem {

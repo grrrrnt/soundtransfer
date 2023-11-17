@@ -2,6 +2,7 @@ import _ from 'lodash';
 import fs from 'fs';
 import jwt from 'jsonwebtoken';
 import { port } from '../web/express';
+import * as mongo from './mongo';
 import assert from 'assert';
 
 export class AppleMusicAPIError extends Error {
@@ -55,6 +56,7 @@ export class AppleMusicAPI {
   };
   private static __unsafe_userMusicToken: string;
   private static tokenRequestPromiseResolveQueue: ((token: string) => void)[] = [];
+  private static readonly multipleCatalogSongRequestMaxFetchLimit = 300;
   private readonly devToken: string;
   private readonly privateKey: Buffer;
   private readonly storefront = 'US';
@@ -94,6 +96,18 @@ export class AppleMusicAPI {
     return this.__unsafe_userMusicToken;
   }
 
+  private static async throwErrorIfResponseNotOkay(res: Response, extraDetails?: object) {
+    if (!res.ok) {
+      throw new AppleMusicAPIError({
+        status: res.status,
+        statusText: res.statusText,
+        body: await res.text(),
+        headers: res.headers,
+        extraDetails,
+      });
+    }
+  }
+
   public getUserMusicToken(): string {
     return this.userMusicToken;
   }
@@ -108,7 +122,7 @@ export class AppleMusicAPI {
    * Wrapper for https://developer.apple.com/documentation/applemusicapi/get_a_catalog_song
    * @param trackIdentifier Apple Music internal identifier.
    */
-  public async getSong(trackIdentifier: string): Promise<AppleMusicSong> {
+  public async getSong(trackIdentifier: string): Promise<AppleMusicCatalogSong> {
     const data = await fetch(`https://api.music.apple.com/v1/catalog/${this.storefront}/songs/${encodeURIComponent(trackIdentifier)}`, {
       method: 'GET',
       headers: {
@@ -130,6 +144,7 @@ export class AppleMusicAPI {
 
     const responseBody = await data.json() as AppleMusicGetCatalogSongResponse;
     assert(responseBody.data.length === 1);
+    await mongo.storeAppleMusicSongs(responseBody.data);
     return responseBody.data[0];
   }
 
@@ -179,7 +194,30 @@ export class AppleMusicAPI {
     console.log(JSON.stringify(body, null, 2));
   }
 
-  public async getUserPlaylists() {
+  public async getMultipleSongs(trackIdentifiers: string[]) {
+    const baseUrl = new URL(`https://api.music.apple.com/v1/catalog/${this.storefront}/songs`);
+    const ret: AppleMusicCatalogSong[] = [];
+
+    for (const batch of _.chunk(trackIdentifiers, AppleMusicAPI.multipleCatalogSongRequestMaxFetchLimit)) {
+      const requestUrl = new URL(baseUrl);
+      requestUrl.searchParams.set('ids', batch.join(','));
+
+      const response = await fetch(requestUrl, {
+        headers: {
+          Authorization: `Bearer ${this.getDevToken()}`,
+        },
+      });
+
+      await AppleMusicAPI.throwErrorIfResponseNotOkay(response);
+      const body = await response.json() as AppleMusicGetCatalogSongResponse;
+      ret.push(...body.data);
+    }
+
+    await mongo.storeAppleMusicSongs(ret);
+    return ret;
+  }
+
+  public async getUserPlaylists(): Promise<AppleMusicLibraryPlaylists[]> {
     let nextURL: URL | undefined = new URL('https://api.music.apple.com/v1/me/library/playlists');
     const playlists: AppleMusicLibraryPlaylists[] = [];
     let totalPlaylistCount: number | undefined = undefined;
@@ -213,8 +251,11 @@ export class AppleMusicAPI {
     } while (true);
 
     assert(playlists.length === (totalPlaylistCount ?? 0));
-    console.log(JSON.stringify(playlists, null, 2));
+    return playlists;
+  }
 
-    // TODO const playlistsWithSongs =
+  public async getPlaylists(libraryPlaylists: AppleMusicLibraryPlaylists[]): Promise<Playlist[]> {
+
+    return []; // FIXME
   }
 }
