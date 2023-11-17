@@ -123,6 +123,11 @@ export class AppleMusicAPI {
    * @param trackIdentifier Apple Music internal identifier.
    */
   public async getSong(trackIdentifier: string): Promise<AppleMusicCatalogSong> {
+    const dbSong = await mongo.getAppleMusicSongFromIdentifier(trackIdentifier);
+    if (dbSong !== null) {
+      return dbSong;
+    }
+
     const data = await fetch(`https://api.music.apple.com/v1/catalog/${this.storefront}/songs/${encodeURIComponent(trackIdentifier)}`, {
       method: 'GET',
       headers: {
