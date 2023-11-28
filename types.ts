@@ -47,7 +47,7 @@ interface ArtistMap extends Map<MusicProvider, URL> {
 
 // For data translation
 type ISRC = string;
-type MusicProvider = 'AppleMusic' | 'Spotify';
+type MusicProvider = "AppleMusic" | "Spotify";
 type ListenHistory = HistoryItem[];
 
 interface Library {
@@ -73,13 +73,14 @@ interface PlaylistItem {
 }
 
 interface Song {
-  __type: 'Song';
+  __type: "Song";
   isrc: ISRC;
   title?: string;
   version?: string;
   year?: number;
   duration?: number;
   artists: string[];
+  // FIXME: Include album as well?
 }
 
 interface Album {
@@ -122,47 +123,47 @@ interface AppleMusicExportHistoryItem {
 type AppleMusicHistoryExport = AppleMusicExportHistoryItem[];
 
 interface AppleMusicLibraryTracksItem {
-  'Content Type': string;
-  'Track Identifier': number;
+  "Content Type": string;
+  "Track Identifier": number;
   Title: string;
-  'Sort Name': string;
+  "Sort Name": string;
   Artist: string;
-  'Sort Artist': string;
+  "Sort Artist": string;
   Composer: string;
-  'Is Part of Compilation': boolean;
+  "Is Part of Compilation": boolean;
   Album: string;
-  'Sort Album': string;
-  'Album Artist': string;
+  "Sort Album": string;
+  "Album Artist": string;
   Genre: string;
-  'Track Year': number;
-  'Track Number On Album': number;
-  'Track Count On Album': number;
-  'Disc Number Of Album': number;
-  'Disc Count Of Album': number;
-  'Track Duration': number;
-  'Track Play Count': number;
-  'Date Added To Library': string;
-  'Date Added To iCloud Music Library': string;
-  'Last Modified Date': string;
-  'Last Played Date': string;
-  'Skip Count': number;
-  'Is Purchased': boolean;
-  'Audio File Extension': string;
-  'Track Like Rating': string;
-  'Is Checked': boolean;
+  "Track Year": number;
+  "Track Number On Album": number;
+  "Track Count On Album": number;
+  "Disc Number Of Album": number;
+  "Disc Count Of Album": number;
+  "Track Duration": number;
+  "Track Play Count": number;
+  "Date Added To Library": string;
+  "Date Added To iCloud Music Library": string;
+  "Last Modified Date": string;
+  "Last Played Date": string;
+  "Skip Count": number;
+  "Is Purchased": boolean;
+  "Audio File Extension": string;
+  "Track Like Rating": string;
+  "Is Checked": boolean;
   Copyright: string;
-  'Release Date': string;
-  'Purchased Track Identifier': number;
-  'Apple Music Track Identifier': number;
+  "Release Date": string;
+  "Purchased Track Identifier": number;
+  "Apple Music Track Identifier": number;
 }
 
 type AppleMusicLibraryTracks = AppleMusicLibraryTracksItem[];
 
 interface AppleMusicFavouritesItem {
-  'Favorite Type': string;
-  'Item Reference': string;
-  'Item Description': string;
-  'Last Modified': string;
+  "Favorite Type": string;
+  "Item Reference": string;
+  "Item Description": string;
+  "Last Modified": string;
   Preference: string;
 }
 
@@ -231,24 +232,24 @@ interface AppleMusicGetCatalogSongsByISRCResponse {
 }
 
 interface AppleMusicPlaylistExportItem {
-  'Container Type': string;
-  'Container Identifier': number;
-  'Title'?: string;
-  'Playlist Item Identifiers': number[];
-  'Description': string;
-  'Public Playlist Identifier': string;
-  'Playlist is Shared': boolean;
-  'Playlist Previously Shared': boolean;
-  'Added Date': string;
-  'Available on Apple Music Profile'?: boolean;
-  'Name or Description Modified Date': string;
-  'Playlist Items Modified Date': string;
+  "Container Type": string;
+  "Container Identifier": number;
+  Title?: string;
+  "Playlist Item Identifiers": number[];
+  Description: string;
+  "Public Playlist Identifier": string;
+  "Playlist is Shared": boolean;
+  "Playlist Previously Shared": boolean;
+  "Added Date": string;
+  "Available on Apple Music Profile"?: boolean;
+  "Name or Description Modified Date": string;
+  "Playlist Items Modified Date": string;
 }
 
 interface AppleMusicLibraryActivityItem {
-  'Transaction Type': string;
-  'Transaction Identifier': string;
-  'Transaction Date': string;
+  "Transaction Type": string;
+  "Transaction Identifier": string;
+  "Transaction Date": string;
   UserAgent: string;
   Country: string;
   Language: string;
@@ -290,7 +291,7 @@ interface AppleMusicLibraryPlaylists {
        * the required width and height values to get a usable image.
        */
       url: string;
-    }
+    };
   };
   relationships: object;
 }

@@ -226,4 +226,27 @@ export class SpotifyAPI {
 
     return response.data;
   };
+
+  getUsersSavedTracks = async (): Promise<any> => {
+    // Limit: 50 songs
+
+    // Get the song data using Spotify API
+    const response = await axios.get(
+      `https://api.spotify.com/v1/me/tracks?limit=50`,
+      {
+        headers: {
+          Authorization: `Bearer ${this.accessToken}`,
+        },
+      }
+    );
+
+    if (response.status !== 200) {
+      throw new SpotifyAPIError({
+        status: response.status,
+        body: await response.data,
+      });
+    }
+
+    return response.data;
+  };
 }
