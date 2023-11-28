@@ -37,7 +37,7 @@ export class AppleMusicAPI {
       userMusicToken: 'fake-token',
     });
 
-    console.log(`Please visit http://localhost:${port}/apple-music-authorization.html?devToken=${encodeURIComponent(unsafeInstance.getDevToken())}`);
+    console.log(`For authorizing with Apple Music API, please visit http://localhost:${port}/apple-music-authorization.html?devToken=${encodeURIComponent(unsafeInstance.getDevToken())}`);
     console.log('Waiting for authorization...');
 
     this.instance = new AppleMusicAPI({
@@ -259,8 +259,62 @@ export class AppleMusicAPI {
     return playlists;
   }
 
+  /**
+   * Gets information about the Catalog Artist identified
+   * @param artistIdentifier catalog artist identifier
+   */
+  public async getArtist(artistIdentifier: string): Promise<AppleMusicArtist> {
+    const url = new URL(`https://api.music.apple.com/v1/catalog/${this.storefront}/artists/${encodeURIComponent(artistIdentifier)}`);
+
+    const response = await fetch(url, {
+      headers: {
+        Authorization: `Bearer ${this.getDevToken()}`,
+      },
+    });
+
+    if (!response.ok) {
+      throw new AppleMusicAPIError({
+        status: response.status,
+        statusText: response.statusText,
+        body: await response.text(),
+        headers: response.headers,
+      });
+    }
+
+    const data = (await response.json()) as AppleMusicArtistsResponse;
+    assert(data.data.length === 1);
+    return data.data[0];
+  }
+
   public async getPlaylists(libraryPlaylists: AppleMusicLibraryPlaylists[]): Promise<Playlist[]> {
 
     return []; // FIXME
+  }
+
+  public async createPlaylist(playlistCreationRequest: AppleMusicLibraryPlaylistCreationRequest): Promise<AppleMusicLibraryPlaylists> {
+    const url = new URL(`https://api.music.apple.com/v1/me/library/playlists`);
+
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${this.getDevToken()}`,
+        'Music-User-Token': this.getUserMusicToken(),
+        'Content-Type': 'application/json; charset=utf-8',
+      },
+      body: JSON.stringify(playlistCreationRequest),
+    });
+
+    if (!response.ok || response.status !== 201) {
+      throw new AppleMusicAPIError({
+        status: response.status,
+        statusText: response.statusText,
+        body: await response.text(),
+        headers: response.headers,
+      });
+    }
+
+    const data = await response.json() as AppleMusicLibraryPlaylistsResponse;
+    assert(data.data.length === 1);
+    return data.data.pop()!;
   }
 }

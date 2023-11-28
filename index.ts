@@ -1,37 +1,54 @@
-import yargs, { ArgumentsCamelCase, Argv } from "yargs";
-import { hideBin } from "yargs/helpers";
-import dotenv from "dotenv";
+import yargs, { ArgumentsCamelCase, Argv } from 'yargs';
+import { hideBin } from 'yargs/helpers';
+import dotenv from 'dotenv';
 
-import ingestAppleMusic from "./ingestors/apple-music";
-import ingestAppleMusicApi from "./ingestors/apple-music-api";
-import ingestSpotify from "./ingestors/spotify";
-import ingestSpotifyApi from "./ingestors/spotify-api";
-import { AsyncOrSync } from "ts-essentials";
-import { listen } from "./web/express";
+import ingestAppleMusic from './ingestors/apple-music';
+import ingestAppleMusicApi from './ingestors/apple-music-api';
+import ingestSpotify from './ingestors/spotify';
+import ingestSpotifyApi from './ingestors/spotify-api';
+import exportSpotify from './exporters/spotify';
+import exportAppleMusic from './exporters/apple-music';
+import { listen } from './web/express';
+import { connectDB } from './lib/mongo';
+import { asyncNoOp } from './lib/utils';
 
 dotenv.config();
 
 enum IngestSource {
-  Spotify = "spotify",
-  SpotifyApi = "spotify-api",
-  AppleMusic = "apple-music",
-  AppleMusicApi = "apple-music-api",
+  Spotify = 'spotify',
+  SpotifyApi = 'spotify-api',
+  AppleMusic = 'apple-music',
+  AppleMusicApi = 'apple-music-api',
+}
+
+enum ExportSink {
+  Spotify = 'spotify',
+  AppleMusic = 'apple-music',
 }
 
 interface IngestCommandOptions {
   source: IngestSource;
   args: string[];
 }
-listen().then(() => {
+
+interface ExportCommandOptions {
+  sink: ExportSink;
+  args: string[];
+}
+
+Promise.all([
+  listen(),
+  connectDB(),
+]).then(() => {
   yargs(hideBin(process.argv))
-    .scriptName("music-streaming-adapter")
-    .usage("$0 <cmd> args")
+    .scriptName('music-streaming-adapter')
+    .usage('$0 <cmd> args')
     .command(
-      "ingest <source> [args..]",
-      "ingest information from source",
+      'ingest <source> [args..]',
+      'ingest information from source',
       (args: Argv) => {
-        args.positional("source", {
-          describe: "source to ingest user data from",
+        args.positional('source', {
+          describe: 'source to ingest user data from',
           choices: [
             IngestSource.Spotify,
             IngestSource.SpotifyApi,
@@ -39,12 +56,12 @@ listen().then(() => {
             IngestSource.AppleMusicApi,
           ],
         });
-        args.positional("args", {
-          describe: "arguments to the ingestor",
+        args.positional('args', {
+          describe: 'arguments to the ingestor',
         });
       },
       (args: ArgumentsCamelCase<IngestCommandOptions>) => {
-        const ret: AsyncOrSync<void> = (() => {
+        (() => {
           switch (args.source) {
             case IngestSource.Spotify:
               return ingestSpotify;
@@ -57,18 +74,44 @@ listen().then(() => {
             default:
               yargs.showHelpOnFail(
                 true,
-                `unknown ingest source '${args.source}'`
+                `unknown ingest source '${args.source}'`,
               );
-              return (_: string[]) => {}; // no-op
+              return asyncNoOp<string[]>;
           }
-        })()(args.args);
-
-        // stupid TypeScript doesn't consider that void functions actually return undefined
-        const ret2 = ret as undefined | Promise<void>;
-        if (ret2 instanceof Promise) {
-          ret2.catch(console.error);
-        }
-      }
+        })()(args.args).catch(console.error);
+      },
+    )
+    .command(
+      'export <sink> [args..]',
+      'export ingested data to sink',
+      (args: Argv) => {
+        args.positional('sink', {
+          describe: 'Music streaming service to export data to',
+          choices: [
+            'apple-music',
+            'spotify',
+          ],
+        });
+        args.positional('args', {
+          describe: 'arguments to the exporter',
+        });
+      },
+      (args: ArgumentsCamelCase<ExportCommandOptions>) => {
+        (() => {
+          switch (args.source) {
+            case ExportSink.Spotify:
+              return exportSpotify;
+            case ExportSink.AppleMusic:
+              return exportAppleMusic;
+            default:
+              yargs.showHelpOnFail(
+                true,
+                `unknown ingest source '${args.source}'`,
+              );
+              return asyncNoOp<string[]>;
+          }
+        })()(args.args).catch(console.error);
+      },
     )
     .demandCommand()
     .parseSync();
