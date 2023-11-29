@@ -140,7 +140,7 @@ const populateAlbums = async (api: SpotifyAPI): Promise<Album[]> => {
     for (const album of userAlbums.items) {
       const a: Album = {
         title: album.name,
-        // songs: [],     // FIXME: Why do we need this?
+        songs: [], // FIXME: Should we populate songs for every album too?
         artists: album.artists.map((artist: any) => artist.name),
       };
       albums.push(a);

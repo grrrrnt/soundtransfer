@@ -82,7 +82,7 @@ interface Song {
 
 interface Album {
   title: string;
-  songs?: Song[];
+  songs: Song[];
   artists: string[];
 }
 
