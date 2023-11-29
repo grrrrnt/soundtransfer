@@ -1,3 +1,4 @@
+import _ from "lodash";
 import fs from "fs";
 import jwt from "jsonwebtoken";
 import axios from "axios";
@@ -22,7 +23,7 @@ export class SpotifyAPI {
   private readonly storefront = "US";
   private readonly clientId: string;
   private readonly clientSecret: string;
-  private accessToken: string | undefined = undefined;
+  private accessToken: string = "";
 
   private constructor(
     args: Readonly<{
@@ -33,13 +34,15 @@ export class SpotifyAPI {
   ) {
     this.clientId = args.clientId;
     this.clientSecret = args.clientSecret;
-    this.accessToken = "fake-access-token";
+    this.accessToken = args.accessToken;
   }
 
   public static getInstance(): SpotifyAPI {
     if (!this.instance) {
       throw new Error("SpotifyAPI not initialized");
     }
+
+    console.log("Dev token: " + this.instance.getAccessToken());
 
     return this.instance;
   }
@@ -61,45 +64,45 @@ export class SpotifyAPI {
     return this.__unsafe_accessToken;
   }
 
-  public static async initWithAuthorizationCode(
-    clientId?: string,
-    clientSecret?: string
-  ) {
-    if (this.instance) {
-      throw new Error("SpotifyAPI already initialized");
+  public static initWithAuthorizationCode = _.once(
+    async (clientId?: string, clientSecret?: string) => {
+      if (this.instance) {
+        throw new Error("SpotifyAPI already initialized");
+      }
+
+      await listen();
+      console.log(
+        `Please visit http://localhost:${port}/spotify-authorization.html?clientId=${process.env.SPOTIFY_CLIENT_ID} to authorize Spotify.`
+      );
+      console.log("Waiting for authorization...");
+
+      const accessToken = await SpotifyAPI.__unsafe_getAccessToken();
+      console.log(`Using Spotify access token: ${accessToken}`);
+
+      this.instance = new SpotifyAPI({
+        clientId: clientId || process.env.SPOTIFY_CLIENT_ID || "",
+        clientSecret: clientSecret || process.env.SPOTIFY_CLIENT_SECRET || "",
+        accessToken: accessToken,
+      });
     }
+  );
 
-    await listen();
-    console.log(
-      `Please visit http://localhost:${port}/spotify-authorization.html?clientId=${process.env.SPOTIFY_CLIENT_ID} to authorize Spotify.`
-    );
-    console.log("Waiting for authorization...");
+  public static initWithClientCredentials = _.once(
+    async (clientId?: string, clientSecret?: string) => {
+      if (this.instance) {
+        throw new Error("SpotifyAPI already initialized");
+      }
 
-    const accessToken = await SpotifyAPI.__unsafe_getAccessToken();
-    console.log(`Using Spotify access token: ${accessToken}`);
-
-    this.instance = new SpotifyAPI({
-      clientId: clientId || process.env.SPOTIFY_CLIENT_ID || "",
-      clientSecret: clientSecret || process.env.SPOTIFY_CLIENT_SECRET || "",
-      accessToken: accessToken,
-      // this.getInstance().accessToken = accessToken;
-      // console.log(this.getInstance().accessToken);
-    });
-  }
-
-  public static async initWithClientCredentials(
-    clientId?: string,
-    clientSecret?: string
-  ) {
-    if (this.instance) {
-      throw new Error("SpotifyAPI already initialized");
+      this.instance = new SpotifyAPI({
+        clientId: clientId || process.env.SPOTIFY_CLIENT_ID || "",
+        clientSecret: clientSecret || process.env.SPOTIFY_CLIENT_SECRET || "",
+        accessToken: "fake-access-token",
+      });
     }
+  );
 
-    this.instance = new SpotifyAPI({
-      clientId: clientId || process.env.SPOTIFY_CLIENT_ID || "",
-      clientSecret: clientSecret || process.env.SPOTIFY_CLIENT_SECRET || "",
-      accessToken: "fake-access-token",
-    });
+  public getAccessToken(): string {
+    return this.accessToken;
   }
 
   authorizeSpotify = async (): Promise<void> => {
@@ -227,18 +230,70 @@ export class SpotifyAPI {
     return response.data;
   };
 
-  getUsersSavedTracks = async (): Promise<any> => {
+  getUsersSavedTracks = async (url: string): Promise<any> => {
     // Limit: 50 songs
 
+    // Set URL if not provided
+    if (url == null) {
+      url = `https://api.spotify.com/v1/me/tracks?limit=50`;
+    }
+
     // Get the song data using Spotify API
-    const response = await axios.get(
-      `https://api.spotify.com/v1/me/tracks?limit=50`,
-      {
-        headers: {
-          Authorization: `Bearer ${this.accessToken}`,
-        },
-      }
-    );
+    const response = await axios.get(url, {
+      headers: {
+        Authorization: `Bearer ${this.accessToken}`,
+      },
+    });
+
+    if (response.status !== 200) {
+      throw new SpotifyAPIError({
+        status: response.status,
+        body: await response.data,
+      });
+    }
+
+    return response.data;
+  };
+
+  getUserPlaylists = async (url: string): Promise<any> => {
+    // Limit: 50 playlists
+
+    // Set URL if not provided
+    if (url == null) {
+      url = `https://api.spotify.com/v1/me/playlists?limit=50`;
+    }
+
+    // Get the playlist data using Spotify API
+    const response = await axios.get(url, {
+      headers: {
+        Authorization: `Bearer ${this.accessToken}`,
+      },
+    });
+
+    if (response.status !== 200) {
+      throw new SpotifyAPIError({
+        status: response.status,
+        body: await response.data,
+      });
+    }
+
+    return response.data;
+  };
+
+  getPlaylistSongs = async (playlistId: string, url: string): Promise<any> => {
+    // Limit: 50 songs
+
+    // Set URL if not provided
+    if (url == null) {
+      url = `https://api.spotify.com/v1/playlists/${playlistId}/tracks?limit=50`;
+    }
+
+    // Get the song data using Spotify API
+    const response = await axios.get(url, {
+      headers: {
+        Authorization: `Bearer ${this.accessToken}`,
+      },
+    });
 
     if (response.status !== 200) {
       throw new SpotifyAPIError({

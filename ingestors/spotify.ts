@@ -62,7 +62,6 @@ const ingest = async (args: string[]): Promise<void> => {
     api
   );
 
-  // TODO: Do what with the library and listen history?
   // console.log(JSON.stringify(library, null, 2));
   // console.log("Listening history size: ", listenHistory.length);
   // console.log(JSON.stringify(listenHistory, null, 2));
