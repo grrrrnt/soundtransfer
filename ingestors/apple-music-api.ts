@@ -1,4 +1,5 @@
 import { AppleMusicAPI } from '../lib/apple-music';
+import { storePlaylists } from '../lib/mongo';
 
 const fetchPlaylists = async (): Promise<Playlist[]> => {
   const api = AppleMusicAPI.getInstance();
@@ -49,7 +50,7 @@ const ingest = async (args: string[]): Promise<void> => {
   console.log(JSON.stringify(await api.getPlaylistTracks('p.b16GBmWfo4LkaVp'), null, 2));
   console.log(await api.getMultipleSongs(['1538003843']));
 
-  console.log(JSON.stringify(await fetchPlaylists(), null, 2));
+  await storePlaylists(await fetchPlaylists());
 }
 
 export default ingest;
