@@ -302,8 +302,8 @@ interface AppleMusicLibraryPlaylists {
   };
   relationships: {
     tracks: {
-      href: string;
-      next: string;
+      href?: string;
+      next?: string;
       data: AppleMusicLibrarySongs[];
     };
     catalog: {

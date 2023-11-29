@@ -198,7 +198,6 @@ const ingest = async (args: string[]): Promise<void> => {
   // TODO Put library into MongoDB
   // TODO Check how favourite albums work -- new feature
   // TODO fetch multiple songs at once from the API
-  // TODO Export and create playlists
 
   console.log('Library:', JSON.stringify(getLibrary(), null, 2));
 }
