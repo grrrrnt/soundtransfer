@@ -19,6 +19,10 @@ export const connectDB = async () => {
   console.log(`Connected to MongoDB at ${url}`);
 }
 
+export const closeMongoDBConnection = async () => {
+  await client.close();
+}
+
 // TODO collection.createIndex({'id': 1}, {sparse: true, unique: true});
 // for faster queries. Would need another one for ISRC.
 

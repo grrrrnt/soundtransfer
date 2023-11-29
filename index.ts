@@ -8,8 +8,8 @@ import ingestSpotify from './ingestors/spotify';
 import ingestSpotifyApi from './ingestors/spotify-api';
 import exportSpotify from './exporters/spotify';
 import exportAppleMusic from './exporters/apple-music';
-import { listen } from './web/express';
-import { connectDB } from './lib/mongo';
+import { listen, shutdownExpress } from './web/express';
+import { closeMongoDBConnection, connectDB } from './lib/mongo';
 import { asyncNoOp } from './lib/utils';
 
 dotenv.config();
@@ -34,6 +34,13 @@ interface IngestCommandOptions {
 interface ExportCommandOptions {
   sink: ExportSink;
   args: string[];
+}
+
+const shutdown = async () => {
+  await Promise.all([
+    shutdownExpress(),
+    closeMongoDBConnection(),
+  ]);
 }
 
 Promise.all([
@@ -78,7 +85,9 @@ Promise.all([
               );
               return asyncNoOp<string[]>;
           }
-        })()(args.args).catch(console.error);
+        })()(args.args)
+          .then(shutdown)
+          .catch(console.error);
       },
     )
     .command(
@@ -110,7 +119,9 @@ Promise.all([
               );
               return asyncNoOp<string[]>;
           }
-        })()(args.args).catch(console.error);
+        })()(args.args)
+          .then(shutdown)
+          .catch(console.error);
       },
     )
     .demandCommand()
