@@ -88,8 +88,8 @@ Promise.all([
         args.positional('sink', {
           describe: 'Music streaming service to export data to',
           choices: [
-            'apple-music',
-            'spotify',
+            ExportSink.AppleMusic,
+            ExportSink.Spotify,
           ],
         });
         args.positional('args', {
@@ -98,7 +98,7 @@ Promise.all([
       },
       (args: ArgumentsCamelCase<ExportCommandOptions>) => {
         (() => {
-          switch (args.source) {
+          switch (args.sink) {
             case ExportSink.Spotify:
               return exportSpotify;
             case ExportSink.AppleMusic:

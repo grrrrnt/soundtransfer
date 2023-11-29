@@ -341,3 +341,31 @@ interface AppleMusicLibraryPlaylistCreationRequest {
     },
   }
 }
+
+interface AppleMusicLibraryPlaylistFoldersResponse {
+  data: AppleMusicLibraryPlaylistFolders[];
+}
+
+interface AppleMusicLibraryPlaylistFolders {
+  id: string;
+  type: 'library-playlist-folders',
+  href: string;
+  attributes: {
+    /** Date added in ISO 8601 */
+    dateAdded?: string;
+    /** The (potentially) censored name of the content. */
+    name: string;
+  };
+  relationships: {
+    children: {
+      href: string;
+      next: string;
+      data: (AppleMusicLibraryPlaylistFolders | AppleMusicLibraryPlaylists)[];
+    };
+    parent: {
+      href: string;
+      next: string;
+      data: AppleMusicLibraryPlaylistFolders[];
+    };
+  };
+}

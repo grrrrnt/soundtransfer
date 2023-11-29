@@ -317,4 +317,28 @@ export class AppleMusicAPI {
     assert(data.data.length === 1);
     return data.data.pop()!;
   }
+
+  public async getRootLibraryPlaylistsFolder (): Promise<AppleMusicLibraryPlaylistFolders | undefined> {
+    const url = new URL(`https://api.music.apple.com/v1/me/library/playlist-folders`);
+    url.searchParams.set('filter[identity]', 'playlistsroot');
+
+    const response = await fetch(url, {
+      headers: {
+        Authorization: `Bearer ${this.getDevToken()}`,
+        'Music-User-Token': this.getUserMusicToken(),
+      },
+    });
+
+    if (!response.ok) {
+      throw new AppleMusicAPIError({
+        status: response.status,
+        statusText: response.statusText,
+        body: await response.text(),
+        headers: response.headers,
+      });
+    }
+
+    const body = await response.json() as AppleMusicLibraryPlaylistFoldersResponse;
+    return body.data.pop();
+  }
 }
