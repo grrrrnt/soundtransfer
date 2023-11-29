@@ -4,6 +4,7 @@ const url = 'mongodb://localhost:27017';
 const client = new MongoClient(url);
 const dbName = 'musicStreamingAdapter';
 const AppleMusicSongCollection = 'appleMusicSongs';
+const AppleMusicLibrarySongCollection = 'appleMusicLibrarySongs';
 const HistoryCollection = 'userListeningHistory';
 const PlaylistCollection = 'userPlaylists';
 
@@ -26,12 +27,25 @@ export const storeAppleMusicSongs = async (songs: AppleMusicCatalogSong[]) => {
   await collection.insertMany(songs);
 }
 
+export const storeAppleMusicLibrarySongs = async (songs: AppleMusicLibrarySongs[]) => {
+  const collection = await getCollection(AppleMusicLibrarySongCollection);
+  await collection.insertMany(songs);
+}
+
 export const getAppleMusicSongFromIdentifier = async (identifier: string) => {
   const collection = await getCollection(AppleMusicSongCollection);
 
   return await collection.findOne({
     id: identifier,
   }) as WithId<AppleMusicCatalogSong> | null;
+}
+
+export const getAppleMusicLibrarySongFromIdentifier = async (identifier: string) => {
+  const collection = await getCollection(AppleMusicLibrarySongCollection);
+
+  return await collection.findOne({
+    id: identifier,
+  }) as WithId<AppleMusicLibrarySongs> | null;
 }
 
 export const getAppleMusicSongFromIsrc = async (isrc: string) => {

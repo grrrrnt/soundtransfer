@@ -260,6 +260,16 @@ type AppleMusicPlaylistExport = AppleMusicPlaylistExportItem[];
 
 type AppleMusicFavourites = AppleMusicFavouritesItem[];
 
+// FIXME
+interface AppleMusicPlaylists {
+  id: string;
+  type: 'playlists';
+  href: string;
+  attributes: object;
+  relationships: object;
+  views: object;
+}
+
 interface AppleMusicLibraryPlaylists {
   id: string;
   type: string;
@@ -290,7 +300,18 @@ interface AppleMusicLibraryPlaylists {
       url: string;
     };
   };
-  relationships: object;
+  relationships: {
+    tracks: {
+      href: string;
+      next: string;
+      data: AppleMusicLibrarySongs[];
+    };
+    catalog: {
+      href?: string;
+      next?: string;
+      data: AppleMusicPlaylists[];
+    };
+  };
 }
 
 interface AppleMusicLibraryPlaylistsResponse {
@@ -370,4 +391,38 @@ interface AppleMusicLibraryPlaylistFolders {
       data: AppleMusicLibraryPlaylistFolders[];
     };
   };
+}
+
+interface AppleMusicLibrarySongs {
+  id: string;
+  type: 'library-songs';
+  href: string;
+  attributes: {
+    albumName: string;
+    artistName: string;
+    artwork: object;
+    contentRating?: 'clean' | 'explicit';
+    discNumber: number;
+    durationInMillis: number;
+    genreNames: string[];
+    hasLyrics: boolean;
+    name: string;
+    playParams: object;
+    /** The release date of the song, when known, in YYYY-MM-DD or YYYY format. Pre-release songs may have an expected release date in the future. */
+    releaseDate?: string;
+    trackNumber?: number;
+  };
+  relationships: {
+    albums?: object;
+    artists?: object;
+    catalog?: {
+      href?: string;
+      next?: string;
+      data: AppleMusicCatalogSong[];
+    };
+  };
+}
+
+interface AppleMusicLibrarySongsResponse {
+  data: AppleMusicLibrarySongs[];
 }

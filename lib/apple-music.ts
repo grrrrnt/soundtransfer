@@ -3,7 +3,7 @@ import fs from 'fs';
 import jwt from 'jsonwebtoken';
 import { port } from '../web/express';
 import * as mongo from './mongo';
-import { storeAppleMusicSongs } from './mongo';
+import { storeAppleMusicLibrarySongs, storeAppleMusicSongs } from './mongo';
 import assert from 'assert';
 import { filterFalsy } from './utils';
 
@@ -296,9 +296,58 @@ export class AppleMusicAPI {
     return data.data[0];
   }
 
-  public async getPlaylists(libraryPlaylists: AppleMusicLibraryPlaylists[]): Promise<Playlist[]> {
+  public async getLibrarySong(librarySongIdentifier: string): Promise<AppleMusicLibrarySongs> {
+    const dbSong = await mongo.getAppleMusicLibrarySongFromIdentifier(librarySongIdentifier);
+    if (dbSong !== null) {
+      return dbSong;
+    }
 
-    return []; // FIXME
+    const url = new URL(`https://api.music.apple.com/v1/me/library/songs/${encodeURIComponent(librarySongIdentifier)}`);
+    url.searchParams.set('include', 'catalog');
+
+    const response = await fetch(url, {
+      headers: {
+        Authorization: `Bearer ${this.getDevToken()}`,
+        'Music-User-Token': this.getUserMusicToken(),
+      },
+    });
+
+    if (!response.ok) {
+      throw new AppleMusicAPIError({
+        status: response.status,
+        statusText: response.statusText,
+        body: await response.text(),
+        headers: response.headers,
+      });
+    }
+
+    const body = await response.json() as AppleMusicLibrarySongsResponse;
+    await storeAppleMusicLibrarySongs(filterFalsy(body.data));
+    return body.data.pop()!;
+  }
+
+  public async getLibraryPlaylist(libraryPlaylistIdentifier: string) {
+    const url = new URL(`https://api.music.apple.com/v1/me/library/playlists/${encodeURIComponent(libraryPlaylistIdentifier)}`);
+    url.searchParams.set('include', 'tracks');
+
+    const response = await fetch(url, {
+      headers: {
+        Authorization: `Bearer ${this.getDevToken()}`,
+        'Music-User-Token': this.getUserMusicToken(),
+      },
+    });
+
+    if (!response.ok) {
+      throw new AppleMusicAPIError({
+        status: response.status,
+        statusText: response.statusText,
+        body: await response.text(),
+        headers: response.headers,
+      });
+    }
+
+    const body = await response.json() as AppleMusicLibraryPlaylistsResponse;
+    return body.data.pop()!;
   }
 
   public async createPlaylist(playlistCreationRequest: AppleMusicLibraryPlaylistCreationRequest): Promise<AppleMusicLibraryPlaylists> {
