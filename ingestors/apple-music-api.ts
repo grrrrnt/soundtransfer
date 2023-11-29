@@ -40,16 +40,7 @@ const fetchPlaylists = async (): Promise<Playlist[]> => {
 
 const ingest = async (args: string[]): Promise<void> => {
   await AppleMusicAPI.init(args[0]);
-  const api = AppleMusicAPI.getInstance();
-
-  // TODO put all of this into Library or Mongo
-  console.log(JSON.stringify(await api.getSong('1538003843'), null, 2));
-  console.log(JSON.stringify(await api.getSongByIsrc('USEE11300353'), null, 2));
-
-  console.log(JSON.stringify(await api.getUserPlaylists(), null, 2));
-  console.log(JSON.stringify(await api.getPlaylistTracks('p.b16GBmWfo4LkaVp'), null, 2));
-  console.log(await api.getMultipleSongs(['1538003843']));
-
+  // TODO fetch and store other libary items
   await storePlaylists(await fetchPlaylists());
 }
 

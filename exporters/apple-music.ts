@@ -19,7 +19,7 @@ const export_ = async (args: string[]): Promise<void> => {
       },
       relationships: {
         parent: {
-          data: [],
+          data: (await api.getRootLibraryPlaylistsFolder()).map(folder => ({id: folder.id, type: 'library-playlist-folders'})),
         },
         tracks: {
           data: songs.map(song => ({id: song.id, type: 'songs'})),

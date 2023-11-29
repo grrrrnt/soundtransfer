@@ -377,7 +377,7 @@ export class AppleMusicAPI {
     return data.data.pop()!;
   }
 
-  public async getRootLibraryPlaylistsFolder (): Promise<AppleMusicLibraryPlaylistFolders | undefined> {
+  public async getRootLibraryPlaylistsFolder (): Promise<AppleMusicLibraryPlaylistFolders[]> {
     const url = new URL(`https://api.music.apple.com/v1/me/library/playlist-folders`);
     url.searchParams.set('filter[identity]', 'playlistsroot');
 
@@ -398,6 +398,6 @@ export class AppleMusicAPI {
     }
 
     const body = await response.json() as AppleMusicLibraryPlaylistFoldersResponse;
-    return body.data.pop();
+    return body.data;
   }
 }
