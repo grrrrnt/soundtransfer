@@ -42,8 +42,6 @@ export class SpotifyAPI {
       throw new Error("SpotifyAPI not initialized");
     }
 
-    console.log("Dev token: " + this.instance.getAccessToken());
-
     return this.instance;
   }
 
