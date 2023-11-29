@@ -139,9 +139,9 @@ const populateAlbums = async (api: SpotifyAPI): Promise<Album[]> => {
     const userAlbums = await api.getUserAlbums(albumsNextUrl);
     for (const album of userAlbums.items) {
       const a: Album = {
-        title: album.name,
+        title: album.album.name,
         songs: [], // FIXME: Should we populate songs for every album too?
-        artists: album.artists.map((artist: any) => artist.name),
+        artists: album.album.artists.map((artist: any) => artist.name),
       };
       albums.push(a);
     }
@@ -163,13 +163,13 @@ const populateFollowedArtists = async (api: SpotifyAPI): Promise<Artist[]> => {
     const userFollowedArtists = await api.getUserFollowedArtists(
       artistsNextUrl
     );
-    for (const artist of userFollowedArtists.items) {
+    for (const artist of userFollowedArtists.artists.items) {
       const a: Artist = {
         name: artist.name,
       };
       artists.push(a);
     }
-    artistsNextUrl = userFollowedArtists.next;
+    artistsNextUrl = userFollowedArtists.artists.next;
     if (artistsApiCallCount++ > 1) break; // Used only to prevent hitting API rate limit
   } while (artistsNextUrl !== null);
 
