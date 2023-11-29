@@ -153,7 +153,12 @@ export class AppleMusicAPI {
     return responseBody.data[0];
   }
 
-  public async getSongByIsrc(isrc: string): Promise<AppleMusicGetCatalogSongsByISRCResponse> {
+  public async getSongByIsrc(isrc: string): Promise<AppleMusicCatalogSong | undefined> {
+    const dbSong = await mongo.getAppleMusicSongFromIdentifier(isrc);
+    if (dbSong !== null) {
+      return dbSong;
+    }
+
     const url = new URL(`https://api.music.apple.com/v1/catalog/${this.storefront}/songs`);
     url.searchParams.set('filter[isrc]', isrc);
 
@@ -172,7 +177,8 @@ export class AppleMusicAPI {
       });
     }
 
-    return await data.json() as AppleMusicGetCatalogSongsByISRCResponse;
+    const body =  await data.json() as AppleMusicGetCatalogSongsByISRCResponse;
+    return body.data.pop()!;
   }
 
   public async getPlaylistTracks(playlistId: string) {

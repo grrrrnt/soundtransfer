@@ -8,7 +8,8 @@ import csvParse from 'csv-parse';
 import { getLibrary, mergeWithLibrary } from '../lib/library';
 import { AppleMusicAPI } from '../lib/apple-music';
 import { filterFalsy } from '../lib/utils';
-import { storeListeningHistory } from '../lib/mongo';
+import { storeListeningHistory, storePlaylists } from '../lib/mongo';
+import { DeepWritable } from 'ts-essentials';
 
 const appleMusicActivityFolderName = 'Apple Music Activity';
 const playHistoryFileName = 'Apple Music - Play History Daily Tracks.csv';
@@ -190,6 +191,9 @@ const ingest = async (args: string[]): Promise<void> => {
       parseFavourites,
     ].map(x => x(musicDataRoot)),
   ]);
+
+  const playlists = getLibrary().playlists;
+  await storePlaylists(playlists.slice() as DeepWritable<typeof playlists>);
 
   // TODO Put library into MongoDB
   // TODO Check how favourite albums work -- new feature
