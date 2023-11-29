@@ -5,6 +5,7 @@ import { SpotifyAPI } from "../lib/spotify";
 import { has, kebabCase } from "lodash";
 import querystring from "querystring";
 import { getLibrary, mergeWithLibrary } from "../lib/library";
+import { storeListeningHistory, storePlaylists } from "../lib/mongo";
 
 const BATCH_SIZE = 50;
 
@@ -34,7 +35,11 @@ const ingest = async (args: string[]): Promise<void> => {
   const artists: Artist[] = await populateFollowedArtists(api);
   library.artists = artists;
 
-  console.log(JSON.stringify(library, null, 2));
+  console.log("Storing playlists into MongoDB database...");
+  await storePlaylists(library.playlists);
+  console.log("Completed storing into MongoDB database.");
+
+  // console.log(JSON.stringify(library, null, 2));
 };
 
 const populateSongs = async (api: SpotifyAPI): Promise<Library> => {

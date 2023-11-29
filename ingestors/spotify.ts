@@ -5,6 +5,7 @@ import { SpotifyAPI } from "../lib/spotify";
 import { kebabCase } from "lodash";
 import querystring from "querystring";
 import { getLibrary, mergeWithLibrary } from "../lib/library";
+import { storeListeningHistory, storePlaylists } from "../lib/mongo";
 
 const BATCH_SIZE = 50;
 
@@ -61,6 +62,20 @@ const ingest = async (args: string[]): Promise<void> => {
     streamingHistoryJSON,
     api
   );
+
+  console.log("Ingested Spotify data export:");
+  console.log("  - Songs: ", library.songs.length);
+  console.log("  - Artists: ", library.artists.length);
+  console.log("  - Albums: ", library.albums.length);
+  console.log("  - Playlists: ", library.playlists.length);
+  console.log("  - Listen history: ", listenHistory.length);
+
+  console.log(
+    "Storing playlists and listening history into MongoDB database..."
+  );
+  await storePlaylists(library.playlists);
+  await storeListeningHistory(listenHistory);
+  console.log("Completed storing into MongoDB database.");
 
   // console.log(JSON.stringify(library, null, 2));
   // console.log("Listening history size: ", listenHistory.length);
