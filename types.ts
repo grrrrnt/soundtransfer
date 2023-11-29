@@ -62,6 +62,8 @@ interface Playlist {
   imageUrl?: string;
   lastModifiedDate?: Date;
   owner?: string;
+  public?: boolean;
+  collaborative?: boolean;
 }
 
 interface PlaylistItem {
@@ -263,7 +265,7 @@ type AppleMusicFavourites = AppleMusicFavouritesItem[];
 // FIXME
 interface AppleMusicPlaylists {
   id: string;
-  type: 'playlists';
+  type: "playlists";
   href: string;
   attributes: object;
   relationships: object;
@@ -395,13 +397,13 @@ interface AppleMusicLibraryPlaylistFolders {
 
 interface AppleMusicLibrarySongs {
   id: string;
-  type: 'library-songs';
+  type: "library-songs";
   href: string;
   attributes: {
     albumName: string;
     artistName: string;
     artwork: object;
-    contentRating?: 'clean' | 'explicit';
+    contentRating?: "clean" | "explicit";
     discNumber: number;
     durationInMillis: number;
     genreNames: string[];
@@ -425,4 +427,11 @@ interface AppleMusicLibrarySongs {
 
 interface AppleMusicLibrarySongsResponse {
   data: AppleMusicLibrarySongs[];
+}
+
+interface SpotifyLibraryPlaylistCreationRequest {
+  name: string;
+  description?: string;
+  public?: boolean;
+  collaborative?: boolean;
 }

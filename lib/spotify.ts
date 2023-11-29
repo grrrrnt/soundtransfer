@@ -352,4 +352,43 @@ export class SpotifyAPI {
 
     return response.data;
   };
+
+  getUserProfile = async (): Promise<any> => {
+    // Get the profile data using Spotify API
+    const response = await axios.get(`https://api.spotify.com/v1/me`, {
+      headers: {
+        Authorization: `Bearer ${this.accessToken}`,
+      },
+    });
+
+    if (response.status !== 200) {
+      throw new SpotifyAPIError({
+        status: response.status,
+        body: await response.data,
+      });
+    }
+    return response.data;
+  };
+
+  createPlaylist = async (
+    userId: string,
+    playlist: SpotifyLibraryPlaylistCreationRequest
+  ): Promise<any> => {
+    const response = await axios.post(
+      `https://api.spotify.com/v1/me/playlists`,
+      playlist,
+      {
+        headers: {
+          Authorization: `Bearer ${this.accessToken}`,
+        },
+      }
+    );
+
+    if (response.status !== 201) {
+      throw new SpotifyAPIError({
+        status: response.status,
+        body: await response.data,
+      });
+    }
+  };
 }

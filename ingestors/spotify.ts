@@ -22,7 +22,7 @@ const ingest = async (args: string[]): Promise<void> => {
   const clientSecret = args[2];
 
   // Initialize the Spotify API handler
-  await SpotifyAPI.initWithClientCredentials(clientId, clientSecret);
+  await SpotifyAPI.initWithAuthorizationCode(clientId, clientSecret);
   const api = SpotifyAPI.getInstance();
 
   // Get the JSON files
