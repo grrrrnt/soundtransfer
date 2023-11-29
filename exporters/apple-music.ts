@@ -1,5 +1,6 @@
 import { AppleMusicAPI } from '../lib/apple-music';
 import { getPlaylists } from '../lib/mongo';
+import { filterFalsy } from '../lib/utils';
 
 const export_ = async (args: string[]): Promise<void> => {
   await AppleMusicAPI.init(args[0]);
@@ -7,23 +8,9 @@ const export_ = async (args: string[]): Promise<void> => {
   const playlists = await getPlaylists();
 
   for await (const playlist of playlists) {
-    console.log('Here');
-    const songs: {
-      id: string,
-      type: 'songs'
-    }[] = [];
-
-    for (const item of playlist.songs) {
-      const foundSong = await api.getSongByIsrc(item.song.isrc);
-      if (!foundSong) {
-        continue;
-      }
-
-      songs.push({
-        id: foundSong.id,
-        type: 'songs',
-      });
-    }
+    const songs = filterFalsy(
+      await Promise.all(
+        playlist.songs.map(item => api.getSongByIsrc(item.song.isrc))));
 
     await api.createPlaylist({
       attributes: {
@@ -35,7 +22,7 @@ const export_ = async (args: string[]): Promise<void> => {
           data: [],
         },
         tracks: {
-          data: songs,
+          data: songs.map(song => ({id: song.id, type: 'songs'})),
         },
       },
     });

@@ -3,7 +3,9 @@ import fs from 'fs';
 import jwt from 'jsonwebtoken';
 import { port } from '../web/express';
 import * as mongo from './mongo';
+import { storeAppleMusicSongs } from './mongo';
 import assert from 'assert';
+import { filterFalsy } from './utils';
 
 export class AppleMusicAPIError extends Error {
   public readonly error;
@@ -178,7 +180,9 @@ export class AppleMusicAPI {
     }
 
     const body =  await data.json() as AppleMusicGetCatalogSongsByISRCResponse;
-    return body.data.pop()!;
+    const song = body.data.pop();
+    await storeAppleMusicSongs(filterFalsy([song]));
+    return song;
   }
 
   public async getPlaylistTracks(playlistId: string) {
