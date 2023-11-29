@@ -97,6 +97,7 @@ const populateSongs = async (
         artists: song.artists.map((artist: any) => artist.name),
         year: song.album.release_date.split("-")[0],
         duration: song.duration_ms,
+        album: song.album.name,
       };
       library.songs.push(s);
     });
@@ -138,6 +139,7 @@ const populateListenHistory = async (
             artists: result.artists.map((artist: any) => artist.name),
             year: result.album.release_date.split("-")[0],
             duration: result.duration_ms,
+            album: result.album.name,
           },
         };
 
@@ -179,6 +181,7 @@ const populatePlaylists = async (
           artists: track.artists.map((artist: any) => artist.name),
           year: track.album.release_date.split("-")[0],
           duration: track.duration_ms,
+          album: track.album.name,
         };
 
         // Get the added date

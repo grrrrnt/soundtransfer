@@ -2,23 +2,22 @@ interface Artist {
   name: string;
 }
 
-interface SpotifyArtist extends Artist {
-} // how do you deal with favourite artists?
+interface SpotifyArtist extends Artist {} // how do you deal with favourite artists?
 
 interface AppleMusicArtist {
   id: string;
-  type: 'artists';
+  type: "artists";
   href: string;
   attributes: {
     artwork?: {
-      'width': number,
-      'height': number,
-      'url': string;
-      'bgColor': string,
-      'textColor1': string,
-      'textColor2': string,
-      'textColor3': string,
-      'textColor4': string
+      width: number;
+      height: number;
+      url: string;
+      bgColor: string;
+      textColor1: string;
+      textColor2: string;
+      textColor3: string;
+      textColor4: string;
     };
     editorialNotes?: Record<string, unknown>;
     genreNames: string[];
@@ -31,7 +30,7 @@ interface AppleMusicArtist {
       next: string;
       data: {
         id: string;
-        type: 'albums';
+        type: "albums";
         href: string;
       }[];
     };
@@ -39,11 +38,9 @@ interface AppleMusicArtist {
   views?: object;
 }
 
-interface SpotifyAlbum {
-}
+interface SpotifyAlbum {}
 
-interface ArtistMap extends Map<MusicProvider, URL> {
-}
+interface ArtistMap extends Map<MusicProvider, URL> {}
 
 // For data translation
 type ISRC = string;
@@ -80,12 +77,12 @@ interface Song {
   year?: number;
   duration?: number;
   artists: string[];
-  // FIXME: Include album as well?
+  album?: string;
 }
 
 interface Album {
   title: string;
-  songs: Song[];
+  songs?: Song[];
   artists: string[];
 }
 
@@ -106,18 +103,18 @@ interface HistoryItem {
 
 interface AppleMusicExportHistoryItem {
   Country: string;
-  'Track Identifier': string;
-  'Media type': string;
-  'Date Played': string;
+  "Track Identifier": string;
+  "Media type": string;
+  "Date Played": string;
   Hours: string;
-  'Play Duration Milliseconds': string;
-  'End Reason Type': string;
-  'Source Type': string;
-  'Play Count': string;
-  'Skip Count': string;
-  'Ignore For Recommendations': string;
-  'Track Reference': string;
-  'Track Description': string;
+  "Play Duration Milliseconds": string;
+  "End Reason Type": string;
+  "Source Type": string;
+  "Play Count": string;
+  "Skip Count": string;
+  "Ignore For Recommendations": string;
+  "Track Reference": string;
+  "Track Description": string;
 }
 
 type AppleMusicHistoryExport = AppleMusicExportHistoryItem[];
@@ -306,16 +303,16 @@ interface AppleMusicLibraryPlaylistsResponse {
 
 // For visualization
 
-interface SpotifySong extends Song {
-  album: SpotifyAlbum;
-  href: URL;
-  id: string;
-  popularity: number;
-  previewUrl: URL;
-  explicit: boolean;
-  durationMs: number;
-  spotifyArtists: SpotifyArtist[];
-}
+// interface SpotifySong extends Song {
+//   album: SpotifyAlbum;
+//   href: URL;
+//   id: string;
+//   popularity: number;
+//   previewUrl: URL;
+//   explicit: boolean;
+//   durationMs: number;
+//   spotifyArtists: SpotifyArtist[];
+// }
 
 interface AppleMusicArtistsResponse {
   data: AppleMusicArtist[];
@@ -325,22 +322,26 @@ interface AppleMusicLibraryPlaylistCreationRequest {
   attributes: {
     name: string;
     description?: string;
-  },
+  };
   relationships?: {
     tracks: {
       data: {
         id: string;
-        type: 'library-music-videos' | 'library-songs' | 'music-videos' | 'songs';
-      }[],
-    },
+        type:
+          | "library-music-videos"
+          | "library-songs"
+          | "music-videos"
+          | "songs";
+      }[];
+    };
     /** The library playlist folder which contains the created playlist. */
     parent: {
       data: {
         id: string;
-        type: 'library-playlist-folders';
+        type: "library-playlist-folders";
       }[];
-    },
-  }
+    };
+  };
 }
 
 interface AppleMusicLibraryPlaylistFoldersResponse {
@@ -349,7 +350,7 @@ interface AppleMusicLibraryPlaylistFoldersResponse {
 
 interface AppleMusicLibraryPlaylistFolders {
   id: string;
-  type: 'library-playlist-folders',
+  type: "library-playlist-folders";
   href: string;
   attributes: {
     /** Date added in ISO 8601 */

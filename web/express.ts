@@ -45,7 +45,7 @@ app.get("/api/spotify/user-auth", function (req, res) {
 
   var state = generateRandomString(16);
   var scope =
-    "user-read-private user-read-email user-library-read user-library-modify playlist-read-private playlist-read-collaborative playlist-modify-public playlist-modify-private";
+    "user-read-private user-read-email user-follow-read user-follow-modify user-library-read user-library-modify playlist-read-private playlist-read-collaborative playlist-modify-public playlist-modify-private";
   var redirectUri = "http://localhost:8080/api/spotify/user-auth-callback";
 
   res.send(

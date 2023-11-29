@@ -304,4 +304,54 @@ export class SpotifyAPI {
 
     return response.data;
   };
+
+  getUserAlbums = async (url: string): Promise<any> => {
+    // Limit: 50 albums
+
+    // Set URL if not provided
+    if (url == null) {
+      url = `https://api.spotify.com/v1/me/albums?limit=50`;
+    }
+
+    // Get the album data using Spotify API
+    const response = await axios.get(url, {
+      headers: {
+        Authorization: `Bearer ${this.accessToken}`,
+      },
+    });
+
+    if (response.status !== 200) {
+      throw new SpotifyAPIError({
+        status: response.status,
+        body: await response.data,
+      });
+    }
+
+    return response.data;
+  };
+
+  getUserFollowedArtists = async (url: string): Promise<any> => {
+    // Limit: 50 artists
+
+    // Set URL if not provided
+    if (url == null) {
+      url = `https://api.spotify.com/v1/me/following?type=artist&limit=50`;
+    }
+
+    // Get the artist data using Spotify API
+    const response = await axios.get(url, {
+      headers: {
+        Authorization: `Bearer ${this.accessToken}`,
+      },
+    });
+
+    if (response.status !== 200) {
+      throw new SpotifyAPIError({
+        status: response.status,
+        body: await response.data,
+      });
+    }
+
+    return response.data;
+  };
 }
