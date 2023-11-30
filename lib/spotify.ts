@@ -195,6 +195,43 @@ export class SpotifyAPI {
     return response.data;
   };
 
+  getSongByIsrc = async (isrc: string): Promise<any> => {
+    // Limit: 50 songs
+
+    // Get the song data using Spotify API
+    const queryFields = querystring.stringify({
+      q: `isrc:${isrc}`,
+      type: "track",
+      limit: 5,
+      market: "US",
+    });
+
+    const response = await axios.get(
+      `https://api.spotify.com/v1/search?${queryFields}`,
+      {
+        headers: {
+          Authorization: `Bearer ${this.accessToken}`,
+        },
+      }
+    );
+
+    if (response.status !== 200) {
+      throw new SpotifyAPIError({
+        status: response.status,
+        body: await response.data,
+      });
+    }
+
+    const tracks = response.data.tracks.items;
+    for (const track of tracks) {
+      if (track.external_ids.isrc === isrc) {
+        return track;
+      }
+    }
+
+    return tracks[0];
+  };
+
   searchForSong = async (
     trackName: string,
     artistName: string
@@ -375,7 +412,7 @@ export class SpotifyAPI {
     playlist: SpotifyLibraryPlaylistCreationRequest
   ): Promise<any> => {
     const response = await axios.post(
-      `https://api.spotify.com/v1/me/playlists`,
+      `https://api.spotify.com/v1/users/${userId}/playlists`,
       playlist,
       {
         headers: {
@@ -390,5 +427,47 @@ export class SpotifyAPI {
         body: await response.data,
       });
     }
+
+    return response.data;
+  };
+
+  addSongsToPlaylist = async (
+    playlistId: string,
+    songUris: string[]
+  ): Promise<any> => {
+    // Limit: 100 songs
+
+    // Add the songs to the playlist
+
+    console.log(
+      JSON.stringify(
+        {
+          uris: songUris,
+        },
+        null,
+        2
+      )
+    );
+
+    const response = await axios.post(
+      `https://api.spotify.com/v1/playlists/${playlistId}/tracks`,
+      {
+        uris: songUris,
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${this.accessToken}`,
+        },
+      }
+    );
+
+    if (response.status !== 201) {
+      throw new SpotifyAPIError({
+        status: response.status,
+        body: await response.data,
+      });
+    }
+
+    return response.data;
   };
 }
