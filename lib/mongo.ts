@@ -7,6 +7,8 @@ const AppleMusicSongCollection = 'appleMusicSongs';
 const AppleMusicLibrarySongCollection = 'appleMusicLibrarySongs';
 const HistoryCollection = 'userListeningHistory';
 const PlaylistCollection = 'userPlaylists';
+const AlbumCollection = 'userAlbums';
+const ArtistCollection = 'userArtists';
 
 const getCollection = async (collectionName: string): Promise<Collection<Document>> => {
   await client.connect();
@@ -75,4 +77,29 @@ export const storePlaylists = async (playlists: Playlist[]) => {
 export const getPlaylists = async () => {
   const collection = await getCollection(PlaylistCollection);
   return collection.find() as FindCursor<WithId<Playlist>>;
+}
+
+export const storeAlbums = async (albums: Album[]) => {
+  const collection = await getCollection(AlbumCollection);
+  await collection.insertMany(albums);
+}
+
+export const storeArtists = async (artists: Artist[]) => {
+  const collection = await getCollection(ArtistCollection);
+  await collection.insertMany(artists);
+}
+
+export const getArtists = async () => {
+  const collection = await getCollection(ArtistCollection);
+  return collection.find() as FindCursor<WithId<Artist>>;
+}
+
+export const getAlbums = async () => {
+  const collection = await getCollection(AlbumCollection);
+  return collection.find() as FindCursor<WithId<Album>>;
+}
+
+export const getListenHistory = async () => {
+  const collection = await getCollection(HistoryCollection);
+  return collection.find() as FindCursor<WithId<HistoryItem>>;
 }
