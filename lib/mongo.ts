@@ -9,6 +9,7 @@ const HistoryCollection = "userListeningHistory";
 const PlaylistCollection = "userPlaylists";
 const AlbumCollection = "userAlbums";
 const ArtistCollection = "userArtists";
+const SongCollection = "userSongs";
 
 const getCollection = async (
   collectionName: string
@@ -29,6 +30,58 @@ export const closeMongoDBConnection = async () => {
 
 // TODO collection.createIndex({'id': 1}, {sparse: true, unique: true});
 // for faster queries. Would need another one for ISRC.
+
+export const storeListeningHistory = async (history: HistoryItem[]) => {
+  const collection = await getCollection(HistoryCollection);
+  await collection.insertMany(history);
+};
+
+export const getListeningHistory = async () => {
+  const collection = await getCollection(HistoryCollection);
+  return collection.find() as FindCursor<WithId<HistoryItem>>;
+};
+
+export const storePlaylists = async (playlists: Playlist[]) => {
+  const collection = await getCollection(PlaylistCollection);
+  await collection.insertMany(playlists);
+};
+
+export const getPlaylists = async () => {
+  const collection = await getCollection(PlaylistCollection);
+  return collection.find() as FindCursor<WithId<Playlist>>;
+};
+
+export const storeAlbums = async (albums: Album[]) => {
+  const collection = await getCollection(AlbumCollection);
+  await collection.insertMany(albums);
+};
+
+export const getAlbums = async () => {
+  const collection = await getCollection(AlbumCollection);
+  return collection.find() as FindCursor<WithId<Album>>;
+};
+
+export const storeArtists = async (artists: Artist[]) => {
+  const collection = await getCollection(ArtistCollection);
+  await collection.insertMany(artists);
+};
+
+export const getArtists = async () => {
+  const collection = await getCollection(ArtistCollection);
+  return collection.find() as FindCursor<WithId<Artist>>;
+};
+
+export const storeSongs = async (songs: Song[]) => {
+  const collection = await getCollection(SongCollection);
+  await collection.insertMany(songs);
+};
+
+export const getSongs = async () => {
+  const collection = await getCollection(SongCollection);
+  return collection.find() as FindCursor<WithId<Song>>;
+};
+
+// For caching Apple Music songs to prevent hitting API rate limit
 
 export const storeAppleMusicSongs = async (songs: AppleMusicCatalogSong[]) => {
   const collection = await getCollection(AppleMusicSongCollection);
@@ -68,44 +121,4 @@ export const getAppleMusicSongFromIsrc = async (isrc: string) => {
       isrc,
     },
   })) as WithId<AppleMusicCatalogSong> | null;
-};
-
-export const storeListeningHistory = async (history: HistoryItem[]) => {
-  const collection = await getCollection(HistoryCollection);
-  await collection.insertMany(history);
-};
-
-export const storePlaylists = async (playlists: Playlist[]) => {
-  const collection = await getCollection(PlaylistCollection);
-  await collection.insertMany(playlists);
-};
-
-export const getPlaylists = async () => {
-  const collection = await getCollection(PlaylistCollection);
-  return collection.find() as FindCursor<WithId<Playlist>>;
-};
-
-export const storeAlbums = async (albums: Album[]) => {
-  const collection = await getCollection(AlbumCollection);
-  await collection.insertMany(albums);
-};
-
-export const storeArtists = async (artists: Artist[]) => {
-  const collection = await getCollection(ArtistCollection);
-  await collection.insertMany(artists);
-};
-
-export const getArtists = async () => {
-  const collection = await getCollection(ArtistCollection);
-  return collection.find() as FindCursor<WithId<Artist>>;
-};
-
-export const getAlbums = async () => {
-  const collection = await getCollection(AlbumCollection);
-  return collection.find() as FindCursor<WithId<Album>>;
-};
-
-export const getListeningHistory = async () => {
-  const collection = await getCollection(HistoryCollection);
-  return collection.find() as FindCursor<WithId<HistoryItem>>;
 };
