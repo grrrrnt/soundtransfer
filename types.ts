@@ -44,6 +44,7 @@ interface ArtistMap extends Map<MusicProvider, URL> {}
 
 // For data translation
 type ISRC = string;
+type UPC = string;
 type MusicProvider = "AppleMusic" | "Spotify";
 type ListenHistory = HistoryItem[];
 
@@ -84,8 +85,9 @@ interface Song {
 
 interface Album {
   title: string;
-  songs: Song[];
+  songs?: Song[];
   artists: string[];
+  upc: UPC;
 }
 
 interface HistoryItem {
