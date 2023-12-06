@@ -11,11 +11,15 @@ const export_ = async (args: string[]): Promise<void> => {
 
   await SpotifyAPI.initWithAuthorizationCode(clientId, clientSecret);
   const api = SpotifyAPI.getInstance();
-  const playlists = await getPlaylists();
 
   const userProfile = await api.getUserProfile();
   const userId = userProfile.id;
 
+  await exportPlaylists(userId, api);
+};
+
+const exportPlaylists = async (userId: any, api: SpotifyAPI) => {
+  const playlists = await getPlaylists();
   for await (const playlist of playlists) {
     console.log(`Exporting playlist ${playlist.name}...`);
 
@@ -45,6 +49,22 @@ const export_ = async (args: string[]): Promise<void> => {
   }
 
   console.log("Playlist export completed.");
+};
+
+const exportSongs = async (userId: any, api: SpotifyAPI) => {
+  // TODO
+};
+
+const exportAlbums = async (userId: any, api: SpotifyAPI) => {
+  // TODO
+};
+
+const exportArtists = async (userId: any, api: SpotifyAPI) => {
+  // TODO
+};
+
+const exportListenHistory = async (userId: any, api: SpotifyAPI) => {
+  // TODO
 };
 
 export default export_;
