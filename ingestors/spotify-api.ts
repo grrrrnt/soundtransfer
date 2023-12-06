@@ -144,8 +144,8 @@ const populateAlbums = async (api: SpotifyAPI): Promise<Album[]> => {
     const userAlbums = await api.getUserAlbums(albumsNextUrl);
     for (const album of userAlbums.items) {
       const a: Album = {
+        upc: album.album.external_ids.upc,
         title: album.album.name,
-        songs: [], // FIXME: Should we populate songs for every album too?
         artists: album.album.artists.map((artist: any) => artist.name),
       };
       albums.push(a);
