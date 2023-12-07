@@ -438,17 +438,6 @@ export class SpotifyAPI {
     // Limit: 100 songs
 
     // Add the songs to the playlist
-
-    console.log(
-      JSON.stringify(
-        {
-          uris: songUris,
-        },
-        null,
-        2
-      )
-    );
-
     const response = await axios.post(
       `https://api.spotify.com/v1/playlists/${playlistId}/tracks`,
       {
@@ -468,6 +457,132 @@ export class SpotifyAPI {
       });
     }
 
+    return response.data;
+  };
+
+  addSongsToLibrary = async (songUris: string[]): Promise<any> => {
+    // Limit: 50 songs
+
+    // Add the songs to the library
+    const response = await axios.put(
+      `https://api.spotify.com/v1/me/tracks`,
+      {
+        ids: songUris,
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${this.accessToken}`,
+        },
+      }
+    );
+
+    if (response.status !== 200) {
+      throw new SpotifyAPIError({
+        status: response.status,
+        body: await response.data,
+      });
+    }
+  };
+
+  addAlbumsToLibrary = async (albumUris: string[]): Promise<any> => {
+    // Limit: 20 albums
+
+    // Add the albums to the library
+    const response = await axios.put(
+      `https://api.spotify.com/v1/me/albums`,
+      {
+        ids: albumUris,
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${this.accessToken}`,
+        },
+      }
+    );
+
+    if (response.status !== 200) {
+      throw new SpotifyAPIError({
+        status: response.status,
+        body: await response.data,
+      });
+    }
+  };
+
+  followArtists = async (artistUris: string[]): Promise<any> => {
+    // Limit: 50 artists
+
+    // Follow the artists
+    const response = await axios.put(
+      `https://api.spotify.com/v1/me/following?type=artist`,
+      {
+        ids: artistUris,
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${this.accessToken}`,
+        },
+      }
+    );
+
+    if (response.status !== 204) {
+      throw new SpotifyAPIError({
+        status: response.status,
+        body: await response.data,
+      });
+    }
+  };
+
+  getAlbumByUPC = async (upc: string): Promise<any> => {
+    // Get the album data using Spotify API
+    const queryFields = querystring.stringify({
+      q: `upc:${upc}`,
+      type: "album",
+      limit: 1,
+      market: "US",
+    });
+
+    const response = await axios.get(
+      `https://api.spotify.com/v1/search?${queryFields}`,
+      {
+        headers: {
+          Authorization: `Bearer ${this.accessToken}`,
+        },
+      }
+    );
+
+    if (response.status !== 200) {
+      throw new SpotifyAPIError({
+        status: response.status,
+        body: await response.data,
+      });
+    }
+    return response.data;
+  };
+
+  getArtistByName = async (artistName: string): Promise<any> => {
+    // Get the artist data using Spotify API
+    const queryFields = querystring.stringify({
+      q: `artist:${artistName}`,
+      type: "artist",
+      limit: 1,
+      market: "US",
+    });
+
+    const response = await axios.get(
+      `https://api.spotify.com/v1/search?${queryFields}`,
+      {
+        headers: {
+          Authorization: `Bearer ${this.accessToken}`,
+        },
+      }
+    );
+
+    if (response.status !== 200) {
+      throw new SpotifyAPIError({
+        status: response.status,
+        body: await response.data,
+      });
+    }
     return response.data;
   };
 }
