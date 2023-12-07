@@ -400,4 +400,131 @@ export class AppleMusicAPI {
     const body = await response.json() as AppleMusicLibraryPlaylistFoldersResponse;
     return body.data;
   }
+
+  async getUserAlbums(): Promise<AppleMusicLibraryAlbums[]> {
+    let nextURL: URL | undefined = new URL('https://api.music.apple.com/v1/me/library/albums');
+    const albums: AppleMusicLibraryAlbums[] = [];
+    let totalAlbumCount: number | undefined = undefined;
+
+    do {
+      nextURL.searchParams.set('include', 'catalog');
+      const response = await fetch(nextURL, {
+        headers: {
+          Authorization: `Bearer ${this.getDevToken()}`,
+          'Music-User-Token': this.getUserMusicToken(),
+        },
+      });
+
+      if (!response.ok) {
+        throw new AppleMusicAPIError({
+          status: response.status,
+          statusText: response.statusText,
+          body: await response.text(),
+          headers: response.headers,
+        });
+      }
+
+      const body = await response.json() as AppleMusicLibraryAlbumsResponse;
+      albums.push(...body.data);
+      totalAlbumCount = body.meta?.total;
+
+      if (!body.next) {
+        break;
+      }
+
+      nextURL = new URL(body.next, 'https://api.music.apple.com');
+    } while (true);
+
+    assert(albums.length === (totalAlbumCount ?? 0));
+    return albums;
+  }
+
+  async addResourceToLibrary(resources: Partial<Record<AppleMusicResourceTypes, string[]>>): Promise<void> {
+    const url = new URL('https://api.music.apple.com/v1/me/library');
+
+    for (const key of Object.keys(resources) as (keyof typeof resources)[]) {
+      url.searchParams.set(`ids[${key}]`, (resources[key] ?? []).join(','))
+    }
+
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${this.getDevToken()}`,
+        'Music-User-Token': this.getUserMusicToken(),
+        'Content-Type': 'application/json; charset=utf-8',
+      },
+    });
+
+    if (!response.ok || response.status !== 202) {
+      throw new AppleMusicAPIError({
+        status: response.status,
+        statusText: response.statusText,
+        body: await response.text(),
+        headers: response.headers,
+      });
+    }
+  }
+
+  async getAlbumByUPC(upc: UPC): Promise<AppleMusicAlbums | undefined> {
+    const url = new URL(`https://api.music.apple.com/v1/catalog/${this.storefront}/albums`);
+    url.searchParams.set('filter[upc]', upc);
+
+    const response = await fetch(url, {
+      headers: {
+        Authorization: `Bearer ${this.getDevToken()}`,
+      },
+    });
+
+    if (!response.ok) {
+      throw new AppleMusicAPIError({
+        status: response.status,
+        statusText: response.statusText,
+        body: await response.text(),
+        headers: response.headers,
+      });
+    }
+
+    const body = await response.json() as AppleMusicAlbumsResponse;
+    return body.data.pop();
+  }
+
+  async getAllLibrarySongs(): Promise<AppleMusicLibrarySongs[]> {
+    let nextURL: URL | undefined = new URL('https://api.music.apple.com/v1/me/library/songs');
+    const songs: AppleMusicLibrarySongs[] = [];
+    let totalSongCount: number | undefined = undefined;
+
+    do {
+      nextURL.searchParams.set('include', 'catalog');
+      const response = await fetch(nextURL, {
+        headers: {
+          Authorization: `Bearer ${this.getDevToken()}`,
+          'Music-User-Token': this.getUserMusicToken(),
+        },
+      });
+
+      if (!response.ok) {
+        throw new AppleMusicAPIError({
+          status: response.status,
+          statusText: response.statusText,
+          body: await response.text(),
+          headers: response.headers,
+        });
+      }
+
+      const body = await response.json() as AppleMusicLibrarySongsResponse;
+      songs.push(...body.data);
+      totalSongCount = body.meta?.total;
+
+      console.log(JSON.stringify(body, null, 2));
+
+      if (!body.next) {
+        break;
+      }
+
+      nextURL = new URL(body.next, 'https://api.music.apple.com');
+    } while (true);
+
+    assert(songs.length === (totalSongCount ?? 0));
+    return songs;
+  }
 }

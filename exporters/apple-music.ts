@@ -1,9 +1,23 @@
 import { AppleMusicAPI } from '../lib/apple-music';
-import { getPlaylists } from '../lib/mongo';
+import { getAlbums, getPlaylists, getSongs } from '../lib/mongo';
 import { filterFalsy } from '../lib/utils';
 
-const export_ = async (args: string[]): Promise<void> => {
-  await AppleMusicAPI.init(args[0]);
+const exportSongs = async () => {
+  const api = AppleMusicAPI.getInstance();
+  const userAlbums = await getAlbums();
+  const songIds: string[] = [];
+
+  for await (const song of await getSongs()) {
+    const appleMusicSong = await api.getSongByIsrc(song.isrc);
+    appleMusicSong && songIds.push(appleMusicSong?.id);
+  }
+
+  await api.addResourceToLibrary({
+    songs: songIds,
+  });
+}
+
+const exportPlaylists = async () => {
   const api = AppleMusicAPI.getInstance();
   const playlists = await getPlaylists();
 
@@ -29,6 +43,35 @@ const export_ = async (args: string[]): Promise<void> => {
   }
 
   console.log('Playlist export completed.');
+}
+
+const exportAlbums = async () => {
+  const api = AppleMusicAPI.getInstance();
+  const userAlbums = await getAlbums();
+  const albumIdsToAdd: string[] = [];
+
+  for await (const userAlbum of userAlbums) {
+    const appleMusicAlbum = await api.getAlbumByUPC(userAlbum.upc);
+    if (!appleMusicAlbum) {
+      console.error(`Album with title ${userAlbum.title} not available in Apple Music`);
+      continue;
+    }
+
+    albumIdsToAdd.push(appleMusicAlbum.id);
+  }
+
+  await api.addResourceToLibrary({
+    albums: albumIdsToAdd,
+  });
+
+  console.log('Album export completed');
+}
+
+const export_ = async (args: string[]): Promise<void> => {
+  await AppleMusicAPI.init(args[0]);
+  await exportPlaylists();
+  await exportAlbums();
+  await exportSongs();
 };
 
 export default export_;

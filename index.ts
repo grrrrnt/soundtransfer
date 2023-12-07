@@ -86,8 +86,8 @@ Promise.all([
               return asyncNoOp<string[]>;
           }
         })()(args.args)
-          .then(shutdown)
-          .catch(console.error);
+          .catch(console.error)
+          .finally(shutdown);
       },
     )
     .command(
@@ -120,8 +120,8 @@ Promise.all([
               return asyncNoOp<string[]>;
           }
         })()(args.args)
-          .then(shutdown)
-          .catch(console.error);
+          .catch(console.error)
+          .finally(shutdown);
       },
     )
     .demandCommand()

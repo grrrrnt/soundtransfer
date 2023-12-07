@@ -429,6 +429,10 @@ interface AppleMusicLibrarySongs {
 
 interface AppleMusicLibrarySongsResponse {
   data: AppleMusicLibrarySongs[];
+  meta?: {
+    total: number;
+  };
+  next?: string;
 }
 
 interface SpotifyLibraryPlaylistCreationRequest {
@@ -436,4 +440,88 @@ interface SpotifyLibraryPlaylistCreationRequest {
   description?: string;
   public?: boolean;
   collaborative?: boolean;
+}
+
+interface AppleMusicAlbums {
+  id: string;
+  type: 'albums';
+  href: string;
+  attributes: {
+    artistName: string;
+    artistUrl: string;
+    artwork: object;
+    audioVariants: string[];
+    contentRating: 'clean' | 'explicit';
+    copyright: string;
+    editorialNotes: object;
+    genreNames: string[];
+    isCompilation: boolean;
+    isComplete: boolean;
+    isMasteredForItunes: boolean;
+    isSingle: boolean;
+    playParams: object;
+    recordLabel: string;
+    releaseDate: string;
+    upc: string;
+    url: string;
+  };
+  relationships: object;
+  views: object;
+}
+
+interface AppleMusicLibraryAlbums {
+  id: string;
+  type: 'library-albums';
+  href: string;
+  attributes: {
+    artistName: string;
+    artwork: object;
+    contentRating: string;
+    dateAdded: string;
+    name: string;
+    playParams: {
+      id: string;
+      kind: 'album';
+      isLibrary: boolean;
+    };
+    releaseDate: string;
+    trackCount: number;
+    genreCount: string[];
+  };
+  relationships: {
+    artists: object;
+    catalog: {
+      href: string;
+      next: string;
+      data: [AppleMusicAlbums];
+    };
+    tracks: object;
+  };
+}
+
+interface AppleMusicLibraryAlbumsResponse {
+  data: AppleMusicLibraryAlbums[];
+  meta: {
+    total: number;
+  };
+  next?: string;
+}
+
+type AppleMusicResourceTypes =
+  'stations' |
+  'station-genres' |
+  'songs' |
+  'record-labels' |
+  'ratings' |
+  'playlists' |
+  'music-videos' |
+  'genres' |
+  'curators' |
+  'artists' |
+  'apple-curators' |
+  'albums' |
+  'activities';
+
+interface AppleMusicAlbumsResponse {
+  data: AppleMusicAlbums[];
 }

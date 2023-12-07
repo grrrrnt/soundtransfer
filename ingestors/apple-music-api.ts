@@ -1,5 +1,5 @@
 import { AppleMusicAPI } from '../lib/apple-music';
-import { storePlaylists } from '../lib/mongo';
+import { storeAlbums, storePlaylists, storeSongs } from '../lib/mongo';
 
 const fetchPlaylists = async (): Promise<Playlist[]> => {
   const api = AppleMusicAPI.getInstance();
@@ -32,10 +32,37 @@ const fetchPlaylists = async (): Promise<Playlist[]> => {
       lastModifiedDate: new Date(playlist.attributes.lastModifiedDate),
       songs: playlistSongs.map(song => ({song: song})),
       imageUrl: playlist.attributes.artwork?.url,
+      public: playlist.attributes.isPublic,
     });
   }
 
   return ret;
+}
+
+const fetchAlbums = async (): Promise<Album[]> => {
+  const api = AppleMusicAPI.getInstance();
+  const albums = await api.getUserAlbums();
+
+  return albums.map(album => ({
+    artists: [album.attributes.artistName],
+    title: album.attributes.name,
+    upc: album.relationships.catalog.data[0].attributes.upc,
+  }));
+}
+
+const fetchSongs = async (): Promise<Song[]> => {
+  const api = AppleMusicAPI.getInstance();
+  const songs = await api.getAllLibrarySongs();
+
+  return songs.map(song => ({
+    __type: 'Song',
+    isrc: song.relationships.catalog?.data[0].attributes.isrc!,
+    title: song.attributes.name,
+    album: song.attributes.albumName,
+    artists: [song.attributes.artistName],
+    duration: song.attributes.durationInMillis,
+    year: song.attributes.releaseDate ? new Date(song.attributes.releaseDate).getFullYear() : undefined,
+  }));
 }
 
 const ingest = async (args: string[]): Promise<void> => {
@@ -44,6 +71,8 @@ const ingest = async (args: string[]): Promise<void> => {
 
   // TODO fetch and store other library items
   await storePlaylists(await fetchPlaylists());
+  await storeAlbums(await fetchAlbums());
+  await storeSongs(await fetchSongs());
   console.log('Data Ingestion from Apple Music API complete');
 }
 
