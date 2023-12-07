@@ -17,8 +17,8 @@ const export_ = async (args: string[]): Promise<void> => {
   const userProfile = await api.getUserProfile();
   const userId = userProfile.id;
 
-  await exportPlaylists(userId, api);
-  await exportSongs(userId, api);
+  // await exportPlaylists(userId, api);
+  // await exportSongs(userId, api);
   await exportAlbums(userId, api);
   await exportArtists(userId, api);
 };
@@ -32,8 +32,8 @@ const exportPlaylists = async (userId: any, api: SpotifyAPI) => {
     const createdPlaylist = await api.createPlaylist(userId, {
       name: playlist.name,
       description: playlist.description,
-      public: playlist.public ?? false, // FIXME: To update
-      collaborative: playlist.collaborative ?? false, // FIXME: To update
+      public: playlist.public ?? false,
+      collaborative: playlist.collaborative ?? false,
     });
 
     // Get the songs in the playlist
@@ -60,7 +60,9 @@ const exportSongs = async (userId: any, api: SpotifyAPI) => {
   for await (const song of songs) {
     // Get the song data
     const spotifySong = await api.getSongByIsrc(song.isrc);
-    songIds.push(spotifySong.id);
+    if (spotifySong) {
+      songIds.push(spotifySong.id);
+    }
   }
 
   // Add the songs to the library by batches
@@ -78,7 +80,9 @@ const exportAlbums = async (userId: any, api: SpotifyAPI) => {
   for await (const album of albums) {
     // Get the album data
     const spotifyAlbum = await api.getAlbumByUPC(album.upc);
-    albumIds.push(spotifyAlbum.id);
+    if (spotifyAlbum) {
+      albumIds.push(spotifyAlbum.id);
+    }
   }
 
   // Add the album to the library
@@ -94,7 +98,9 @@ const exportArtists = async (userId: any, api: SpotifyAPI) => {
   for await (const artist of artists) {
     // Get the artist data
     const spotifyArtist = await api.getArtistByName(artist.name);
-    artistIds.push(spotifyArtist.id);
+    if (spotifyArtist) {
+      artistIds.push(spotifyArtist.id);
+    }
   }
 
   // Follow the artists

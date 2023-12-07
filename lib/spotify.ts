@@ -556,7 +556,7 @@ export class SpotifyAPI {
         body: await response.data,
       });
     }
-    return response.data;
+    return response.data.albums.items[0];
   };
 
   getArtistByName = async (artistName: string): Promise<any> => {
@@ -583,6 +583,6 @@ export class SpotifyAPI {
         body: await response.data,
       });
     }
-    return response.data;
+    return response.data.artists.items[0];
   };
 }
