@@ -36,8 +36,6 @@ const exportPlaylists = async (userId: any, api: SpotifyAPI) => {
       collaborative: playlist.collaborative ?? false, // FIXME: To update
     });
 
-    // TODO: Upload playlist image: PUT /playlists/{playlist_id}/images
-
     // Get the songs in the playlist
     const songs = filterFalsy(
       await Promise.all(
@@ -67,7 +65,6 @@ const exportSongs = async (userId: any, api: SpotifyAPI) => {
 
   // Add the songs to the library by batches
   for (let i = 0; i < songIds.length; i += BATCH_SIZE_50) {
-    console.log("Adding songs to library...", i, "/", songIds.length, "...");
     const songUrisBatch = songIds.slice(i, i + BATCH_SIZE_50);
     await api.addSongsToLibrary(songUrisBatch);
   }

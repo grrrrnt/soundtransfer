@@ -137,7 +137,8 @@ const populatePlaylists = async (api: SpotifyAPI): Promise<Playlist[]> => {
         songs: songs,
         description: playlist.description,
         imageUrl: playlist.images[0].url,
-        // lastModifiedDate: new Date(playlist.lastModifiedDate), -- not available via API cal
+        public: playlist.public,
+        collaborative: playlist.collaborative,
         owner: playlist.owner.display_name,
       };
       playlists.push(p);
