@@ -179,7 +179,7 @@ export class AppleMusicAPI {
       });
     }
 
-    const body =  await data.json() as AppleMusicGetCatalogSongsByISRCResponse;
+    const body = await data.json() as AppleMusicGetCatalogSongsByISRCResponse;
     const song = body.data.pop();
     await storeAppleMusicSongs(filterFalsy([song]));
     return song;
@@ -273,7 +273,7 @@ export class AppleMusicAPI {
    * Gets information about the Catalog Artist identified
    * @param artistIdentifier catalog artist identifier
    */
-  public async getArtist(artistIdentifier: string): Promise<AppleMusicArtist> {
+  public async getArtist(artistIdentifier: string): Promise<AppleMusicArtists> {
     const url = new URL(`https://api.music.apple.com/v1/catalog/${this.storefront}/artists/${encodeURIComponent(artistIdentifier)}`);
 
     const response = await fetch(url, {
@@ -377,7 +377,7 @@ export class AppleMusicAPI {
     return data.data.pop()!;
   }
 
-  public async getRootLibraryPlaylistsFolder (): Promise<AppleMusicLibraryPlaylistFolders[]> {
+  public async getRootLibraryPlaylistsFolder(): Promise<AppleMusicLibraryPlaylistFolders[]> {
     const url = new URL(`https://api.music.apple.com/v1/me/library/playlist-folders`);
     url.searchParams.set('filter[identity]', 'playlistsroot');
 
@@ -515,8 +515,6 @@ export class AppleMusicAPI {
       songs.push(...body.data);
       totalSongCount = body.meta?.total;
 
-      console.log(JSON.stringify(body, null, 2));
-
       if (!body.next) {
         break;
       }
@@ -527,4 +525,67 @@ export class AppleMusicAPI {
     assert(songs.length === (totalSongCount ?? 0));
     return songs;
   }
+
+  async getAllLibraryArtists(): Promise<AppleMusicLibraryArtists[]> {
+    let nextURL: URL | undefined = new URL('https://api.music.apple.com/v1/me/library/artists');
+    const artists: AppleMusicLibraryArtists[] = [];
+    let totalArtistCount: number | undefined = undefined;
+
+    do {
+      const response = await fetch(nextURL, {
+        headers: {
+          Authorization: `Bearer ${this.getDevToken()}`,
+          'Music-User-Token': this.getUserMusicToken(),
+        },
+      });
+
+      if (!response.ok) {
+        throw new AppleMusicAPIError({
+          status: response.status,
+          statusText: response.statusText,
+          body: await response.text(),
+          headers: response.headers,
+        });
+      }
+
+      const body = await response.json() as AppleMusicLibraryArtistsResponse;
+      artists.push(...body.data);
+      totalArtistCount = body.meta?.total;
+
+      if (!body.next) {
+        break;
+      }
+
+      nextURL = new URL(body.next, 'https://api.music.apple.com');
+    } while (true);
+
+    assert(artists.length === (totalArtistCount ?? 0));
+    return artists;
+  }
+
+
+  async searchForCatalogResources(term: string, resourceTypes: AppleMusicResourceTypes[]): Promise<AppleMusicSearchResponse> {
+    let url: URL | undefined = new URL('https://api.music.apple.com/v1/catalog/us/search');
+    url.searchParams.set('types', resourceTypes.join(','));
+    url.searchParams.set('term', term);
+    url.searchParams.set('limit', '10');
+
+    const response = await fetch(url, {
+      headers: {
+        Authorization: `Bearer ${this.getDevToken()}`,
+      },
+    });
+
+    if (!response.ok) {
+      throw new AppleMusicAPIError({
+        status: response.status,
+        statusText: response.statusText,
+        body: await response.text(),
+        headers: response.headers,
+      });
+    }
+
+    return await response.json() as AppleMusicSearchResponse;
+  }
 }
+

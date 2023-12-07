@@ -1,5 +1,5 @@
 import { AppleMusicAPI } from '../lib/apple-music';
-import { storeAlbums, storePlaylists, storeSongs } from '../lib/mongo';
+import { storeAlbums, storeArtists, storePlaylists, storeSongs } from '../lib/mongo';
 
 const fetchPlaylists = async (): Promise<Playlist[]> => {
   const api = AppleMusicAPI.getInstance();
@@ -65,6 +65,15 @@ const fetchSongs = async (): Promise<Song[]> => {
   }));
 }
 
+const fetchArtists = async (): Promise<Artist[]> => {
+  const api = AppleMusicAPI.getInstance();
+  const artists = await api.getAllLibraryArtists();
+
+  return artists.map(artist => ({
+    name: artist.attributes.name,
+  }));
+}
+
 const ingest = async (args: string[]): Promise<void> => {
   await AppleMusicAPI.init(args[0]);
   console.log('Authorization complete...');
@@ -73,6 +82,7 @@ const ingest = async (args: string[]): Promise<void> => {
   await storePlaylists(await fetchPlaylists());
   await storeAlbums(await fetchAlbums());
   await storeSongs(await fetchSongs());
+  await storeArtists(await fetchArtists());
   console.log('Data Ingestion from Apple Music API complete');
 }
 

@@ -8,7 +8,7 @@ import csvParse from 'csv-parse';
 import { getLibrary, mergeWithLibrary } from '../lib/library';
 import { AppleMusicAPI } from '../lib/apple-music';
 import { filterFalsy } from '../lib/utils';
-import { storeListeningHistory, storePlaylists } from '../lib/mongo';
+import { storeAlbums, storeArtists, storeListeningHistory, storePlaylists, storeSongs } from '../lib/mongo';
 import { DeepWritable } from 'ts-essentials';
 
 const appleMusicActivityFolderName = 'Apple Music Activity';
@@ -193,13 +193,15 @@ const ingest = async (args: string[]): Promise<void> => {
   ]);
 
   const playlists = getLibrary().playlists;
+  const songs = getLibrary().songs;
+  const albums = getLibrary().albums;
+  const artists = getLibrary().artists;
   await storePlaylists(playlists.slice() as DeepWritable<typeof playlists>);
+  await storeSongs(songs as DeepWritable<typeof songs>);
+  await storeAlbums(albums as DeepWritable<typeof albums>);
+  await storeArtists(artists as DeepWritable<typeof artists>);
 
-  // TODO Put library into MongoDB
-  // TODO Check how favourite albums work -- new feature
-  // TODO fetch multiple songs at once from the API
-
-  console.log('Library:', JSON.stringify(getLibrary(), null, 2));
+  console.log('Ingestion complete');
 }
 
 export default ingest;

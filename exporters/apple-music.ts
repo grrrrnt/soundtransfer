@@ -1,10 +1,9 @@
 import { AppleMusicAPI } from '../lib/apple-music';
-import { getAlbums, getPlaylists, getSongs } from '../lib/mongo';
+import { getAlbums, getArtists, getPlaylists, getSongs } from '../lib/mongo';
 import { filterFalsy } from '../lib/utils';
 
 const exportSongs = async () => {
   const api = AppleMusicAPI.getInstance();
-  const userAlbums = await getAlbums();
   const songIds: string[] = [];
 
   for await (const song of await getSongs()) {
@@ -67,11 +66,38 @@ const exportAlbums = async () => {
   console.log('Album export completed');
 }
 
+
+// noinspection JSUnusedLocalSymbols
+const exportArtists = async () => {
+  const api = AppleMusicAPI.getInstance();
+  const userArtists = await getArtists();
+  const artistIds: string[] = [];
+
+  for await (const artist of userArtists) {
+    const searchResults = await api.searchForCatalogResources(artist.name, ['artists']);
+    if (!searchResults || !searchResults.results.artists) {
+      console.error(`Artist with name ${artist.name} is not available in Apple Music`);
+      continue;
+    }
+
+    artistIds.push(searchResults.results.artists?.data[0].id); // take first match
+  }
+
+  await api.addResourceToLibrary({
+    artists: artistIds,
+  });
+
+  console.log('Artist export completed');
+}
+
 const export_ = async (args: string[]): Promise<void> => {
   await AppleMusicAPI.init(args[0]);
   await exportPlaylists();
   await exportAlbums();
   await exportSongs();
+
+  // TODO uncomment this when Apple Music API allows adding artists to user library
+  // await exportArtists();
 };
 
 export default export_;

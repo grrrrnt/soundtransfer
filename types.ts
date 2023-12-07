@@ -2,11 +2,9 @@ interface Artist {
   name: string;
 }
 
-interface SpotifyArtist extends Artist {} // how do you deal with favourite artists?
-
-interface AppleMusicArtist {
+interface AppleMusicArtists {
   id: string;
-  type: "artists";
+  type: 'artists';
   href: string;
   attributes: {
     artwork?: {
@@ -30,7 +28,7 @@ interface AppleMusicArtist {
       next: string;
       data: {
         id: string;
-        type: "albums";
+        type: 'albums';
         href: string;
       }[];
     };
@@ -38,14 +36,26 @@ interface AppleMusicArtist {
   views?: object;
 }
 
-interface SpotifyAlbum {}
+interface AppleMusicResource {
+  id: string;
+  type: AppleMusicResourceTypes;
+  href?: string;
+  attributes: object;
+  relationships: object;
+  meta?: object;
+  views?: object;
+}
 
-interface ArtistMap extends Map<MusicProvider, URL> {}
+interface SpotifyAlbum {
+}
+
+interface ArtistMap extends Map<MusicProvider, URL> {
+}
 
 // For data translation
 type ISRC = string;
 type UPC = string;
-type MusicProvider = "AppleMusic" | "Spotify";
+type MusicProvider = 'AppleMusic' | 'Spotify';
 type ListenHistory = HistoryItem[];
 
 interface Library {
@@ -73,7 +83,7 @@ interface PlaylistItem {
 }
 
 interface Song {
-  __type: "Song";
+  __type: 'Song';
   isrc: ISRC;
   title?: string;
   version?: string;
@@ -107,71 +117,69 @@ interface HistoryItem {
 
 interface AppleMusicExportHistoryItem {
   Country: string;
-  "Track Identifier": string;
-  "Media type": string;
-  "Date Played": string;
+  'Track Identifier': string;
+  'Media type': string;
+  'Date Played': string;
   Hours: string;
-  "Play Duration Milliseconds": string;
-  "End Reason Type": string;
-  "Source Type": string;
-  "Play Count": string;
-  "Skip Count": string;
-  "Ignore For Recommendations": string;
-  "Track Reference": string;
-  "Track Description": string;
+  'Play Duration Milliseconds': string;
+  'End Reason Type': string;
+  'Source Type': string;
+  'Play Count': string;
+  'Skip Count': string;
+  'Ignore For Recommendations': string;
+  'Track Reference': string;
+  'Track Description': string;
 }
 
 type AppleMusicHistoryExport = AppleMusicExportHistoryItem[];
 
 interface AppleMusicLibraryTracksItem {
-  "Content Type": string;
-  "Track Identifier": number;
+  'Content Type': string;
+  'Track Identifier': number;
   Title: string;
-  "Sort Name": string;
+  'Sort Name': string;
   Artist: string;
-  "Sort Artist": string;
+  'Sort Artist': string;
   Composer: string;
-  "Is Part of Compilation": boolean;
+  'Is Part of Compilation': boolean;
   Album: string;
-  "Sort Album": string;
-  "Album Artist": string;
+  'Sort Album': string;
+  'Album Artist': string;
   Genre: string;
-  "Track Year": number;
-  "Track Number On Album": number;
-  "Track Count On Album": number;
-  "Disc Number Of Album": number;
-  "Disc Count Of Album": number;
-  "Track Duration": number;
-  "Track Play Count": number;
-  "Date Added To Library": string;
-  "Date Added To iCloud Music Library": string;
-  "Last Modified Date": string;
-  "Last Played Date": string;
-  "Skip Count": number;
-  "Is Purchased": boolean;
-  "Audio File Extension": string;
-  "Track Like Rating": string;
-  "Is Checked": boolean;
+  'Track Year': number;
+  'Track Number On Album': number;
+  'Track Count On Album': number;
+  'Disc Number Of Album': number;
+  'Disc Count Of Album': number;
+  'Track Duration': number;
+  'Track Play Count': number;
+  'Date Added To Library': string;
+  'Date Added To iCloud Music Library': string;
+  'Last Modified Date': string;
+  'Last Played Date': string;
+  'Skip Count': number;
+  'Is Purchased': boolean;
+  'Audio File Extension': string;
+  'Track Like Rating': string;
+  'Is Checked': boolean;
   Copyright: string;
-  "Release Date": string;
-  "Purchased Track Identifier": number;
-  "Apple Music Track Identifier": number;
+  'Release Date': string;
+  'Purchased Track Identifier': number;
+  'Apple Music Track Identifier': number;
 }
 
 type AppleMusicLibraryTracks = AppleMusicLibraryTracksItem[];
 
 interface AppleMusicFavouritesItem {
-  "Favorite Type": string;
-  "Item Reference": string;
-  "Item Description": string;
-  "Last Modified": string;
+  'Favorite Type': string;
+  'Item Reference': string;
+  'Item Description': string;
+  'Last Modified': string;
   Preference: string;
 }
 
-interface AppleMusicCatalogSong {
-  id: string;
-  type: string;
-  href: string;
+interface AppleMusicCatalogSong extends AppleMusicResource {
+  type: 'songs';
   attributes: {
     albumName: string;
     genreName: string[];
@@ -233,24 +241,24 @@ interface AppleMusicGetCatalogSongsByISRCResponse {
 }
 
 interface AppleMusicPlaylistExportItem {
-  "Container Type": string;
-  "Container Identifier": number;
+  'Container Type': string;
+  'Container Identifier': number;
   Title?: string;
-  "Playlist Item Identifiers": number[];
+  'Playlist Item Identifiers': number[];
   Description: string;
-  "Public Playlist Identifier": string;
-  "Playlist is Shared": boolean;
-  "Playlist Previously Shared": boolean;
-  "Added Date": string;
-  "Available on Apple Music Profile"?: boolean;
-  "Name or Description Modified Date": string;
-  "Playlist Items Modified Date": string;
+  'Public Playlist Identifier': string;
+  'Playlist is Shared': boolean;
+  'Playlist Previously Shared': boolean;
+  'Added Date': string;
+  'Available on Apple Music Profile'?: boolean;
+  'Name or Description Modified Date': string;
+  'Playlist Items Modified Date': string;
 }
 
 interface AppleMusicLibraryActivityItem {
-  "Transaction Type": string;
-  "Transaction Identifier": string;
-  "Transaction Date": string;
+  'Transaction Type': string;
+  'Transaction Identifier': string;
+  'Transaction Date': string;
   UserAgent: string;
   Country: string;
   Language: string;
@@ -265,19 +273,11 @@ type AppleMusicPlaylistExport = AppleMusicPlaylistExportItem[];
 type AppleMusicFavourites = AppleMusicFavouritesItem[];
 
 // FIXME
-interface AppleMusicPlaylists {
-  id: string;
-  type: "playlists";
-  href: string;
-  attributes: object;
-  relationships: object;
-  views: object;
+interface AppleMusicPlaylists extends AppleMusicResource {
+  type: 'playlists';
 }
 
-interface AppleMusicLibraryPlaylists {
-  id: string;
-  type: string;
-  href: string;
+interface AppleMusicLibraryPlaylists extends AppleMusicResource {
   attributes: {
     name: string;
     lastModifiedDate: string;
@@ -340,7 +340,7 @@ interface AppleMusicLibraryPlaylistsResponse {
 // }
 
 interface AppleMusicArtistsResponse {
-  data: AppleMusicArtist[];
+  data: AppleMusicArtists[];
 }
 
 interface AppleMusicLibraryPlaylistCreationRequest {
@@ -353,17 +353,17 @@ interface AppleMusicLibraryPlaylistCreationRequest {
       data: {
         id: string;
         type:
-          | "library-music-videos"
-          | "library-songs"
-          | "music-videos"
-          | "songs";
+          | 'library-music-videos'
+          | 'library-songs'
+          | 'music-videos'
+          | 'songs';
       }[];
     };
     /** The library playlist folder which contains the created playlist. */
     parent: {
       data: {
         id: string;
-        type: "library-playlist-folders";
+        type: 'library-playlist-folders';
       }[];
     };
   };
@@ -373,10 +373,8 @@ interface AppleMusicLibraryPlaylistFoldersResponse {
   data: AppleMusicLibraryPlaylistFolders[];
 }
 
-interface AppleMusicLibraryPlaylistFolders {
-  id: string;
-  type: "library-playlist-folders";
-  href: string;
+interface AppleMusicLibraryPlaylistFolders extends AppleMusicResource {
+  type: 'library-playlist-folders';
   attributes: {
     /** Date added in ISO 8601 */
     dateAdded?: string;
@@ -397,15 +395,13 @@ interface AppleMusicLibraryPlaylistFolders {
   };
 }
 
-interface AppleMusicLibrarySongs {
-  id: string;
-  type: "library-songs";
-  href: string;
+interface AppleMusicLibrarySongs extends AppleMusicResource {
+  type: 'library-songs';
   attributes: {
     albumName: string;
     artistName: string;
     artwork: object;
-    contentRating?: "clean" | "explicit";
+    contentRating?: 'clean' | 'explicit';
     discNumber: number;
     durationInMillis: number;
     genreNames: string[];
@@ -442,10 +438,8 @@ interface SpotifyLibraryPlaylistCreationRequest {
   collaborative?: boolean;
 }
 
-interface AppleMusicAlbums {
-  id: string;
+interface AppleMusicAlbums extends AppleMusicResource {
   type: 'albums';
-  href: string;
   attributes: {
     artistName: string;
     artistUrl: string;
@@ -465,14 +459,10 @@ interface AppleMusicAlbums {
     upc: string;
     url: string;
   };
-  relationships: object;
-  views: object;
 }
 
-interface AppleMusicLibraryAlbums {
-  id: string;
+interface AppleMusicLibraryAlbums extends AppleMusicResource {
   type: 'library-albums';
-  href: string;
   attributes: {
     artistName: string;
     artwork: object;
@@ -520,8 +510,57 @@ type AppleMusicResourceTypes =
   'artists' |
   'apple-curators' |
   'albums' |
-  'activities';
+  'activities' |
+  'library-playlist-folders' |
+  'library-songs' |
+  'library-albums' |
+  'library-artists';
 
 interface AppleMusicAlbumsResponse {
   data: AppleMusicAlbums[];
+}
+
+interface AppleMusicSearchResponse {
+  results: Partial<{
+    activities: object;
+    albums: object;
+    'apple-curators': object;
+    artists: {
+      data: AppleMusicArtists[];
+      href?: string;
+      next?: string;
+    };
+    curators: object;
+    'music-videos': object;
+    songs: object;
+    stations: object;
+    top: object;
+  }>;
+}
+
+interface AppleMusicLibraryArtists extends AppleMusicResource {
+  type: 'library-artists';
+  attributes: {
+    name: string;
+  };
+  relationships: {
+    albums: {
+      href?: string;
+      next?: string;
+      data: AppleMusicAlbums[];
+    };
+    catalog: {
+      href?: string;
+      next?: string;
+      data: [AppleMusicArtists];
+    };
+  };
+}
+
+interface AppleMusicLibraryArtistsResponse {
+  data: AppleMusicLibraryArtists[];
+  meta: {
+    total: number;
+  };
+  next?: string;
 }
