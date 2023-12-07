@@ -31,7 +31,7 @@ const getSong = async (trackIdentifier: string | number): Promise<Song> => {
     year: releaseDate.getFullYear(),
     duration: song.attributes.durationInMillis,
   };
-}
+};
 
 const parsePlayHistory = async (dataRoot: string) => {
   const playHistoryPath = path.join(dataRoot, playHistoryFileName);
@@ -73,7 +73,7 @@ const parsePlayHistory = async (dataRoot: string) => {
   }
 
   await storeListeningHistory(history);
-}
+};
 
 const parseLibrarySongs = async (dataRoot: string, identifierMap: Map<number, number>) => {
   const filePath = path.join(dataRoot, librarySongsFileName)
@@ -84,7 +84,7 @@ const parseLibrarySongs = async (dataRoot: string, identifierMap: Map<number, nu
     .map(libraryIdentifier => identifierMap.get(libraryIdentifier)))
     .map(getSong));
   mergeWithLibrary({songs});
-}
+};
 
 const parseFavourites = async (dataRoot: string) => {
   const filePath = path.join(dataRoot, favouritesFileName);
@@ -109,7 +109,7 @@ const parseFavourites = async (dataRoot: string) => {
   }
 
   mergeWithLibrary({favourites: [...favouriteArtists, ...await Promise.all(favouriteSongs)]});
-}
+};
 
 const parsePlaylists = async (dataRoot: string, identifierMap: Map<number, number>) => {
   const filePath = path.join(dataRoot, playlistsFileName);
@@ -141,7 +141,7 @@ const parsePlaylists = async (dataRoot: string, identifierMap: Map<number, numbe
   mergeWithLibrary({
     playlists,
   });
-}
+};
 
 const parsePlaylistItemIdentifiers = async (dataRoot: string): Promise<Map<number, number>> => {
   // maps a playlist item identifier to its corresponding Apple Music Track Identifier
@@ -166,7 +166,7 @@ const parsePlaylistItemIdentifiers = async (dataRoot: string): Promise<Map<numbe
   }
 
   return identifierMap;
-}
+};
 
 const ingest = async (args: string[]): Promise<void> => {
   const srcPath = args[0]; // path to decompressed data export
@@ -202,6 +202,6 @@ const ingest = async (args: string[]): Promise<void> => {
   await storeArtists(artists as DeepWritable<typeof artists>);
 
   console.log('Ingestion complete');
-}
+};
 
 export default ingest;

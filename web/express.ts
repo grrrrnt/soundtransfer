@@ -9,6 +9,7 @@ import crypto from 'crypto';
 import { AppleMusicAPI } from '../lib/apple-music';
 import { SpotifyAPI, SpotifyAPIError } from '../lib/spotify';
 import * as http from 'http';
+import { getAlbums, getArtists, getListeningHistory, getPlaylists, getSongs } from '../lib/mongo';
 
 export const port = 8080;
 const app = express();
@@ -129,4 +130,67 @@ app.get('/api/spotify/user-auth-callback', async function (req, res) {
     SpotifyAPI.__unsafe_setAccessToken(response.data.access_token);
     res.redirect('/spotify-authorization-success.html');
   }
+});
+
+app.post('/api/ingest/apple-music', async (req, res) => {
+
+});
+app.post('/api/ingest/apple-music-api', async (req, res) => {
+
+});
+
+app.post('/api/ingest/spotify', async (req, res) => {
+
+});
+
+app.post('/api/ingest/spotify-api', async (req, res) => {
+
+});
+
+app.post('/api/export/apple-music', async (req, res) => {
+
+});
+
+app.post('/api/export/spotify', async (req, res) => {
+
+});
+
+app.get('/api/songs', async (req, res) => {
+  const ret = [];
+  for await (const song of await getSongs()) {
+    ret.push(song);
+  }
+  res.json(ret);
+});
+
+app.get('/api/albums', async (req, res) => {
+  const ret = [];
+  for await (const album of await getAlbums()) {
+    ret.push(album);
+  }
+  res.json(ret);
+});
+
+app.get('/api/artists', async (req, res) => {
+  const ret = [];
+  for await (const artist of await getArtists()) {
+    ret.push(artist);
+  }
+  res.json(ret);
+});
+
+app.get('/api/listening-history', async (req, res) => {
+  const ret = [];
+  for await (const historyItem of await getListeningHistory()) {
+    ret.push(historyItem);
+  }
+  res.json(ret);
+});
+
+app.get('/api/playlists', async (req, res) => {
+  const ret = [];
+  for await (const playlist of await getPlaylists()) {
+    ret.push(playlist);
+  }
+  res.json(ret);
 });

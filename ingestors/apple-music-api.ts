@@ -78,7 +78,6 @@ const ingest = async (args: string[]): Promise<void> => {
   await AppleMusicAPI.init(args[0]);
   console.log('Authorization complete...');
 
-  // TODO fetch and store other library items
   await storePlaylists(await fetchPlaylists());
   await storeAlbums(await fetchAlbums());
   await storeSongs(await fetchSongs());
