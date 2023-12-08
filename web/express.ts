@@ -196,7 +196,7 @@ app.post('/api/ingest/apple-music-data-export', async (req, res) => {
         await AppleMusicIngestor.ingestArtists();
         break;
       case 'listening-history':
-        // await AppleMusicIngestor.ingestListenHistory(); FIXME
+        await AppleMusicIngestor.ingestListeningHistory();
         break;
       case 'songs':
         await AppleMusicIngestor.ingestSongs();

@@ -33,10 +33,11 @@ const getSong = async (trackIdentifier: string | number): Promise<Song> => {
   };
 };
 
+const listeningHistory: HistoryItem[] = [];
+
 const parsePlayHistory = async (dataRoot: string) => {
   const playHistoryPath = path.join(dataRoot, playHistoryFileName);
   const parser = fs.createReadStream(playHistoryPath).pipe(csvParse.parse({columns: true}));
-  const history: ListenHistory = [];
 
   let idx = 0;
   for await (const item of parser) {
@@ -55,7 +56,7 @@ const parsePlayHistory = async (dataRoot: string) => {
     const parseableDate = `${datePlayed.substring(0, 4)}-${datePlayed.substring(4, 6)}-${datePlayed.substring(6)}T${record.Hours}:00:00`;
 
     if (song) {
-      history.push({
+      listeningHistory.push({
         country: record['Country'],
         mediaType: record['Media type'],
         endReason: record['End Reason Type'],
@@ -71,8 +72,6 @@ const parsePlayHistory = async (dataRoot: string) => {
       });
     }
   }
-
-  await storeListeningHistory(history);
 };
 
 const parseLibrarySongs = async (dataRoot: string, identifierMap: Map<number, number>) => {
@@ -188,6 +187,10 @@ export const ingestArtists = async () => {
   await storeArtists(artists as DeepWritable<typeof artists>);
 };
 
+export const ingestListeningHistory = async () => {
+  await storeListeningHistory(listeningHistory);
+};
+
 export const parseAndStoreInLibrary = async (srcPath: string, privKeyPath: string) => {
   await AppleMusicAPI.init(privKeyPath);
 
@@ -218,6 +221,7 @@ const ingest = async (args: string[]): Promise<void> => {
     ingestArtists(),
     ingestSongs(),
     ingestPlaylists(),
+    ingestListeningHistory(),
   ]);
 
   console.log('Ingestion complete');
