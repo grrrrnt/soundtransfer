@@ -74,14 +74,36 @@ const fetchArtists = async (): Promise<Artist[]> => {
   }));
 }
 
+export const ingestPlaylists = async () => {
+  await storePlaylists(await fetchPlaylists());
+};
+
+export const ingestAlbums = async () => {
+  await storeAlbums(await fetchAlbums());
+}
+
+export const ingestListeningHistory = async () => {
+  // TODO
+}
+
+export const ingestSongs = async () => {
+  await storeSongs(await fetchSongs());
+};
+
+export const ingestArtists = async () => {
+  await storeArtists(await fetchArtists());
+}
+
 const ingest = async (args: string[]): Promise<void> => {
   await AppleMusicAPI.init(args[0]);
   console.log('Authorization complete...');
-
-  await storePlaylists(await fetchPlaylists());
-  await storeAlbums(await fetchAlbums());
-  await storeSongs(await fetchSongs());
-  await storeArtists(await fetchArtists());
+  await Promise.all( [
+    ingestSongs(),
+    ingestArtists(),
+    ingestAlbums(),
+    ingestListeningHistory(),
+    ingestPlaylists(),
+  ]);
   console.log('Data Ingestion from Apple Music API complete');
 }
 

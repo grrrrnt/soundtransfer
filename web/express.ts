@@ -8,6 +8,7 @@ import crypto from 'crypto';
 import { AppleMusicAPI } from '../lib/apple-music';
 import { SpotifyAPI, SpotifyAPIError } from '../lib/spotify';
 import * as AppleMusicIngestor from '../ingestors/apple-music';
+import * as AppleMusicApiIngestor from '../ingestors/apple-music-api';
 import * as http from 'http';
 import { getAlbums, getArtists, getListeningHistory, getPlaylists, getSongs } from '../lib/mongo';
 
@@ -205,26 +206,41 @@ app.post('/api/ingest/apple-music-data-export', async (req, res) => {
         throw new Error(`Unknown ingestType ${ingestType}`);
     }
   }
+
+  res.json({
+    done: true,
+  });
 });
 
 app.post('/api/ingest/apple-music-api', async (req, res) => {
   const body = req.body as IngestAppleMusicApiRequestBody;
+  await AppleMusicAPI.init(body.privateKeyPath);
+
   for (const ingestType of new Set(body.ingestTypes)) {
     switch (ingestType) {
       case 'albums':
+        await AppleMusicApiIngestor.ingestAlbums();
         break;
       case 'playlists':
+        await AppleMusicApiIngestor.ingestPlaylists();
         break;
       case 'artists':
+        await AppleMusicApiIngestor.ingestArtists();
         break;
       case 'listening-history':
+        await AppleMusicApiIngestor.ingestListeningHistory();
         break;
       case 'songs':
+        await AppleMusicApiIngestor.ingestSongs();
         break;
       default:
         throw new Error(`Unknown ingestType ${ingestType}`);
     }
   }
+
+  res.json({
+    done: true,
+  });
 });
 
 app.post('/api/ingest/spotify-data-export', async (req, res) => {
