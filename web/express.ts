@@ -1,6 +1,5 @@
 import _ from 'lodash';
 import path from 'path';
-import morgan from 'morgan';
 import express from 'express';
 import assert from 'assert';
 import querystring from 'querystring';
@@ -8,8 +7,57 @@ import axios from 'axios';
 import crypto from 'crypto';
 import { AppleMusicAPI } from '../lib/apple-music';
 import { SpotifyAPI, SpotifyAPIError } from '../lib/spotify';
+import * as AppleMusicIngestor from '../ingestors/apple-music';
 import * as http from 'http';
 import { getAlbums, getArtists, getListeningHistory, getPlaylists, getSongs } from '../lib/mongo';
+
+type IngestTypes =
+  'albums' |
+  'playlists' |
+  'artists' |
+  'songs' |
+  'listening-history';
+
+type ExportTypes =
+  'albums' |
+  'playlists' |
+  'artists' |
+  'songs';
+
+interface IngestAppleMusicDataExportRequestBody {
+  ingestTypes: IngestTypes[];
+  privateKeyPath: string;
+  dataExportPath: string;
+}
+
+interface IngestAppleMusicApiRequestBody {
+  ingestTypes: IngestTypes[];
+  privateKeyPath: string;
+}
+
+interface IngestSpotifyDataExportRequestBody {
+  dataExportPath: string;
+  ingestTypes: IngestTypes[];
+  clientId?: string;
+  clientSecret?: string;
+}
+
+interface IngestSpotifyApiRequestBody {
+  ingestTypes: IngestTypes[];
+  clientId?: string;
+  clientSecret?: string;
+}
+
+interface ExportAppleMusicRequestBody {
+  exportTypes: ExportTypes[];
+  privateKeyPath: string;
+}
+
+interface ExportSpotifyRequestBody {
+  exportTypes: ExportTypes[];
+  clientId?: string;
+  clientSecret?: string;
+}
 
 export const port = 8080;
 const app = express();
@@ -132,27 +180,127 @@ app.get('/api/spotify/user-auth-callback', async function (req, res) {
   }
 });
 
-app.post('/api/ingest/apple-music', async (req, res) => {
+app.post('/api/ingest/apple-music-data-export', async (req, res) => {
+  const body = req.body as IngestAppleMusicDataExportRequestBody;
+  await AppleMusicIngestor.parseAndStoreInLibrary(body.dataExportPath, body.privateKeyPath);
 
+  for (const ingestType of new Set(body.ingestTypes)) {
+    switch (ingestType) {
+      case 'albums':
+        await AppleMusicIngestor.ingestAlbums();
+        break;
+      case 'playlists':
+        await AppleMusicIngestor.ingestPlaylists();
+        break;
+      case 'artists':
+        await AppleMusicIngestor.ingestArtists();
+        break;
+      case 'listening-history':
+        // await AppleMusicIngestor.ingestListenHistory(); FIXME
+        break;
+      case 'songs':
+        await AppleMusicIngestor.ingestSongs();
+        break;
+      default:
+        throw new Error(`Unknown ingestType ${ingestType}`);
+    }
+  }
 });
+
 app.post('/api/ingest/apple-music-api', async (req, res) => {
-
+  const body = req.body as IngestAppleMusicApiRequestBody;
+  for (const ingestType of new Set(body.ingestTypes)) {
+    switch (ingestType) {
+      case 'albums':
+        break;
+      case 'playlists':
+        break;
+      case 'artists':
+        break;
+      case 'listening-history':
+        break;
+      case 'songs':
+        break;
+      default:
+        throw new Error(`Unknown ingestType ${ingestType}`);
+    }
+  }
 });
 
-app.post('/api/ingest/spotify', async (req, res) => {
-
+app.post('/api/ingest/spotify-data-export', async (req, res) => {
+  const body = req.body as IngestSpotifyDataExportRequestBody;
+  for (const ingestType of new Set(body.ingestTypes)) {
+    switch (ingestType) {
+      case 'albums':
+        break;
+      case 'playlists':
+        break;
+      case 'artists':
+        break;
+      case 'listening-history':
+        break;
+      case 'songs':
+        break;
+      default:
+        throw new Error(`Unknown ingestType ${ingestType}`);
+    }
+  }
 });
 
 app.post('/api/ingest/spotify-api', async (req, res) => {
-
+  const body = req.body as IngestSpotifyApiRequestBody;
+  for (const ingestType of new Set(body.ingestTypes)) {
+    switch (ingestType) {
+      case 'albums':
+        break;
+      case 'playlists':
+        break;
+      case 'artists':
+        break;
+      case 'listening-history':
+        break;
+      case 'songs':
+        break;
+      default:
+        throw new Error(`Unknown ingestType ${ingestType}`);
+    }
+  }
 });
 
 app.post('/api/export/apple-music', async (req, res) => {
-
+  const body = req.body as ExportAppleMusicRequestBody;
+  for (const ingestType of new Set(body.exportTypes)) {
+    switch (ingestType) {
+      case 'albums':
+        break;
+      case 'playlists':
+        break;
+      case 'artists':
+        break;
+      case 'songs':
+        break;
+      default:
+        throw new Error(`Unknown ingestType ${ingestType}`);
+    }
+  }
 });
 
 app.post('/api/export/spotify', async (req, res) => {
-
+  const body = req.body as ExportSpotifyRequestBody;
+  for (const ingestType of new Set(body.exportTypes)) {
+    switch (ingestType) {
+      case 'albums':
+        break;
+      case 'playlists':
+        break;
+      case 'artists':
+        break;
+      case 'songs':
+        break;
+      default:
+        throw new Error(`Unknown ingestType ${ingestType}`);
+    }
+  }
 });
 
 app.get('/api/songs', async (req, res) => {

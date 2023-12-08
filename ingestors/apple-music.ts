@@ -168,10 +168,27 @@ const parsePlaylistItemIdentifiers = async (dataRoot: string): Promise<Map<numbe
   return identifierMap;
 };
 
-const ingest = async (args: string[]): Promise<void> => {
-  const srcPath = args[0]; // path to decompressed data export
-  const privKeyPath = args[1];
+export const ingestPlaylists = async () => {
+  const playlists = getLibrary().playlists;
+  await storePlaylists(playlists as DeepWritable<typeof playlists>);
+};
 
+export const ingestSongs = async () => {
+  const songs = getLibrary().songs;
+  await storeSongs(songs as DeepWritable<typeof songs>);
+};
+
+export const ingestAlbums = async () => {
+  const albums = getLibrary().albums;
+  await storeAlbums(albums as DeepWritable<typeof albums>);
+};
+
+export const ingestArtists = async () => {
+  const artists = getLibrary().artists;
+  await storeArtists(artists as DeepWritable<typeof artists>);
+};
+
+export const parseAndStoreInLibrary = async (srcPath: string, privKeyPath: string) => {
   await AppleMusicAPI.init(privKeyPath);
 
   const files = fs.readdirSync(srcPath).map(x => x);
@@ -191,15 +208,17 @@ const ingest = async (args: string[]): Promise<void> => {
       parseFavourites,
     ].map(x => x(musicDataRoot)),
   ]);
+};
 
-  const playlists = getLibrary().playlists;
-  const songs = getLibrary().songs;
-  const albums = getLibrary().albums;
-  const artists = getLibrary().artists;
-  await storePlaylists(playlists.slice() as DeepWritable<typeof playlists>);
-  await storeSongs(songs as DeepWritable<typeof songs>);
-  await storeAlbums(albums as DeepWritable<typeof albums>);
-  await storeArtists(artists as DeepWritable<typeof artists>);
+const ingest = async (args: string[]): Promise<void> => {
+  await parseAndStoreInLibrary(args[0], args[1]);
+
+  await Promise.all([
+    ingestAlbums(),
+    ingestArtists(),
+    ingestSongs(),
+    ingestPlaylists(),
+  ]);
 
   console.log('Ingestion complete');
 };
