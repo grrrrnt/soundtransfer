@@ -22,7 +22,6 @@ const drawerWidth = 240;
 
 function App() {
   const [open, setOpen] = React.useState(false);
-  const [appleMusicDevToken, setAppleMusicDevToken] = React.useState(undefined);
   const [signedIntoSpotify, setSignedIntoSpotify] = React.useState(false);
   const [signedIntoAppleMusic, setSignedIntoAppleMusic] = React.useState(false);
   const [privateKeyFile, setPrivateKeyFile] = React.useState(undefined);
@@ -357,7 +356,10 @@ function App() {
                       }}
                     >
                       1.
-                      <div>
+                      <div style={{
+                        display: 'flex',
+                        flexDirection: "column",
+                      }}>
                         <Button
                           sx={{flex: 1, alignSelf: "center"}}
                           component="label"
