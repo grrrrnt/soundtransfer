@@ -25,7 +25,7 @@ function App() {
   const [appleMusicDevToken, setAppleMusicDevToken] = React.useState(undefined);
   const [signedIntoSpotify, setSignedIntoSpotify] = React.useState(false);
   const [signedIntoAppleMusic, setSignedIntoAppleMusic] = React.useState(false);
-  const [privateKeyFile, setPrivateKeyFile] = React.useState("");
+  const [privateKeyFile, setPrivateKeyFile] = React.useState(undefined);
   const [keyId, setKeyId] = React.useState("");
   const [issuerId, setIssuerId] = React.useState("");
   const toggleDrawer = () => {
@@ -39,11 +39,12 @@ function App() {
 
   const logIntoAppleMusic = async () => {
     const alg = "ES256";
-    const kid = "CHBP53WURA"; // FIXME
-    const issuer = "X44A27MMDB"; // FIXME
-    const pkcs8 = ""; // FIXME
+    const kid = keyId;
+    const issuer = issuerId;
+    const pkcs8 = new TextDecoder()
+      .decode(await privateKeyFile.arrayBuffer());
+    const privateKey = await jose.importPKCS8(pkcs8, alg);
 
-    const privateKey = await jose.importPKCS8(pkcs8, alg); // FIXME
     const jwt = await new jose.SignJWT({})
       .setProtectedHeader({
         alg,
@@ -51,9 +52,8 @@ function App() {
       })
       .setExpirationTime("1d")
       .setIssuer(issuer)
+      .setIssuedAt(new Date())
       .sign(privateKey);
-
-    setAppleMusicDevToken(jwt);
 
     try {
       await window.MusicKit.configure({
@@ -357,15 +357,18 @@ function App() {
                       }}
                     >
                       1.
-                      <Button
-                        sx={{ flex: 1, alignSelf: "center" }}
-                        component="label"
-                      >
-                        <Typography className="sign-in-button-text">
-                          Upload private key file
-                        </Typography>
-                        <input type="file" value={privateKeyFile} hidden />
-                      </Button>
+                      <div>
+                        <Button
+                          sx={{flex: 1, alignSelf: "center"}}
+                          component="label"
+                        >
+                          <Typography className="sign-in-button-text">
+                            Upload private key file
+                          </Typography>
+                          <input type="file" onChange={evt => setPrivateKeyFile(evt.target.files[0])} hidden/>
+                        </Button>
+                        {privateKeyFile ? privateKeyFile.name : 'No file selected'}
+                      </div>
                     </div>
                     <div
                       style={{
@@ -374,7 +377,7 @@ function App() {
                         gap: "10px",
                       }}
                     >
-                      2. <Input placeholder="Key ID" value={keyId}></Input>
+                      2. <Input placeholder="Key ID" value={keyId} onChange={e => setKeyId(e.target.value)}></Input>
                     </div>
                     <div
                       style={{
@@ -384,7 +387,8 @@ function App() {
                       }}
                     >
                       3.{" "}
-                      <Input placeholder="Issuer ID" value={issuerId}></Input>
+                      <Input placeholder="Issuer ID" value={issuerId}
+                             onChange={e => setIssuerId(e.target.value)}></Input>
                     </div>
                     <div
                       style={{
