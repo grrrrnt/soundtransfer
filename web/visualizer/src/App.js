@@ -38,30 +38,51 @@ function App() {
 
   const logIntoAppleMusic = async () => {
     const alg = "ES256";
-    const kid = keyId;
-    const issuer = issuerId;
-    const pkcs8 = new TextDecoder()
-      .decode(await privateKeyFile.arrayBuffer());
-    const privateKey = await jose.importPKCS8(pkcs8, alg);
+    const kid = keyId.trim();
+    const issuer = issuerId.trim();
 
-    const jwt = await new jose.SignJWT({})
-      .setProtectedHeader({
-        alg,
-        kid,
-      })
-      .setExpirationTime("1d")
-      .setIssuer(issuer)
-      .setIssuedAt(new Date())
-      .sign(privateKey);
+    if (!kid || kid.length !== 10) {
+      alert('Please enter valid 10-digit key ID');
+      return;
+    }
+
+    if (!issuer.trim()) {
+      alert('Please enter valid issuer ID');
+      return;
+    }
+
+    if (!privateKeyFile) {
+      alert('Please select valid private key file');
+      return;
+    }
+
+    let privateKey = undefined;
+    try {
+      const pkcs8 = new TextDecoder()
+        .decode(await privateKeyFile.arrayBuffer());
+      privateKey = await jose.importPKCS8(pkcs8, alg);
+    } catch (e) {
+      alert(`Invalid private key file: ${e}`);
+      return;
+    }
 
     try {
+      const jwt = await new jose.SignJWT({})
+        .setProtectedHeader({
+          alg,
+          kid,
+        })
+        .setExpirationTime("1d")
+        .setIssuer(issuer)
+        .setIssuedAt(new Date())
+        .sign(privateKey);
+
       await window.MusicKit.configure({
         developerToken: jwt,
         app: {
           name: "Music Streaming Adapter",
           build: "v0.1",
         },
-        debug: true,
         suppressErrorDialog: false,
         storefrontId: "US",
       });
@@ -389,7 +410,7 @@ function App() {
                       }}
                     >
                       3.{" "}
-                      <Input placeholder="Issuer ID" value={issuerId}
+                      <Input placeholder="Issuer ID (Team ID)" value={issuerId}
                              onChange={e => setIssuerId(e.target.value)}></Input>
                     </div>
                     <div
