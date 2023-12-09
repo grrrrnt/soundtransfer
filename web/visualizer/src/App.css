@@ -28,11 +28,13 @@
   color: #61dafb;
 }
 
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+.action-button {
+  display: flex;
+  flex-direction: row;
+  gap: 10px;
+}
+
+.action-button:hover {
+  background-color: "#b7cdeb";
+  border-radius: 10px;
 }
