@@ -1,189 +1,77 @@
 import "./Songs.css";
 import * as React from "react";
-import { styled, createTheme, ThemeProvider } from "@mui/material/styles";
+import { createTheme, ThemeProvider } from "@mui/material/styles";
 import CssBaseline from "@mui/material/CssBaseline";
-import MuiDrawer from "@mui/material/Drawer";
 import Box from "@mui/material/Box";
-import MuiAppBar from "@mui/material/AppBar";
 import Toolbar from "@mui/material/Toolbar";
 import Typography from "@mui/material/Typography";
-import Divider from "@mui/material/Divider";
 import IconButton from "@mui/material/IconButton";
 import Container from "@mui/material/Container";
-import Link from "@mui/material/Link";
-import Grid from "@mui/material/Grid";
 import Paper from "@mui/material/Paper";
-import List from "@mui/material/List";
-import ListSubheader from "@mui/material/ListSubheader";
-import ListItemButton from "@mui/material/ListItemButton";
-import ListItemIcon from "@mui/material/ListItemIcon";
-import ListItemText from "@mui/material/ListItemText";
-import DashboardIcon from "@mui/icons-material/Dashboard";
-import MusicNoteIcon from "@mui/icons-material/MusicNote";
-import PeopleIcon from "@mui/icons-material/People";
-import AlbumIcon from "@mui/icons-material/Album";
-import PlaylistPlayIcon from "@mui/icons-material/PlaylistPlay";
-import HistoryIcon from "@mui/icons-material/History";
-import MenuIcon from "@mui/icons-material/Menu";
-import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
 import InputIcon from "@mui/icons-material/Input";
 import OutputIcon from "@mui/icons-material/Output";
+import Table from "@mui/material/Table";
+import TableBody from "@mui/material/TableBody";
+import TableCell from "@mui/material/TableCell";
+import TableHead from "@mui/material/TableHead";
+import TableRow from "@mui/material/TableRow";
+
+import AppBar from "../../components/AppBar";
+import Drawer from "../../components/Drawer";
+import Copyright from "../../components/Copyright";
 
 const defaultTheme = createTheme();
 const drawerWidth = 240;
 
-function Copyright(props) {
-  return (
-    <Typography
-      variant="body2"
-      color="text.secondary"
-      align="center"
-      {...props}
-    >
-      Copyright © Abhyudaya Sharma, Grant Lee, Muskaan Patel (Brown University){" "}
-      {new Date().getFullYear()}
-      {"."}
-    </Typography>
-  );
-}
-
-const AppBar = styled(MuiAppBar, {
-  shouldForwardProp: (prop) => prop !== "open",
-})(({ theme, open }) => ({
-  zIndex: theme.zIndex.drawer + 1,
-  transition: theme.transitions.create(["width", "margin"], {
-    easing: theme.transitions.easing.sharp,
-    duration: theme.transitions.duration.leavingScreen,
-  }),
-  ...(open && {
-    marginLeft: drawerWidth,
-    width: `calc(100% - ${drawerWidth}px)`,
-    transition: theme.transitions.create(["width", "margin"], {
-      easing: theme.transitions.easing.sharp,
-      duration: theme.transitions.duration.enteringScreen,
-    }),
-  }),
-}));
-
-const Drawer = styled(MuiDrawer, {
-  shouldForwardProp: (prop) => prop !== "open",
-})(({ theme, open }) => ({
-  "& .MuiDrawer-paper": {
-    position: "relative",
-    whiteSpace: "nowrap",
-    width: drawerWidth,
-    transition: theme.transitions.create("width", {
-      easing: theme.transitions.easing.sharp,
-      duration: theme.transitions.duration.enteringScreen,
-    }),
-    boxSizing: "border-box",
-    ...(!open && {
-      overflowX: "hidden",
-      transition: theme.transitions.create("width", {
-        easing: theme.transitions.easing.sharp,
-        duration: theme.transitions.duration.leavingScreen,
-      }),
-      width: theme.spacing(7),
-      [theme.breakpoints.up("sm")]: {
-        width: theme.spacing(9),
-      },
-    }),
-  },
-}));
-
 function Songs() {
-  const [open, setOpen] = React.useState(true);
+  const [open, setOpen] = React.useState(false);
+  const [songs, setSongs] = React.useState([]);
   const toggleDrawer = () => {
     setOpen(!open);
+  };
+
+  React.useEffect(() => {
+    getSongsFromAPI();
+  }, []);
+
+  const getSongsFromAPI = () => {
+    // TODO: get songs from API
+    const songsFromAPI = [];
+    for (let i = 0; i < 100; i++) {
+      songsFromAPI.push({
+        _id: i,
+        title: "This Song",
+        artists: ["This Artist", "That Artist"],
+        album: "This Album",
+        duration: 300000,
+        year: "2024",
+        isrc: "123456ABCDEF",
+      });
+    }
+    setSongs(songsFromAPI);
+  };
+
+  const formatDuration = (duration) => {
+    const minutes = Math.floor(duration / 60000);
+    const seconds = ((duration % 60000) / 1000).toFixed(0);
+    return minutes + ":" + (seconds < 10 ? "0" : "") + seconds;
   };
 
   return (
     <ThemeProvider theme={defaultTheme}>
       <Box sx={{ display: "flex" }}>
         <CssBaseline />
-        <AppBar position="absolute" open={open}>
-          <Toolbar sx={{ pr: "24px" }}>
-            <IconButton
-              edge="start"
-              color="inherit"
-              aria-label="open drawer"
-              onClick={toggleDrawer}
-              sx={{
-                marginRight: "36px",
-                ...(open && { display: "none" }),
-              }}
-            >
-              <MenuIcon />
-            </IconButton>
-            <Typography
-              component="h1"
-              variant="h6"
-              color="inherit"
-              noWrap
-              sx={{ flexGrow: 1 }}
-            >
-              Saved Songs
-            </Typography>
-            <IconButton color="inherit"></IconButton>
-          </Toolbar>
-        </AppBar>
-        <Drawer variant="permanent" open={open}>
-          <Toolbar
-            sx={{
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "flex-end",
-              px: [1],
-            }}
-          >
-            <IconButton onClick={toggleDrawer}>
-              <ChevronLeftIcon />
-            </IconButton>
-          </Toolbar>
-          <Divider />
-          <List component="nav">
-            <ListItemButton>
-              <ListItemIcon>
-                <DashboardIcon />
-              </ListItemIcon>
-              <ListItemText primary="Dashboard" />
-            </ListItemButton>
-            <Divider sx={{ my: 1 }} />
-            <ListSubheader component="div" inset>
-              Data Types
-            </ListSubheader>
-            <ListItemButton>
-              <ListItemIcon>
-                <MusicNoteIcon />
-              </ListItemIcon>
-              <ListItemText primary="Saved Songs" />
-            </ListItemButton>
-            <ListItemButton>
-              <ListItemIcon>
-                <PeopleIcon />
-              </ListItemIcon>
-              <ListItemText primary="Followed Artists" />
-            </ListItemButton>
-            <ListItemButton>
-              <ListItemIcon>
-                <AlbumIcon />
-              </ListItemIcon>
-              <ListItemText primary="Saved Albums" />
-            </ListItemButton>
-            <ListItemButton>
-              <ListItemIcon>
-                <PlaylistPlayIcon />
-              </ListItemIcon>
-              <ListItemText primary="Playlists" />
-            </ListItemButton>
-            <ListItemButton>
-              <ListItemIcon>
-                <HistoryIcon />
-              </ListItemIcon>
-              <ListItemText primary="Listening History" />
-            </ListItemButton>
-          </List>
-        </Drawer>
+        <AppBar
+          title="Saved Songs"
+          drawerWidth={drawerWidth}
+          open={open}
+          toggleDrawer={toggleDrawer}
+        />
+        <Drawer
+          drawerWidth={drawerWidth}
+          open={open}
+          toggleDrawer={toggleDrawer}
+        />
         <Box
           component="main"
           sx={{
@@ -215,7 +103,7 @@ function Songs() {
                   You've saved
                 </Typography>
                 <Typography component="p" variant="h4">
-                  100
+                  {songs.length}
                 </Typography>
                 <Typography color="text.secondary" sx={{ flex: 1 }}>
                   songs
@@ -307,8 +195,45 @@ function Songs() {
               </Paper>
             </Container>
           </Container>
-          <Container>
-            <Typography>Table here</Typography>
+          <Container maxWidth="xl" sx={{ mt: 4, mb: 4 }}>
+            <Paper
+              sx={{
+                p: 2,
+                display: "flex",
+                flexDirection: "column",
+                height: "100%",
+              }}
+            >
+              <Typography sx={{ fontWeight: "bold" }}>Saved Songs</Typography>
+              <Table size="small">
+                <TableHead>
+                  <TableRow>
+                    <TableCell style={{ fontWeight: "bold" }}>Title</TableCell>
+                    <TableCell style={{ fontWeight: "bold" }}>
+                      Artists
+                    </TableCell>
+                    <TableCell style={{ fontWeight: "bold" }}>Album</TableCell>
+                    <TableCell style={{ fontWeight: "bold" }}>
+                      Duration
+                    </TableCell>
+                    <TableCell style={{ fontWeight: "bold" }}>Year</TableCell>
+                    <TableCell style={{ fontWeight: "bold" }}>ISRC</TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {songs.map((row) => (
+                    <TableRow key={row._id}>
+                      <TableCell>{row.title}</TableCell>
+                      <TableCell>{row.artists.join(", ")}</TableCell>
+                      <TableCell>{row.album}</TableCell>
+                      <TableCell>{formatDuration(row.duration)}</TableCell>
+                      <TableCell>{row.year}</TableCell>
+                      <TableCell>{row.isrc}</TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </Paper>
           </Container>
           <Container>
             <Copyright sx={{ pt: 4 }} />
