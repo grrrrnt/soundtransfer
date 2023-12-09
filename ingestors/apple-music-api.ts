@@ -1,8 +1,7 @@
 import { AppleMusicAPI } from '../lib/apple-music';
 import { storeAlbums, storeArtists, storePlaylists, storeSongs } from '../lib/mongo';
 
-const fetchPlaylists = async (): Promise<Playlist[]> => {
-  const api = AppleMusicAPI.getInstance();
+const fetchPlaylists = async (api: AppleMusicAPI): Promise<Playlist[]> => {
   const ret: Playlist[] = [];
   const playlists = await api.getUserPlaylists();
 
@@ -39,8 +38,7 @@ const fetchPlaylists = async (): Promise<Playlist[]> => {
   return ret;
 }
 
-const fetchAlbums = async (): Promise<Album[]> => {
-  const api = AppleMusicAPI.getInstance();
+const fetchAlbums = async (api: AppleMusicAPI): Promise<Album[]> => {
   const albums = await api.getUserAlbums();
 
   return albums.map(album => ({
@@ -50,8 +48,7 @@ const fetchAlbums = async (): Promise<Album[]> => {
   }));
 }
 
-const fetchSongs = async (): Promise<Song[]> => {
-  const api = AppleMusicAPI.getInstance();
+const fetchSongs = async (api: AppleMusicAPI): Promise<Song[]> => {
   const songs = await api.getAllLibrarySongs();
 
   return songs.map(song => ({
@@ -65,8 +62,7 @@ const fetchSongs = async (): Promise<Song[]> => {
   }));
 }
 
-const fetchArtists = async (): Promise<Artist[]> => {
-  const api = AppleMusicAPI.getInstance();
+const fetchArtists = async (api: AppleMusicAPI): Promise<Artist[]> => {
   const artists = await api.getAllLibraryArtists();
 
   return artists.map(artist => ({
@@ -74,37 +70,22 @@ const fetchArtists = async (): Promise<Artist[]> => {
   }));
 }
 
-export const ingestPlaylists = async () => {
-  await storePlaylists(await fetchPlaylists());
+export const ingestPlaylists = async (api: AppleMusicAPI) => {
+  await storePlaylists(await fetchPlaylists(api));
 };
 
-export const ingestAlbums = async () => {
-  await storeAlbums(await fetchAlbums());
+export const ingestAlbums = async (api: AppleMusicAPI) => {
+  await storeAlbums(await fetchAlbums(api));
 }
 
-export const ingestListeningHistory = async () => {
+export const ingestListeningHistory = async (api: AppleMusicAPI) => {
   // TODO
 }
 
-export const ingestSongs = async () => {
-  await storeSongs(await fetchSongs());
+export const ingestSongs = async (api: AppleMusicAPI) => {
+  await storeSongs(await fetchSongs(api));
 };
 
-export const ingestArtists = async () => {
-  await storeArtists(await fetchArtists());
+export const ingestArtists = async (api: AppleMusicAPI) => {
+  await storeArtists(await fetchArtists(api));
 }
-
-const ingest = async (args: string[]): Promise<void> => {
-  await AppleMusicAPI.init(args[0]);
-  console.log('Authorization complete...');
-  await Promise.all( [
-    ingestSongs(),
-    ingestArtists(),
-    ingestAlbums(),
-    ingestListeningHistory(),
-    ingestPlaylists(),
-  ]);
-  console.log('Data Ingestion from Apple Music API complete');
-}
-
-export default ingest;

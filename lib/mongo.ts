@@ -1,4 +1,4 @@
-import { Collection, Document, FindCursor, MongoClient, WithId } from "mongodb";
+import { Collection, FindCursor, MongoClient, WithId } from 'mongodb';
 
 const url = "mongodb://localhost:27017";
 const client = new MongoClient(url);
@@ -13,7 +13,7 @@ const SongCollection = "userSongs";
 
 const getCollection = async (
   collectionName: string
-): Promise<Collection<Document>> => {
+): Promise<Collection> => {
   await client.connect();
   const db = client.db(dbName);
   return db.collection(collectionName);
@@ -22,10 +22,6 @@ const getCollection = async (
 export const connectDB = async () => {
   await client.connect();
   console.log(`Connected to MongoDB at ${url}`);
-};
-
-export const closeMongoDBConnection = async () => {
-  await client.close();
 };
 
 // TODO collection.createIndex({'id': 1}, {sparse: true, unique: true});

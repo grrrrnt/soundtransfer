@@ -2,8 +2,7 @@ import { AppleMusicAPI } from '../lib/apple-music';
 import { getAlbums, getArtists, getPlaylists, getSongs } from '../lib/mongo';
 import { filterFalsy } from '../lib/utils';
 
-const exportSongs = async () => {
-  const api = AppleMusicAPI.getInstance();
+const exportSongs = async (api: AppleMusicAPI) => {
   const songIds: string[] = [];
 
   for await (const song of await getSongs()) {
@@ -16,8 +15,7 @@ const exportSongs = async () => {
   });
 }
 
-const exportPlaylists = async () => {
-  const api = AppleMusicAPI.getInstance();
+const exportPlaylists = async (api: AppleMusicAPI) => {
   const playlists = await getPlaylists();
 
   for await (const playlist of playlists) {
@@ -44,8 +42,7 @@ const exportPlaylists = async () => {
   console.log('Playlist export completed.');
 }
 
-const exportAlbums = async () => {
-  const api = AppleMusicAPI.getInstance();
+const exportAlbums = async (api: AppleMusicAPI) => {
   const userAlbums = await getAlbums();
   const albumIdsToAdd: string[] = [];
 
@@ -66,10 +63,7 @@ const exportAlbums = async () => {
   console.log('Album export completed');
 }
 
-
-// noinspection JSUnusedLocalSymbols
-const exportArtists = async () => {
-  const api = AppleMusicAPI.getInstance();
+const exportArtists = async (api: AppleMusicAPI) => {
   const userArtists = await getArtists();
   const artistIds: string[] = [];
 
@@ -89,15 +83,3 @@ const exportArtists = async () => {
 
   console.log('Artist export completed');
 }
-
-const export_ = async (args: string[]): Promise<void> => {
-  await AppleMusicAPI.init(args[0]);
-  await exportPlaylists();
-  await exportAlbums();
-  await exportSongs();
-
-  // TODO uncomment this when Apple Music API allows adding artists to user library
-  // await exportArtists();
-};
-
-export default export_;

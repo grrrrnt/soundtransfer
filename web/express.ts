@@ -9,7 +9,6 @@ import { AppleMusicAPI } from '../lib/apple-music';
 import { SpotifyAPI, SpotifyAPIError } from '../lib/spotify';
 import * as AppleMusicIngestor from '../ingestors/apple-music';
 import * as AppleMusicApiIngestor from '../ingestors/apple-music-api';
-import * as http from 'http';
 import { getAlbums, getArtists, getListeningHistory, getPlaylists, getSongs } from '../lib/mongo';
 
 type IngestTypes =
@@ -25,15 +24,18 @@ type ExportTypes =
   'artists' |
   'songs';
 
-interface IngestAppleMusicDataExportRequestBody {
+interface AppleMusicRequest {
+  devToken: string;
+  userMusicToken: string;
+}
+
+interface IngestAppleMusicDataExportRequestBody extends AppleMusicRequest {
   ingestTypes: IngestTypes[];
-  privateKeyPath: string;
   dataExportPath: string;
 }
 
-interface IngestAppleMusicApiRequestBody {
+interface IngestAppleMusicApiRequestBody extends AppleMusicRequest {
   ingestTypes: IngestTypes[];
-  privateKeyPath: string;
 }
 
 interface IngestSpotifyDataExportRequestBody {
@@ -62,7 +64,6 @@ interface ExportSpotifyRequestBody {
 
 export const port = 8080;
 const app = express();
-let server: http.Server | undefined = undefined;
 
 app.use(express.json());
 // app.use(morgan("combined"));
@@ -71,33 +72,12 @@ app.use(express.static(path.join(__dirname, 'static')));
 export const listen = _.once(
   async () =>
     new Promise<void>((resolve) => {
-      server = app.listen(port, () => {
+    app.listen(port, () => {
         console.log(`Express is listening on port ${port}`);
         resolve();
       });
     }),
 );
-
-export const shutdownExpress = async () => {
-  return new Promise<void>((resolve, reject) => {
-    server?.close(err => {
-      if (err) {
-        reject(err);
-        return;
-      }
-
-      resolve();
-    });
-  });
-}
-
-app.post('/api/apple-music-user-auth', (req, res) => {
-  assert(
-    typeof req.body === 'object' && req.body.hasOwnProperty('musicUserToken'),
-  );
-  AppleMusicAPI.__unsafe_setUserMusicToken(req.body.musicUserToken);
-  res.send();
-});
 
 // GET /api/spotify/user-auth -> redirect to Spotify login page
 app.get('/api/spotify/user-auth', function (req, res) {
@@ -182,10 +162,15 @@ app.get('/api/spotify/user-auth-callback', async function (req, res) {
 });
 
 app.post('/api/ingest/apple-music-data-export', async (req, res) => {
-  const body = req.body as IngestAppleMusicDataExportRequestBody;
-  await AppleMusicIngestor.parseAndStoreInLibrary(body.dataExportPath, body.privateKeyPath);
+  const {devToken, userMusicToken, ingestTypes, dataExportPath } = req.body as IngestAppleMusicDataExportRequestBody;
+  const api = new AppleMusicAPI({
+    devToken,
+    userMusicToken,
+  });
 
-  for (const ingestType of new Set(body.ingestTypes)) {
+  await AppleMusicIngestor.parseAndStoreInLibrary(api, dataExportPath);
+
+  for (const ingestType of new Set(ingestTypes)) {
     switch (ingestType) {
       case 'albums':
         await AppleMusicIngestor.ingestAlbums();
@@ -213,25 +198,28 @@ app.post('/api/ingest/apple-music-data-export', async (req, res) => {
 });
 
 app.post('/api/ingest/apple-music-api', async (req, res) => {
-  const body = req.body as IngestAppleMusicApiRequestBody;
-  await AppleMusicAPI.init(body.privateKeyPath);
+  const {devToken, userMusicToken, ingestTypes} = req.body as IngestAppleMusicApiRequestBody;
+  const api = new AppleMusicAPI({
+    devToken,
+    userMusicToken,
+  });
 
-  for (const ingestType of new Set(body.ingestTypes)) {
+  for (const ingestType of new Set(ingestTypes)) {
     switch (ingestType) {
       case 'albums':
-        await AppleMusicApiIngestor.ingestAlbums();
+        await AppleMusicApiIngestor.ingestAlbums(api);
         break;
       case 'playlists':
-        await AppleMusicApiIngestor.ingestPlaylists();
+        await AppleMusicApiIngestor.ingestPlaylists(api);
         break;
       case 'artists':
-        await AppleMusicApiIngestor.ingestArtists();
+        await AppleMusicApiIngestor.ingestArtists(api);
         break;
       case 'listening-history':
-        await AppleMusicApiIngestor.ingestListeningHistory();
+        await AppleMusicApiIngestor.ingestListeningHistory(api);
         break;
       case 'songs':
-        await AppleMusicApiIngestor.ingestSongs();
+        await AppleMusicApiIngestor.ingestSongs(api);
         break;
       default:
         throw new Error(`Unknown ingestType ${ingestType}`);

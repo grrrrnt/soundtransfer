@@ -1,7 +1,4 @@
 import _ from 'lodash';
-import fs from 'fs';
-import jwt from 'jsonwebtoken';
-import { port } from '../web/express';
 import * as mongo from './mongo';
 import { storeAppleMusicLibrarySongs, storeAppleMusicSongs } from './mongo';
 import assert from 'assert';
@@ -23,79 +20,17 @@ export class AppleMusicAPIError extends Error {
 }
 
 export class AppleMusicAPI {
-  // We need these unsafe functions and tokens because we don't want the
-  // instance to be accessible before it is set up because and I'm too lazy to
-  // create a new class. Init should be wrapped in a mutex but JavaScript!
-  // This is all just spaghetti code, but it works and the interfaces to use
-  // the API are super clean.
-
-  public static init = _.once(async (privateKeyFilePath: string) => {
-    if (this.instance) {
-      throw new Error('AppleMusicAPI already initialized');
-    }
-
-    const unsafeInstance = new AppleMusicAPI({
-      privateKeyFilePath,
-      userMusicToken: 'fake-token',
-    });
-
-    console.log(`For authorizing with Apple Music API, please visit http://localhost:${port}/apple-music-authorization.html?devToken=${encodeURIComponent(unsafeInstance.getDevToken())}`);
-    console.log('Waiting for authorization...');
-
-    this.instance = new AppleMusicAPI({
-      privateKeyFilePath,
-      userMusicToken: await AppleMusicAPI.__unsafe_getUserMusicToken(),
-    });
-  });
-
-  private static instance: AppleMusicAPI | undefined = undefined;
-  // noinspection SpellCheckingInspection
-  private static readonly jwtOptions: jwt.SignOptions = {
-    algorithm: 'ES256',
-    keyid: 'CHBP53WURA',
-    issuer: 'X44A27MMDB', // Team ID from Apple developer account
-    expiresIn: '1h',
-  };
-  private static __unsafe_userMusicToken: string;
-  private static tokenRequestPromiseResolveQueue: ((token: string) => void)[] = [];
   private static readonly multipleCatalogSongRequestMaxFetchLimit = 300;
   private readonly devToken: string;
-  private readonly privateKey: Buffer;
   private readonly storefront = 'US';
   private readonly userMusicToken: string;
 
-  private constructor(args: Readonly<{
+  public constructor(args: Readonly<{
     userMusicToken: string;
-    privateKeyFilePath: string;
+    devToken: string;
   }>) {
-    this.privateKey = fs.readFileSync(args.privateKeyFilePath);
     this.userMusicToken = args.userMusicToken;
-    this.devToken = jwt.sign({}, this.privateKey, AppleMusicAPI.jwtOptions);
-  }
-
-  public static __unsafe_setUserMusicToken(token: string) {
-    this.__unsafe_userMusicToken = token;
-    while (this.tokenRequestPromiseResolveQueue.length) {
-      this.tokenRequestPromiseResolveQueue.pop()!(token);
-    }
-  }
-
-  public static getInstance(): AppleMusicAPI {
-    if (!this.instance) {
-      throw new Error('AppleMusicAPI not initialized');
-    }
-
-    return this.instance;
-  }
-
-  private static async __unsafe_getUserMusicToken(): Promise<string> {
-    if (this.__unsafe_userMusicToken == undefined) {
-      return new Promise((resolve) => {
-        this.tokenRequestPromiseResolveQueue.push(resolve);
-      });
-    }
-
-    return this.__unsafe_userMusicToken;
+    this.devToken = args.devToken;
   }
 
   private static async throwErrorIfResponseNotOkay(res: Response, extraDetails?: object) {
@@ -156,7 +91,7 @@ export class AppleMusicAPI {
   }
 
   public async getSongByIsrc(isrc: string): Promise<AppleMusicCatalogSong | undefined> {
-    const dbSong = await mongo.getAppleMusicSongFromIdentifier(isrc);
+    const dbSong = await mongo.getAppleMusicSongFromIsrc(isrc);
     if (dbSong !== null) {
       return dbSong;
     }
