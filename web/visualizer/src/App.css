@@ -38,3 +38,14 @@
   background-color: "#b7cdeb";
   border-radius: 10px;
 }
+
+.sign-in-button-text {
+  background-color: #d8e8ff;
+  border-radius: 10px;
+  padding: 10px;
+  font-size: 20px;
+  font-weight: bold;
+  color: #282c34;
+  border: none;
+  cursor: pointer;
+}

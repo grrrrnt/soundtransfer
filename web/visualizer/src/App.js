@@ -28,6 +28,7 @@ import MenuIcon from "@mui/icons-material/Menu";
 import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
 import InputIcon from "@mui/icons-material/Input";
 import OutputIcon from "@mui/icons-material/Output";
+import { Button } from "@mui/material";
 
 const defaultTheme = createTheme();
 const drawerWidth = 240;
@@ -93,8 +94,44 @@ const Drawer = styled(MuiDrawer, {
 
 function App() {
   const [open, setOpen] = React.useState(true);
+  const [signedIntoSpotify, setSignedIntoSpotify] = React.useState(false);
+  const [signedIntoAppleMusic, setSignedIntoAppleMusic] = React.useState(false);
   const toggleDrawer = () => {
     setOpen(!open);
+  };
+
+  const logIntoSpotify = () => {
+    // TODO
+    setSignedIntoSpotify(true);
+  };
+
+  const logIntoAppleMusic = () => {
+    // TODO
+    setSignedIntoAppleMusic(true);
+  };
+
+  const ingestSpotifyFromDataExportFile = () => {
+    // TODO
+  };
+
+  const ingestSpotifyViaAPI = () => {
+    // TODO
+  };
+
+  const exportSpotifyViaAPI = () => {
+    // TODO
+  };
+
+  const ingestAppleMusicFromDataExportFile = () => {
+    // TODO
+  };
+
+  const ingestAppleMusicViaAPI = () => {
+    // TODO
+  };
+
+  const exportAppleMusicViaAPI = () => {
+    // TODO
   };
 
   return (
@@ -319,33 +356,51 @@ function App() {
                 }}
               >
                 <Typography color="text.secondary">Spotify actions</Typography>
+                {signedIntoSpotify ? (
+                  <div
+                    style={{
+                      display: "flex",
+                      flexDirection: "column",
+                      alignItems: "start",
+                    }}
+                  >
+                    <IconButton
+                      className="action-button"
+                      color="inherit"
+                      onClick={ingestSpotifyFromDataExportFile}
+                    >
+                      <InputIcon />
+                      <Typography>Ingest from data export file</Typography>
+                    </IconButton>
 
-                <IconButton
-                  className="action-button"
-                  color="inherit"
-                  onClick={toggleDrawer}
-                >
-                  <InputIcon />
-                  <Typography>Ingest from data export file</Typography>
-                </IconButton>
+                    <IconButton
+                      className="action-button"
+                      color="inherit"
+                      onClick={ingestSpotifyViaAPI}
+                    >
+                      <InputIcon />
+                      <Typography>Ingest via API</Typography>
+                    </IconButton>
 
-                <IconButton
-                  className="action-button"
-                  color="inherit"
-                  onClick={toggleDrawer}
-                >
-                  <InputIcon />
-                  <Typography>Ingest via API</Typography>
-                </IconButton>
-
-                <IconButton
-                  className="action-button"
-                  color="inherit"
-                  onClick={toggleDrawer}
-                >
-                  <OutputIcon />
-                  <Typography>Export via API</Typography>
-                </IconButton>
+                    <IconButton
+                      className="action-button"
+                      color="inherit"
+                      onClick={exportSpotifyViaAPI}
+                    >
+                      <OutputIcon />
+                      <Typography>Export via API</Typography>
+                    </IconButton>
+                  </div>
+                ) : (
+                  <Button
+                    onClick={logIntoSpotify}
+                    sx={{ flex: 1, alignSelf: "center" }}
+                  >
+                    <Typography className="sign-in-button-text">
+                      Sign into Spotify
+                    </Typography>
+                  </Button>
+                )}
               </Paper>
             </Container>
             <Container style={{ flex: "1" }}>
@@ -363,32 +418,51 @@ function App() {
                   Apple Music actions
                 </Typography>
 
-                <IconButton
-                  className="action-button"
-                  color="inherit"
-                  onClick={toggleDrawer}
-                >
-                  <InputIcon />
-                  <Typography>Ingest from data export file</Typography>
-                </IconButton>
+                {signedIntoAppleMusic ? (
+                  <div
+                    style={{
+                      display: "flex",
+                      flexDirection: "column",
+                      alignItems: "start",
+                    }}
+                  >
+                    <IconButton
+                      className="action-button"
+                      color="inherit"
+                      onClick={ingestAppleMusicFromDataExportFile}
+                    >
+                      <InputIcon />
+                      <Typography>Ingest from data export file</Typography>
+                    </IconButton>
 
-                <IconButton
-                  className="action-button"
-                  color="inherit"
-                  onClick={toggleDrawer}
-                >
-                  <InputIcon />
-                  <Typography>Ingest via API</Typography>
-                </IconButton>
+                    <IconButton
+                      className="action-button"
+                      color="inherit"
+                      onClick={ingestAppleMusicViaAPI}
+                    >
+                      <InputIcon />
+                      <Typography>Ingest via API</Typography>
+                    </IconButton>
 
-                <IconButton
-                  className="action-button"
-                  color="inherit"
-                  onClick={toggleDrawer}
-                >
-                  <OutputIcon />
-                  <Typography>Export via API</Typography>
-                </IconButton>
+                    <IconButton
+                      className="action-button"
+                      color="inherit"
+                      onClick={exportAppleMusicViaAPI}
+                    >
+                      <OutputIcon />
+                      <Typography>Export via API</Typography>
+                    </IconButton>
+                  </div>
+                ) : (
+                  <Button
+                    onClick={logIntoAppleMusic}
+                    sx={{ flex: 1, alignSelf: "center" }}
+                  >
+                    <Typography className="sign-in-button-text">
+                      Sign into Apple Music
+                    </Typography>
+                  </Button>
+                )}
               </Paper>
             </Container>
           </Container>
