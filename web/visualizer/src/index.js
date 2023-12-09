@@ -2,7 +2,11 @@ import React from "react";
 import ReactDOM from "react-dom/client";
 import "./index.css";
 import App from "./App";
-// import Songs from "./Songs";
+import Songs from "./pages/Songs/Songs";
+// import Artists from "./Artists";
+// import Albums from "./Albums";
+// import Playlists from "./Playlists";
+// import ListeningHistory from "./ListeningHistory";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import reportWebVitals from "./reportWebVitals";
 
@@ -13,8 +17,24 @@ const router = createBrowserRouter([
   },
   {
     path: "/songs",
-    element: <App />,
+    element: <Songs />,
   },
+  // {
+  //   path: "/artists",
+  //   element: <Artists />,
+  // },
+  // {
+  //   path: "/albums",
+  //   element: <Albums />,
+  // },
+  // {
+  //   path: "/playlists",
+  //   element: <Playlists />,
+  // },
+  // {
+  //   path: "/listening-history",
+  //   element: <ListeningHistory />,
+  // },
 ]);
 
 const root = ReactDOM.createRoot(document.getElementById("root"));
