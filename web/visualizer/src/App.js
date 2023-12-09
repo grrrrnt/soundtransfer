@@ -1,6 +1,7 @@
 import "./App.css";
 import * as React from "react";
-import { styled, createTheme, ThemeProvider } from "@mui/material/styles";
+import * as jose from 'jose';
+import {styled, createTheme, ThemeProvider} from "@mui/material/styles";
 import CssBaseline from "@mui/material/CssBaseline";
 import MuiDrawer from "@mui/material/Drawer";
 import Box from "@mui/material/Box";
@@ -28,7 +29,7 @@ import MenuIcon from "@mui/icons-material/Menu";
 import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
 import InputIcon from "@mui/icons-material/Input";
 import OutputIcon from "@mui/icons-material/Output";
-import { Button } from "@mui/material";
+import {Button} from "@mui/material";
 
 const defaultTheme = createTheme();
 const drawerWidth = 240;
@@ -50,7 +51,7 @@ function Copyright(props) {
 
 const AppBar = styled(MuiAppBar, {
   shouldForwardProp: (prop) => prop !== "open",
-})(({ theme, open }) => ({
+})(({theme, open}) => ({
   zIndex: theme.zIndex.drawer + 1,
   transition: theme.transitions.create(["width", "margin"], {
     easing: theme.transitions.easing.sharp,
@@ -68,7 +69,7 @@ const AppBar = styled(MuiAppBar, {
 
 const Drawer = styled(MuiDrawer, {
   shouldForwardProp: (prop) => prop !== "open",
-})(({ theme, open }) => ({
+})(({theme, open}) => ({
   "& .MuiDrawer-paper": {
     position: "relative",
     whiteSpace: "nowrap",
@@ -94,6 +95,7 @@ const Drawer = styled(MuiDrawer, {
 
 function App() {
   const [open, setOpen] = React.useState(true);
+  const [appleMusicDevToken, setAppleMusicDevToken] = React.useState(undefined);
   const [signedIntoSpotify, setSignedIntoSpotify] = React.useState(false);
   const [signedIntoAppleMusic, setSignedIntoAppleMusic] = React.useState(false);
   const toggleDrawer = () => {
@@ -105,8 +107,43 @@ function App() {
     setSignedIntoSpotify(true);
   };
 
-  const logIntoAppleMusic = () => {
-    // TODO
+  const logIntoAppleMusic = async () => {
+    const alg = 'ES256';
+    const kid = 'CHBP53WURA';  // FIXME
+    const issuer = 'X44A27MMDB' // FIXME
+    const pkcs8 = ''; // FIXME
+
+    const privateKey = await jose.importPKCS8(pkcs8, alg); // FIXME
+    const jwt = await new jose.SignJWT({})
+      .setProtectedHeader({
+        alg,
+        kid,
+      })
+      .setExpirationTime('1d')
+      .setIssuer(issuer)
+      .sign(privateKey);
+
+    setAppleMusicDevToken(jwt);
+
+    try {
+      await window.MusicKit.configure({
+        developerToken: jwt,
+        app: {
+          name: 'Music Streaming Adapter',
+          build: 'v0.1',
+        },
+        debug: true,
+        suppressErrorDialog: false,
+        storefrontId: 'US',
+      });
+
+      const music = window.MusicKit.getInstance();
+      await music.authorize();
+    } catch (err) {
+      alert(`Error ${err}`);
+      return;
+    }
+
     setSignedIntoAppleMusic(true);
   };
 
@@ -136,10 +173,10 @@ function App() {
 
   return (
     <ThemeProvider theme={defaultTheme}>
-      <Box sx={{ display: "flex" }}>
-        <CssBaseline />
+      <Box sx={{display: "flex"}}>
+        <CssBaseline/>
         <AppBar position="absolute" open={open}>
-          <Toolbar sx={{ pr: "24px" }}>
+          <Toolbar sx={{pr: "24px"}}>
             <IconButton
               edge="start"
               color="inherit"
@@ -147,17 +184,17 @@ function App() {
               onClick={toggleDrawer}
               sx={{
                 marginRight: "36px",
-                ...(open && { display: "none" }),
+                ...(open && {display: "none"}),
               }}
             >
-              <MenuIcon />
+              <MenuIcon/>
             </IconButton>
             <Typography
               component="h1"
               variant="h6"
               color="inherit"
               noWrap
-              sx={{ flexGrow: 1 }}
+              sx={{flexGrow: 1}}
             >
               Music Streaming Adapter
             </Typography>
@@ -174,50 +211,50 @@ function App() {
             }}
           >
             <IconButton onClick={toggleDrawer}>
-              <ChevronLeftIcon />
+              <ChevronLeftIcon/>
             </IconButton>
           </Toolbar>
-          <Divider />
+          <Divider/>
           <List component="nav">
             <ListItemButton>
               <ListItemIcon>
-                <DashboardIcon />
+                <DashboardIcon/>
               </ListItemIcon>
-              <ListItemText primary="Dashboard" />
+              <ListItemText primary="Dashboard"/>
             </ListItemButton>
-            <Divider sx={{ my: 1 }} />
+            <Divider sx={{my: 1}}/>
             <ListSubheader component="div" inset>
               Data Types
             </ListSubheader>
             <ListItemButton>
               <ListItemIcon>
-                <MusicNoteIcon />
+                <MusicNoteIcon/>
               </ListItemIcon>
-              <ListItemText primary="Saved Songs" />
+              <ListItemText primary="Saved Songs"/>
             </ListItemButton>
             <ListItemButton>
               <ListItemIcon>
-                <PeopleIcon />
+                <PeopleIcon/>
               </ListItemIcon>
-              <ListItemText primary="Followed Artists" />
+              <ListItemText primary="Followed Artists"/>
             </ListItemButton>
             <ListItemButton>
               <ListItemIcon>
-                <AlbumIcon />
+                <AlbumIcon/>
               </ListItemIcon>
-              <ListItemText primary="Saved Albums" />
+              <ListItemText primary="Saved Albums"/>
             </ListItemButton>
             <ListItemButton>
               <ListItemIcon>
-                <PlaylistPlayIcon />
+                <PlaylistPlayIcon/>
               </ListItemIcon>
-              <ListItemText primary="Playlists" />
+              <ListItemText primary="Playlists"/>
             </ListItemButton>
             <ListItemButton>
               <ListItemIcon>
-                <HistoryIcon />
+                <HistoryIcon/>
               </ListItemIcon>
-              <ListItemText primary="Listening History" />
+              <ListItemText primary="Listening History"/>
             </ListItemButton>
           </List>
         </Drawer>
@@ -233,13 +270,13 @@ function App() {
             overflow: "auto",
           }}
         >
-          <Toolbar />
+          <Toolbar/>
           <Container
             maxWidth="xl"
-            sx={{ mt: 4, mb: 4 }}
-            style={{ display: "flex", flexDirection: "row" }}
+            sx={{mt: 4, mb: 4}}
+            style={{display: "flex", flexDirection: "row"}}
           >
-            <Container style={{ flex: "1" }}>
+            <Container style={{flex: "1"}}>
               <Paper
                 sx={{
                   p: 2,
@@ -248,18 +285,18 @@ function App() {
                   height: "100%",
                 }}
               >
-                <Typography color="text.secondary" sx={{ flex: 1 }}>
+                <Typography color="text.secondary" sx={{flex: 1}}>
                   You've saved
                 </Typography>
                 <Typography component="p" variant="h4">
                   100
                 </Typography>
-                <Typography color="text.secondary" sx={{ flex: 1 }}>
+                <Typography color="text.secondary" sx={{flex: 1}}>
                   songs
                 </Typography>
               </Paper>
             </Container>
-            <Container style={{ flex: "1" }}>
+            <Container style={{flex: "1"}}>
               <Paper
                 sx={{
                   p: 2,
@@ -268,18 +305,18 @@ function App() {
                   height: "100%",
                 }}
               >
-                <Typography color="text.secondary" sx={{ flex: 1 }}>
+                <Typography color="text.secondary" sx={{flex: 1}}>
                   You've saved
                 </Typography>
                 <Typography component="p" variant="h4">
                   100
                 </Typography>
-                <Typography color="text.secondary" sx={{ flex: 1 }}>
+                <Typography color="text.secondary" sx={{flex: 1}}>
                   albums
                 </Typography>
               </Paper>
             </Container>
-            <Container style={{ flex: "1" }}>
+            <Container style={{flex: "1"}}>
               <Paper
                 sx={{
                   p: 2,
@@ -288,18 +325,18 @@ function App() {
                   height: "100%",
                 }}
               >
-                <Typography color="text.secondary" sx={{ flex: 1 }}>
+                <Typography color="text.secondary" sx={{flex: 1}}>
                   You've followed
                 </Typography>
                 <Typography component="p" variant="h4">
                   100
                 </Typography>
-                <Typography color="text.secondary" sx={{ flex: 1 }}>
+                <Typography color="text.secondary" sx={{flex: 1}}>
                   artists
                 </Typography>
               </Paper>
             </Container>
-            <Container style={{ flex: "1" }}>
+            <Container style={{flex: "1"}}>
               <Paper
                 sx={{
                   p: 2,
@@ -308,18 +345,18 @@ function App() {
                   height: "100%",
                 }}
               >
-                <Typography color="text.secondary" sx={{ flex: 1 }}>
+                <Typography color="text.secondary" sx={{flex: 1}}>
                   You have
                 </Typography>
                 <Typography component="p" variant="h4">
                   100
                 </Typography>
-                <Typography color="text.secondary" sx={{ flex: 1 }}>
+                <Typography color="text.secondary" sx={{flex: 1}}>
                   playlists
                 </Typography>
               </Paper>
             </Container>
-            <Container style={{ flex: "1" }}>
+            <Container style={{flex: "1"}}>
               <Paper
                 sx={{
                   p: 2,
@@ -328,13 +365,13 @@ function App() {
                   height: "100%",
                 }}
               >
-                <Typography color="text.secondary" sx={{ flex: 1 }}>
+                <Typography color="text.secondary" sx={{flex: 1}}>
                   Your listening history has
                 </Typography>
                 <Typography component="p" variant="h4">
                   100
                 </Typography>
-                <Typography color="text.secondary" sx={{ flex: 1 }}>
+                <Typography color="text.secondary" sx={{flex: 1}}>
                   records
                 </Typography>
               </Paper>
@@ -342,9 +379,9 @@ function App() {
           </Container>
           <Container
             maxWidth="md"
-            style={{ display: "flex", flexDirection: "row" }}
+            style={{display: "flex", flexDirection: "row"}}
           >
-            <Container style={{ flex: "1" }}>
+            <Container style={{flex: "1"}}>
               <Paper
                 sx={{
                   p: 2,
@@ -369,7 +406,7 @@ function App() {
                       color="inherit"
                       onClick={ingestSpotifyFromDataExportFile}
                     >
-                      <InputIcon />
+                      <InputIcon/>
                       <Typography>Ingest from data export file</Typography>
                     </IconButton>
 
@@ -378,7 +415,7 @@ function App() {
                       color="inherit"
                       onClick={ingestSpotifyViaAPI}
                     >
-                      <InputIcon />
+                      <InputIcon/>
                       <Typography>Ingest via API</Typography>
                     </IconButton>
 
@@ -387,14 +424,14 @@ function App() {
                       color="inherit"
                       onClick={exportSpotifyViaAPI}
                     >
-                      <OutputIcon />
+                      <OutputIcon/>
                       <Typography>Export via API</Typography>
                     </IconButton>
                   </div>
                 ) : (
                   <Button
                     onClick={logIntoSpotify}
-                    sx={{ flex: 1, alignSelf: "center" }}
+                    sx={{flex: 1, alignSelf: "center"}}
                   >
                     <Typography className="sign-in-button-text">
                       Sign into Spotify
@@ -403,7 +440,7 @@ function App() {
                 )}
               </Paper>
             </Container>
-            <Container style={{ flex: "1" }}>
+            <Container style={{flex: "1"}}>
               <Paper
                 sx={{
                   p: 2,
@@ -414,7 +451,7 @@ function App() {
                   alignItems: "start",
                 }}
               >
-                <Typography color="text.secondary" sx={{ flex: 1 }}>
+                <Typography color="text.secondary" sx={{flex: 1}}>
                   Apple Music actions
                 </Typography>
 
@@ -431,7 +468,7 @@ function App() {
                       color="inherit"
                       onClick={ingestAppleMusicFromDataExportFile}
                     >
-                      <InputIcon />
+                      <InputIcon/>
                       <Typography>Ingest from data export file</Typography>
                     </IconButton>
 
@@ -440,7 +477,7 @@ function App() {
                       color="inherit"
                       onClick={ingestAppleMusicViaAPI}
                     >
-                      <InputIcon />
+                      <InputIcon/>
                       <Typography>Ingest via API</Typography>
                     </IconButton>
 
@@ -449,14 +486,14 @@ function App() {
                       color="inherit"
                       onClick={exportAppleMusicViaAPI}
                     >
-                      <OutputIcon />
+                      <OutputIcon/>
                       <Typography>Export via API</Typography>
                     </IconButton>
                   </div>
                 ) : (
                   <Button
                     onClick={logIntoAppleMusic}
-                    sx={{ flex: 1, alignSelf: "center" }}
+                    sx={{flex: 1, alignSelf: "center"}}
                   >
                     <Typography className="sign-in-button-text">
                       Sign into Apple Music
@@ -467,7 +504,7 @@ function App() {
             </Container>
           </Container>
           <Container>
-            <Copyright sx={{ pt: 4 }} />
+            <Copyright sx={{pt: 4}}/>
           </Container>
         </Box>
       </Box>
