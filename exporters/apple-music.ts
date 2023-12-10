@@ -2,7 +2,7 @@ import { AppleMusicAPI } from '../lib/apple-music';
 import { getAlbums, getArtists, getPlaylists, getSongs } from '../lib/mongo';
 import { filterFalsy } from '../lib/utils';
 
-const exportSongs = async (api: AppleMusicAPI) => {
+export const exportSongs = async (api: AppleMusicAPI) => {
   const songIds: string[] = [];
 
   for await (const song of await getSongs()) {
@@ -15,7 +15,7 @@ const exportSongs = async (api: AppleMusicAPI) => {
   });
 }
 
-const exportPlaylists = async (api: AppleMusicAPI) => {
+export const exportPlaylists = async (api: AppleMusicAPI) => {
   const playlists = await getPlaylists();
 
   for await (const playlist of playlists) {
@@ -42,7 +42,7 @@ const exportPlaylists = async (api: AppleMusicAPI) => {
   console.log('Playlist export completed.');
 }
 
-const exportAlbums = async (api: AppleMusicAPI) => {
+export const exportAlbums = async (api: AppleMusicAPI) => {
   const userAlbums = await getAlbums();
   const albumIdsToAdd: string[] = [];
 
@@ -63,7 +63,7 @@ const exportAlbums = async (api: AppleMusicAPI) => {
   console.log('Album export completed');
 }
 
-const exportArtists = async (api: AppleMusicAPI) => {
+export const exportArtists = async (api: AppleMusicAPI) => {
   const userArtists = await getArtists();
   const artistIds: string[] = [];
 

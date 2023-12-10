@@ -9,6 +9,7 @@ import { AppleMusicAPI } from '../lib/apple-music';
 import { SpotifyAPI, SpotifyAPIError } from '../lib/spotify';
 import * as AppleMusicIngestor from '../ingestors/apple-music';
 import * as AppleMusicApiIngestor from '../ingestors/apple-music-api';
+import * as AppleMusicExporter from '../exporters/apple-music';
 import { getAlbums, getArtists, getListeningHistory, getPlaylists, getSongs } from '../lib/mongo';
 
 type IngestTypes =
@@ -51,9 +52,8 @@ interface IngestSpotifyApiRequestBody {
   clientSecret?: string;
 }
 
-interface ExportAppleMusicRequestBody {
+interface ExportAppleMusicRequestBody extends AppleMusicRequest{
   exportTypes: ExportTypes[];
-  privateKeyPath: string;
 }
 
 interface ExportSpotifyRequestBody {
@@ -281,21 +281,34 @@ app.post('/api/ingest/spotify-api', async (req, res) => {
 });
 
 app.post('/api/export/apple-music', async (req, res) => {
-  const body = req.body as ExportAppleMusicRequestBody;
-  for (const ingestType of new Set(body.exportTypes)) {
+  const {devToken, userMusicToken, exportTypes} = req.body as ExportAppleMusicRequestBody;
+  const api = new AppleMusicAPI({
+    devToken,
+    userMusicToken,
+  });
+
+  for (const ingestType of new Set(exportTypes)) {
     switch (ingestType) {
       case 'albums':
+        await AppleMusicExporter.exportAlbums(api);
         break;
       case 'playlists':
+        await AppleMusicExporter.exportPlaylists(api);
         break;
       case 'artists':
+        await AppleMusicExporter.exportArtists(api);
         break;
       case 'songs':
+        await AppleMusicExporter.exportSongs(api);
         break;
       default:
         throw new Error(`Unknown ingestType ${ingestType}`);
     }
   }
+
+  res.json({
+    done: true,
+  });
 });
 
 app.post('/api/export/spotify', async (req, res) => {
