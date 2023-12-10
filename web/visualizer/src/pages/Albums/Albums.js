@@ -30,22 +30,12 @@ function Albums() {
   };
 
   React.useEffect(() => {
+    const getAlbumsFromAPI = async () => {
+      const req = await fetch("/api/albums");
+      setAlbums(await req.json());
+    };
     getAlbumsFromAPI();
   }, []);
-
-  const getAlbumsFromAPI = () => {
-    // TODO: get albums from API
-    const albumsFromAPI = [];
-    for (let i = 0; i < 100; i++) {
-      albumsFromAPI.push({
-        _id: i,
-        title: "This Album",
-        artists: ["This Artist", "That Artist"],
-        upc: "1234567890",
-      });
-    }
-    setAlbums(albumsFromAPI);
-  };
 
   return (
     <ThemeProvider theme={defaultTheme}>

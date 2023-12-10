@@ -30,20 +30,12 @@ function Artists() {
   };
 
   React.useEffect(() => {
+    const getArtistsFromAPI = async () => {
+      const req = await fetch("/api/artists");
+      setArtists(await req.json());
+    };
     getArtistsFromAPI();
   }, []);
-
-  const getArtistsFromAPI = () => {
-    // TODO: get artists from API
-    const artistsFromAPI = [];
-    for (let i = 0; i < 100; i++) {
-      artistsFromAPI.push({
-        _id: i,
-        name: "This Artist",
-      });
-    }
-    setArtists(artistsFromAPI);
-  };
 
   return (
     <ThemeProvider theme={defaultTheme}>

@@ -30,43 +30,12 @@ function Playlists() {
   };
 
   React.useEffect(() => {
+    const getPlaylistsFromAPI = async () => {
+      const req = await fetch("/api/playlists");
+      setPlaylists(await req.json());
+    };
     getPlaylistsFromAPI();
   }, []);
-
-  const getPlaylistsFromAPI = () => {
-    // TODO: get playlists from API
-    const playlistsFromAPI = [];
-    for (let i = 0; i < 100; i++) {
-      playlistsFromAPI.push({
-        _id: i,
-        name: "This Playlist",
-        description: "This is a playlist",
-        lastModifiedDate: "2021-10-01T00:00:00.000Z",
-        // TODO: display songs in modal instead of just the count
-        songs: [
-          {
-            _id: 0,
-            title: "This Song",
-            artists: ["This Artist", "That Artist"],
-            album: "This Album",
-            duration: 300000,
-            year: "2024",
-            isrc: "123456ABCDEF",
-          },
-          {
-            _id: 1,
-            title: "That Song",
-            artists: ["This Artist", "That Artist"],
-            album: "That Album",
-            duration: 300000,
-            year: "2024",
-            isrc: "ABCDEF123456",
-          },
-        ],
-      });
-    }
-    setPlaylists(playlistsFromAPI);
-  };
 
   return (
     <ThemeProvider theme={defaultTheme}>

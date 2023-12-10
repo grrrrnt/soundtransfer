@@ -30,26 +30,12 @@ function ListeningHistory() {
   };
 
   React.useEffect(() => {
+    const getHistoryFromAPI = async () => {
+      const req = await fetch("/api/listening-history");
+      setHistory(await req.json());
+    };
     getHistoryFromAPI();
   }, []);
-
-  const getHistoryFromAPI = () => {
-    // TODO: get listening history from API
-    const historyFromAPI = [];
-    for (let i = 0; i < 100; i++) {
-      historyFromAPI.push({
-        _id: i,
-        timeStamp: "2021-10-01T00:00:00.000Z",
-        title: "This Song",
-        artists: ["This Artist", "That Artist"],
-        album: "This Album",
-        isrc: "123456ABCDEF",
-        durationPlayed: 300000,
-        country: "US",
-      });
-    }
-    setHistory(historyFromAPI);
-  };
 
   const formatDuration = (duration) => {
     const minutes = Math.floor(duration / 60000);
@@ -225,12 +211,12 @@ function ListeningHistory() {
                   {history.map((row) => (
                     <TableRow key={row._id}>
                       <TableCell>{row.timeStamp}</TableCell>
-                      <TableCell>{row.title}</TableCell>
-                      <TableCell>{row.artists.join(", ")}</TableCell>
-                      <TableCell>{row.album}</TableCell>
-                      <TableCell>{row.isrc}</TableCell>
+                      <TableCell>{row.song.title}</TableCell>
+                      <TableCell>{row.song.artists.join(", ")}</TableCell>
+                      <TableCell>{row.song.album}</TableCell>
+                      <TableCell>{row.song.isrc}</TableCell>
                       <TableCell>
-                        {formatDuration(row.durationPlayed)}
+                        {formatDuration(row.durationPlayedMs)}
                       </TableCell>
                       <TableCell>{row.country}</TableCell>
                     </TableRow>
