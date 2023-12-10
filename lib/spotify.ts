@@ -1,10 +1,5 @@
-import _ from "lodash";
-import fs from "fs";
-import jwt from "jsonwebtoken";
-import axios from "axios";
-import { listen, port } from "../web/express";
-
-const querystring = require("node:querystring");
+import axios from 'axios';
+import querystring from 'querystring';
 
 export class SpotifyAPIError extends Error {
   public readonly error;
@@ -16,16 +11,11 @@ export class SpotifyAPIError extends Error {
 }
 
 export class SpotifyAPI {
-  private static instance: SpotifyAPI | undefined = undefined;
-  private static __unsafe_accessToken: string;
-  private static tokenRequestPromiseResolveQueue: ((token: string) => void)[] =
-    [];
-  private readonly storefront = "US";
   private readonly clientId: string;
   private readonly clientSecret: string;
-  private accessToken: string = "";
+  private accessToken: string;
 
-  private constructor(
+  public constructor(
     args: Readonly<{
       clientId: string;
       clientSecret: string;
@@ -36,68 +26,6 @@ export class SpotifyAPI {
     this.clientSecret = args.clientSecret;
     this.accessToken = args.accessToken;
   }
-
-  public static getInstance(): SpotifyAPI {
-    if (!this.instance) {
-      throw new Error("SpotifyAPI not initialized");
-    }
-
-    return this.instance;
-  }
-
-  public static __unsafe_setAccessToken(token: string) {
-    this.__unsafe_accessToken = token;
-    while (this.tokenRequestPromiseResolveQueue.length) {
-      this.tokenRequestPromiseResolveQueue.pop()!(token);
-    }
-  }
-
-  public static async __unsafe_getAccessToken(): Promise<string> {
-    if (this.__unsafe_accessToken == undefined) {
-      return new Promise((resolve) => {
-        this.tokenRequestPromiseResolveQueue.push(resolve);
-      });
-    }
-
-    return this.__unsafe_accessToken;
-  }
-
-  public static initWithAuthorizationCode = _.once(
-    async (clientId?: string, clientSecret?: string) => {
-      if (this.instance) {
-        throw new Error("SpotifyAPI already initialized");
-      }
-
-      await listen();
-      console.log(
-        `Please visit http://localhost:${port}/spotify-authorization.html?clientId=${process.env.SPOTIFY_CLIENT_ID} to authorize Spotify.`
-      );
-      console.log("Waiting for authorization...");
-
-      const accessToken = await SpotifyAPI.__unsafe_getAccessToken();
-      console.log(`Using Spotify access token: ${accessToken}`);
-
-      this.instance = new SpotifyAPI({
-        clientId: clientId || process.env.SPOTIFY_CLIENT_ID || "",
-        clientSecret: clientSecret || process.env.SPOTIFY_CLIENT_SECRET || "",
-        accessToken: accessToken,
-      });
-    }
-  );
-
-  public static initWithClientCredentials = _.once(
-    async (clientId?: string, clientSecret?: string) => {
-      if (this.instance) {
-        throw new Error("SpotifyAPI already initialized");
-      }
-
-      this.instance = new SpotifyAPI({
-        clientId: clientId || process.env.SPOTIFY_CLIENT_ID || "",
-        clientSecret: clientSecret || process.env.SPOTIFY_CLIENT_SECRET || "",
-        accessToken: "fake-access-token",
-      });
-    }
-  );
 
   public getAccessToken(): string {
     return this.accessToken;

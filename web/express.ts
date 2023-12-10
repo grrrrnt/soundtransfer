@@ -165,7 +165,6 @@ app.get('/api/spotify/user-auth-callback', async function (req, res) {
       response.data.hasOwnProperty('access_token'),
     );
 
-    SpotifyAPI.__unsafe_setAccessToken(response.data.access_token);
     res.redirect('/spotify-authorization-success.html');
   }
 });

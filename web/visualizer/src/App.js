@@ -25,15 +25,40 @@ function App() {
   const [signedIntoSpotify, setSignedIntoSpotify] = React.useState(false);
   const [signedIntoAppleMusic, setSignedIntoAppleMusic] = React.useState(false);
   const [privateKeyFile, setPrivateKeyFile] = React.useState(undefined);
+  const [clientId, setClientId] = React.useState("");
+  const [clientSecret, setClientSecret] = React.useState("");
   const [keyId, setKeyId] = React.useState("");
   const [issuerId, setIssuerId] = React.useState("");
   const toggleDrawer = () => {
     setOpen(!open);
   };
 
-  const logIntoSpotify = () => {
-    // TODO
-    setSignedIntoSpotify(true);
+  const logIntoSpotify = async () => {
+    const generateRandomString = (length) => {
+      const possible =
+        'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+      const values = window.crypto.getRandomValues(new Uint8Array(length));
+      return values.reduce((acc, x) => acc + possible[x % possible.length], '');
+    };
+
+    const state = generateRandomString(16);
+    const  scope =
+      'user-read-private user-read-email user-follow-read user-follow-modify user-library-read user-library-modify playlist-read-private playlist-read-collaborative playlist-modify-public playlist-modify-private';
+    const redirectUri = 'http://localhost:8080/api/spotify/user-auth-callback';
+    const apiUrl = new URL('https://accounts.spotify.com/authorize');
+    const queryParams = {
+      response_type: 'code',
+      client_id: clientId,
+      scope: scope,
+      redirect_uri: redirectUri,
+      state: state,
+    };
+
+    for (const key of Object.keys(queryParams)) {
+      apiUrl.searchParams.set(key, queryParams[key]);
+    }
+
+    window.location.href = apiUrl.toString();
   };
 
   const logIntoAppleMusic = async () => {
@@ -367,8 +392,8 @@ function App() {
                       1.{" "}
                       <Input
                         placeholder="Client ID"
-                        value={keyId}
-                        onChange={(e) => setKeyId(e.target.value)}
+                        value={clientId}
+                        onChange={(e) => setClientId(e.target.value)}
                       ></Input>
                     </div>
                     <div
@@ -381,8 +406,8 @@ function App() {
                       2.{" "}
                       <Input
                         placeholder="Client Secret"
-                        value={issuerId}
-                        onChange={(e) => setIssuerId(e.target.value)}
+                        value={clientSecret}
+                        onChange={(e) => setClientSecret(e.target.value)}
                       ></Input>
                     </div>
                     <div
