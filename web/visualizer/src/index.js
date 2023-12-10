@@ -3,10 +3,10 @@ import ReactDOM from "react-dom/client";
 import "./index.css";
 import App from "./App";
 import Songs from "./pages/Songs/Songs";
-// import Artists from "./Artists";
-// import Albums from "./Albums";
-// import Playlists from "./Playlists";
-// import ListeningHistory from "./ListeningHistory";
+import Artists from "./pages/Artists/Artists";
+import Albums from "./pages/Albums/Albums";
+import Playlists from "./pages/Playlists/Playlists";
+import ListeningHistory from "./pages/ListeningHistory/ListeningHistory";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import reportWebVitals from "./reportWebVitals";
 
@@ -19,22 +19,22 @@ const router = createBrowserRouter([
     path: "/songs",
     element: <Songs />,
   },
-  // {
-  //   path: "/artists",
-  //   element: <Artists />,
-  // },
-  // {
-  //   path: "/albums",
-  //   element: <Albums />,
-  // },
-  // {
-  //   path: "/playlists",
-  //   element: <Playlists />,
-  // },
-  // {
-  //   path: "/listening-history",
-  //   element: <ListeningHistory />,
-  // },
+  {
+    path: "/artists",
+    element: <Artists />,
+  },
+  {
+    path: "/albums",
+    element: <Albums />,
+  },
+  {
+    path: "/playlists",
+    element: <Playlists />,
+  },
+  {
+    path: "/listening-history",
+    element: <ListeningHistory />,
+  },
 ]);
 
 const root = ReactDOM.createRoot(document.getElementById("root"));

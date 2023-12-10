@@ -78,25 +78,25 @@ function Drawer(props) {
           </ListItemIcon>
           <ListItemText primary="Saved Songs" />
         </ListItemButton>
-        <ListItemButton>
+        <ListItemButton to="/artists">
           <ListItemIcon>
             <PeopleIcon />
           </ListItemIcon>
           <ListItemText primary="Followed Artists" />
         </ListItemButton>
-        <ListItemButton>
+        <ListItemButton to="/albums">
           <ListItemIcon>
             <AlbumIcon />
           </ListItemIcon>
           <ListItemText primary="Saved Albums" />
         </ListItemButton>
-        <ListItemButton>
+        <ListItemButton to="/playlists">
           <ListItemIcon>
             <PlaylistPlayIcon />
           </ListItemIcon>
           <ListItemText primary="Playlists" />
         </ListItemButton>
-        <ListItemButton>
+        <ListItemButton to="/listening-history">
           <ListItemIcon>
             <HistoryIcon />
           </ListItemIcon>

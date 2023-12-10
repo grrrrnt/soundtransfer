@@ -22,38 +22,29 @@ import Copyright from "../../components/Copyright";
 const defaultTheme = createTheme();
 const drawerWidth = 240;
 
-function Songs() {
+function Albums() {
   const [open, setOpen] = React.useState(false);
-  const [songs, setSongs] = React.useState([]);
+  const [albums, setAlbums] = React.useState([]);
   const toggleDrawer = () => {
     setOpen(!open);
   };
 
   React.useEffect(() => {
-    getSongsFromAPI();
+    getAlbumsFromAPI();
   }, []);
 
-  const getSongsFromAPI = () => {
-    // TODO: get songs from API
-    const songsFromAPI = [];
+  const getAlbumsFromAPI = () => {
+    // TODO: get albums from API
+    const albumsFromAPI = [];
     for (let i = 0; i < 100; i++) {
-      songsFromAPI.push({
+      albumsFromAPI.push({
         _id: i,
-        title: "This Song",
+        title: "This Album",
         artists: ["This Artist", "That Artist"],
-        album: "This Album",
-        duration: 300000,
-        year: "2024",
-        isrc: "123456ABCDEF",
+        upc: "1234567890",
       });
     }
-    setSongs(songsFromAPI);
-  };
-
-  const formatDuration = (duration) => {
-    const minutes = Math.floor(duration / 60000);
-    const seconds = ((duration % 60000) / 1000).toFixed(0);
-    return minutes + ":" + (seconds < 10 ? "0" : "") + seconds;
+    setAlbums(albumsFromAPI);
   };
 
   return (
@@ -61,7 +52,7 @@ function Songs() {
       <Box sx={{ display: "flex" }}>
         <CssBaseline />
         <AppBar
-          title="Saved Songs"
+          title="Saved Albums"
           drawerWidth={drawerWidth}
           open={open}
           toggleDrawer={toggleDrawer}
@@ -102,10 +93,10 @@ function Songs() {
                   You've saved
                 </Typography>
                 <Typography component="p" variant="h4">
-                  {songs.length}
+                  {albums.length}
                 </Typography>
                 <Typography color="text.secondary" sx={{ flex: 1 }}>
-                  songs
+                  albums
                 </Typography>
               </Paper>
             </Container>
@@ -128,7 +119,7 @@ function Songs() {
                   onClick={toggleDrawer}
                 >
                   <InputIcon />
-                  <Typography>Ingest songs from data export file</Typography>
+                  <Typography>Ingest albums from data export file</Typography>
                 </IconButton>
 
                 <IconButton
@@ -137,7 +128,7 @@ function Songs() {
                   onClick={toggleDrawer}
                 >
                   <InputIcon />
-                  <Typography>Ingest songs via API</Typography>
+                  <Typography>Ingest albums via API</Typography>
                 </IconButton>
 
                 <IconButton
@@ -146,7 +137,7 @@ function Songs() {
                   onClick={toggleDrawer}
                 >
                   <OutputIcon />
-                  <Typography>Export songs via API</Typography>
+                  <Typography>Export albums via API</Typography>
                 </IconButton>
               </Paper>
             </Container>
@@ -171,7 +162,7 @@ function Songs() {
                   onClick={toggleDrawer}
                 >
                   <InputIcon />
-                  <Typography>Ingest songs from data export file</Typography>
+                  <Typography>Ingest albums from data export file</Typography>
                 </IconButton>
 
                 <IconButton
@@ -180,7 +171,7 @@ function Songs() {
                   onClick={toggleDrawer}
                 >
                   <InputIcon />
-                  <Typography>Ingest songs via API</Typography>
+                  <Typography>Ingest albums via API</Typography>
                 </IconButton>
 
                 <IconButton
@@ -189,7 +180,7 @@ function Songs() {
                   onClick={toggleDrawer}
                 >
                   <OutputIcon />
-                  <Typography>Export songs via API</Typography>
+                  <Typography>Export albums via API</Typography>
                 </IconButton>
               </Paper>
             </Container>
@@ -203,7 +194,7 @@ function Songs() {
                 height: "100%",
               }}
             >
-              <Typography sx={{ fontWeight: "bold" }}>Saved Songs</Typography>
+              <Typography sx={{ fontWeight: "bold" }}>Saved Albums</Typography>
               <Table size="small">
                 <TableHead>
                   <TableRow>
@@ -211,23 +202,15 @@ function Songs() {
                     <TableCell style={{ fontWeight: "bold" }}>
                       Artists
                     </TableCell>
-                    <TableCell style={{ fontWeight: "bold" }}>Album</TableCell>
-                    <TableCell style={{ fontWeight: "bold" }}>
-                      Duration
-                    </TableCell>
-                    <TableCell style={{ fontWeight: "bold" }}>Year</TableCell>
-                    <TableCell style={{ fontWeight: "bold" }}>ISRC</TableCell>
+                    <TableCell style={{ fontWeight: "bold" }}>UPC</TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
-                  {songs.map((row) => (
+                  {albums.map((row) => (
                     <TableRow key={row._id}>
                       <TableCell>{row.title}</TableCell>
                       <TableCell>{row.artists.join(", ")}</TableCell>
-                      <TableCell>{row.album}</TableCell>
-                      <TableCell>{formatDuration(row.duration)}</TableCell>
-                      <TableCell>{row.year}</TableCell>
-                      <TableCell>{row.isrc}</TableCell>
+                      <TableCell>{row.upc}</TableCell>
                     </TableRow>
                   ))}
                 </TableBody>
@@ -243,4 +226,4 @@ function Songs() {
   );
 }
 
-export default Songs;
+export default Albums;

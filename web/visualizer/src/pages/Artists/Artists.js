@@ -22,38 +22,27 @@ import Copyright from "../../components/Copyright";
 const defaultTheme = createTheme();
 const drawerWidth = 240;
 
-function Songs() {
+function Artists() {
   const [open, setOpen] = React.useState(false);
-  const [songs, setSongs] = React.useState([]);
+  const [artists, setArtists] = React.useState([]);
   const toggleDrawer = () => {
     setOpen(!open);
   };
 
   React.useEffect(() => {
-    getSongsFromAPI();
+    getArtistsFromAPI();
   }, []);
 
-  const getSongsFromAPI = () => {
-    // TODO: get songs from API
-    const songsFromAPI = [];
+  const getArtistsFromAPI = () => {
+    // TODO: get artists from API
+    const artistsFromAPI = [];
     for (let i = 0; i < 100; i++) {
-      songsFromAPI.push({
+      artistsFromAPI.push({
         _id: i,
-        title: "This Song",
-        artists: ["This Artist", "That Artist"],
-        album: "This Album",
-        duration: 300000,
-        year: "2024",
-        isrc: "123456ABCDEF",
+        name: "This Artist",
       });
     }
-    setSongs(songsFromAPI);
-  };
-
-  const formatDuration = (duration) => {
-    const minutes = Math.floor(duration / 60000);
-    const seconds = ((duration % 60000) / 1000).toFixed(0);
-    return minutes + ":" + (seconds < 10 ? "0" : "") + seconds;
+    setArtists(artistsFromAPI);
   };
 
   return (
@@ -61,7 +50,7 @@ function Songs() {
       <Box sx={{ display: "flex" }}>
         <CssBaseline />
         <AppBar
-          title="Saved Songs"
+          title="Followed Artists"
           drawerWidth={drawerWidth}
           open={open}
           toggleDrawer={toggleDrawer}
@@ -99,13 +88,13 @@ function Songs() {
                 }}
               >
                 <Typography color="text.secondary" sx={{ flex: 1 }}>
-                  You've saved
+                  You've followed
                 </Typography>
                 <Typography component="p" variant="h4">
-                  {songs.length}
+                  {artists.length}
                 </Typography>
                 <Typography color="text.secondary" sx={{ flex: 1 }}>
-                  songs
+                  artists
                 </Typography>
               </Paper>
             </Container>
@@ -128,7 +117,7 @@ function Songs() {
                   onClick={toggleDrawer}
                 >
                   <InputIcon />
-                  <Typography>Ingest songs from data export file</Typography>
+                  <Typography>Ingest artists from data export file</Typography>
                 </IconButton>
 
                 <IconButton
@@ -137,7 +126,7 @@ function Songs() {
                   onClick={toggleDrawer}
                 >
                   <InputIcon />
-                  <Typography>Ingest songs via API</Typography>
+                  <Typography>Ingest artists via API</Typography>
                 </IconButton>
 
                 <IconButton
@@ -146,7 +135,7 @@ function Songs() {
                   onClick={toggleDrawer}
                 >
                   <OutputIcon />
-                  <Typography>Export songs via API</Typography>
+                  <Typography>Export artists via API</Typography>
                 </IconButton>
               </Paper>
             </Container>
@@ -171,7 +160,7 @@ function Songs() {
                   onClick={toggleDrawer}
                 >
                   <InputIcon />
-                  <Typography>Ingest songs from data export file</Typography>
+                  <Typography>Ingest artists from data export file</Typography>
                 </IconButton>
 
                 <IconButton
@@ -180,7 +169,7 @@ function Songs() {
                   onClick={toggleDrawer}
                 >
                   <InputIcon />
-                  <Typography>Ingest songs via API</Typography>
+                  <Typography>Ingest artists via API</Typography>
                 </IconButton>
 
                 <IconButton
@@ -189,7 +178,7 @@ function Songs() {
                   onClick={toggleDrawer}
                 >
                   <OutputIcon />
-                  <Typography>Export songs via API</Typography>
+                  <Typography>Export artists via API</Typography>
                 </IconButton>
               </Paper>
             </Container>
@@ -203,31 +192,19 @@ function Songs() {
                 height: "100%",
               }}
             >
-              <Typography sx={{ fontWeight: "bold" }}>Saved Songs</Typography>
+              <Typography sx={{ fontWeight: "bold" }}>
+                Followed Artists
+              </Typography>
               <Table size="small">
                 <TableHead>
                   <TableRow>
-                    <TableCell style={{ fontWeight: "bold" }}>Title</TableCell>
-                    <TableCell style={{ fontWeight: "bold" }}>
-                      Artists
-                    </TableCell>
-                    <TableCell style={{ fontWeight: "bold" }}>Album</TableCell>
-                    <TableCell style={{ fontWeight: "bold" }}>
-                      Duration
-                    </TableCell>
-                    <TableCell style={{ fontWeight: "bold" }}>Year</TableCell>
-                    <TableCell style={{ fontWeight: "bold" }}>ISRC</TableCell>
+                    <TableCell style={{ fontWeight: "bold" }}>Name</TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
-                  {songs.map((row) => (
+                  {artists.map((row) => (
                     <TableRow key={row._id}>
-                      <TableCell>{row.title}</TableCell>
-                      <TableCell>{row.artists.join(", ")}</TableCell>
-                      <TableCell>{row.album}</TableCell>
-                      <TableCell>{formatDuration(row.duration)}</TableCell>
-                      <TableCell>{row.year}</TableCell>
-                      <TableCell>{row.isrc}</TableCell>
+                      <TableCell>{row.name}</TableCell>
                     </TableRow>
                   ))}
                 </TableBody>
@@ -243,4 +220,4 @@ function Songs() {
   );
 }
 
-export default Songs;
+export default Artists;
