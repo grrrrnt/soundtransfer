@@ -29,14 +29,13 @@ function Songs() {
     setOpen(!open);
   };
 
-  React.useEffect(async () => {
-    await getSongsFromAPI();
+  React.useEffect(() => {
+    const getSongsFromAPI = async () => {
+      const req = await fetch("/api/songs");
+      setSongs(await req.json());
+    };
+    getSongsFromAPI();
   }, []);
-
-  const getSongsFromAPI = async () => {
-    const req = await fetch('/api/songs');
-    setSongs(await req.json());
-  };
 
   const formatDuration = (duration) => {
     const minutes = Math.floor(duration / 60000);
