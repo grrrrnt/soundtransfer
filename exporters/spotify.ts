@@ -17,8 +17,8 @@ const export_ = async (args: string[]): Promise<void> => {
   const userProfile = await api.getUserProfile();
   const userId = userProfile.id;
 
-  // await exportPlaylists(userId, api);
-  // await exportSongs(userId, api);
+  await exportPlaylists(userId, api);
+  await exportSongs(userId, api);
   await exportAlbums(userId, api);
   await exportArtists(userId, api);
 };
