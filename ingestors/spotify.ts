@@ -9,6 +9,8 @@ import {
   storeListeningHistory,
   storePlaylists,
   storeSongs,
+  storeAlbums,
+  storeArtists,
 } from "../lib/mongo";
 
 const BATCH_SIZE = 50;
@@ -54,40 +56,6 @@ const ingest = async (args: string[]): Promise<void> => {
   // Authorize the Spotify API
   await api.authorizeSpotify();
 
-  // Populate the songs
-  const library = await populateSongs(libraryJSON, api);
-
-  // Populate the playlists
-  const playlists: Playlist[] = await populatePlaylists(playlistsJSON, api);
-  library.playlists = playlists;
-
-  // Populate the listen history
-  const listenHistory: ListenHistory = await populateListenHistory(
-    streamingHistoryJSON,
-    api
-  );
-
-  console.log("Ingested Spotify data export:");
-  console.log("  - Songs: ", library.songs.length);
-  console.log("  - Playlists: ", library.playlists.length);
-  console.log("  - Listen history: ", listenHistory.length);
-
-  console.log("Storing library and listening history into MongoDB database...");
-  await storeSongs(library.songs);
-  await storePlaylists(library.playlists);
-  await storeListeningHistory(listenHistory);
-
-  console.log("Completed storing into MongoDB database.");
-
-  // console.log(JSON.stringify(library, null, 2));
-  // console.log("Listening history size: ", listenHistory.length);
-  // console.log(JSON.stringify(listenHistory, null, 2));
-};
-
-const populateSongs = async (
-  libraryJSON: any,
-  api: SpotifyAPI
-): Promise<Library> => {
   // Initialize the library
   let library: Library = {
     playlists: [],
@@ -96,6 +64,53 @@ const populateSongs = async (
     albums: [],
     favourites: [],
   };
+
+  // Populate the songs
+  const songs: Song[] = await populateSongs(libraryJSON, api);
+  library.songs = songs;
+
+  // Populate the albums
+  const albums: Album[] = await populateAlbums(libraryJSON, api);
+  library.albums = albums;
+
+  // Populate the artists
+  const artists: Artist[] = await populateArtists(libraryJSON, api);
+  library.artists = artists;
+
+  // Populate the playlists
+  const playlists: Playlist[] = await populatePlaylists(playlistsJSON, api);
+  library.playlists = playlists;
+
+  // Populate the listening history
+  const listenHistory: ListenHistory = await populateListenHistory(
+    streamingHistoryJSON,
+    api
+  );
+
+  console.log("Ingested Spotify data export:");
+  console.log("  - Songs: ", library.songs.length);
+  console.log("  - Artists: ", library.artists.length);
+  console.log("  - Albums: ", library.albums.length);
+  console.log("  - Playlists: ", library.playlists.length);
+  console.log("  - Listen history: ", listenHistory.length);
+
+  console.log("Storing library and listening history into MongoDB database...");
+
+  await storeSongs(library.songs);
+  await storeArtists(library.artists);
+  await storeAlbums(library.albums);
+  await storePlaylists(library.playlists);
+  await storeListeningHistory(listenHistory);
+
+  console.log("Completed storing into MongoDB database.");
+};
+
+const populateSongs = async (
+  libraryJSON: any,
+  api: SpotifyAPI
+): Promise<Song[]> => {
+  // Initialize the songs
+  let songs: Song[] = [];
 
   const chunks = [];
   for (let i = 0; i < libraryJSON.tracks.length; i += BATCH_SIZE) {
@@ -116,11 +131,51 @@ const populateSongs = async (
         duration: song.duration_ms,
         album: song.album.name,
       };
-      library.songs.push(s);
+      songs.push(s);
     });
   }
 
-  return library;
+  return songs;
+};
+
+const populateAlbums = async (
+  libraryJSON: any,
+  api: SpotifyAPI
+): Promise<Album[]> => {
+  // Initialize the albums
+  let albums: Album[] = [];
+
+  for (const album of libraryJSON.albums) {
+    // Get the album data using Spotify API
+    const albumData = await api.getAlbumFromSpotifyURI(album.uri);
+
+    // Get the album data
+    const a: Album = {
+      title: albumData.name,
+      artists: albumData.artists.map((artist: any) => artist.name),
+      upc: albumData.external_ids.upc,
+    };
+    albums.push(a);
+  }
+
+  return albums;
+};
+
+const populateArtists = async (
+  libraryJSON: any,
+  api: SpotifyAPI
+): Promise<Artist[]> => {
+  // Initialize the artists
+  let artists: Artist[] = [];
+
+  for (const artist of libraryJSON.artists) {
+    const a: Artist = {
+      name: artist.name,
+    };
+    artists.push(a);
+  }
+
+  return artists;
 };
 
 const populateListenHistory = async (

@@ -52,6 +52,33 @@
   ],
   "episodes": [],
   "bannedTracks": [],
+  "albums": [
+    {
+      "artist": "Charlie Puth",
+      "album": "Voicenotes",
+      "uri": "spotify:album:0mZIUXje90JtHxPNzWsJNR"
+    },
+    {
+      "artist": "Harry Styles",
+      "album": "Harry Styles",
+      "uri": "spotify:album:1FZKIm3JVDCxTchXDo5jOV"
+    },
+    {
+      "artist": "Billie Eilish",
+      "album": "Six Feet Under",
+      "uri": "spotify:album:74TRp3O8BRdGxc0XO0UzoY"
+    },
+    {
+      "artist": "Daft Punk",
+      "album": "Random Access Memories",
+      "uri": "spotify:album:4m2880jivSbbyEGAKfITCa"
+    },
+    {
+      "artist": "Jon Bellion",
+      "album": "The Human Condition",
+      "uri": "spotify:album:2e8nzTZ0HtK94IifOWgN7o"
+    }
+  ],
   "artists": [
     {
       "name": "AARCADE",

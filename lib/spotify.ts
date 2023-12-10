@@ -195,6 +195,37 @@ export class SpotifyAPI {
     return response.data;
   };
 
+  getAlbumFromSpotifyURI = async (spotifyURI: string): Promise<any> => {
+    // Example: spotify:album:1GIPP103zfsythULEpsmdw
+    // Get the URI
+    const split = spotifyURI.split(":");
+    if (split.length !== 3) {
+      console.log(`Error in spotifyURI format: ${spotifyURI}`);
+      return "";
+    }
+    const uri = split[2];
+
+    // Get the album data using Spotify API
+    const response = await axios.get(
+      `https://api.spotify.com/v1/albums/${uri}`,
+      {
+        headers: {
+          Authorization: `Bearer ${this.accessToken}`,
+        },
+      }
+    );
+
+    if (response.status !== 200) {
+      console.log(response.data);
+      throw new SpotifyAPIError({
+        status: response.status,
+        body: await response.data,
+      });
+    }
+
+    return response.data;
+  };
+
   getSongByIsrc = async (isrc: string): Promise<any> => {
     // Limit: 50 songs
 
