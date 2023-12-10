@@ -98,29 +98,34 @@ function App() {
     setSignedIntoAppleMusic(true);
   };
 
-  const ingestSpotifyFromDataExportFile = () => {
+  const ingestSpotifyFromDataExportFile = async () => {
     // TODO
+    console.log("TODO");
   };
 
-  const ingestSpotifyViaAPI = () => {
+  const ingestSpotifyViaAPI = async () => {
     // TODO
+    console.log("TODO");
   };
 
-  const exportSpotifyViaAPI = () => {
+  const exportSpotifyViaAPI = async () => {
     // TODO
+    console.log("TODO");
   };
 
-  const ingestAppleMusicFromDataExportFile = () => {
-    // TODO
-  };
-
-  const ingestAppleMusicViaAPI = async () => {
+  const ingestAppleMusicFromDataExportFile = async () => {
     const instance = window.MusicKit.getInstance();
 
-    const req = await fetch('/api/ingest/apple-music-api', {
-      method: 'POST',
+    const req = fetch("/api/ingest/apple-music-data-export", {
+      method: "POST",
       body: JSON.stringify({
-        ingestTypes: ['listening-history'], // FIXME
+        ingestTypes: [
+          "songs",
+          "albums",
+          "artists",
+          "playlists",
+          "listening-history",
+        ],
         userMusicToken: instance.musicUserToken,
         devToken: instance.developerToken,
       }),
@@ -129,8 +134,40 @@ function App() {
     console.log(await req.json());
   };
 
-  const exportAppleMusicViaAPI = () => {
-    // TODO
+  const ingestAppleMusicViaAPI = async () => {
+    const instance = window.MusicKit.getInstance();
+
+    const req = await fetch("/api/ingest/apple-music-api", {
+      method: "POST",
+      body: JSON.stringify({
+        ingestTypes: [
+          "songs",
+          "albums",
+          "artists",
+          "playlists",
+          "listening-history",
+        ],
+        userMusicToken: instance.musicUserToken,
+        devToken: instance.developerToken,
+      }),
+    });
+
+    console.log(await req.json());
+  };
+
+  const exportAppleMusicViaAPI = async () => {
+    const instance = window.MusicKit.getInstance();
+
+    const req = await fetch("/api/export/apple-music-api", {
+      method: "POST",
+      body: JSON.stringify({
+        exportTypes: ["songs", "albums", "artists", "playlists"],
+        userMusicToken: instance.musicUserToken,
+        devToken: instance.developerToken,
+      }),
+    });
+
+    console.log(await req.json());
   };
 
   return (

@@ -43,6 +43,41 @@ function ListeningHistory() {
     return minutes + ":" + (seconds < 10 ? "0" : "") + seconds;
   };
 
+  const ingestSpotifyFromDataExportFile = async () => {
+    // TODO
+    console.log("TODO");
+  };
+
+  const ingestAppleMusicFromDataExportFile = async () => {
+    const instance = window.MusicKit.getInstance();
+
+    const req = await fetch("/api/ingest/apple-music-data-export", {
+      method: "POST",
+      body: JSON.stringify({
+        ingestTypes: ["listening-history"],
+        userMusicToken: instance.musicUserToken,
+        devToken: instance.developerToken,
+      }),
+    });
+
+    console.log(await req.json());
+  };
+
+  const ingestAppleMusicViaAPI = async () => {
+    const instance = window.MusicKit.getInstance();
+
+    const req = await fetch("/api/ingest/apple-music-api", {
+      method: "POST",
+      body: JSON.stringify({
+        ingestTypes: ["listening-history"],
+        userMusicToken: instance.musicUserToken,
+        devToken: instance.developerToken,
+      }),
+    });
+
+    console.log(await req.json());
+  };
+
   return (
     <ThemeProvider theme={defaultTheme}>
       <Box sx={{ display: "flex" }}>
@@ -112,7 +147,7 @@ function ListeningHistory() {
                 <IconButton
                   className="action-button"
                   color="inherit"
-                  onClick={toggleDrawer}
+                  onClick={ingestSpotifyFromDataExportFile}
                 >
                   <InputIcon />
                   <Typography>Ingest history from data export file</Typography>
@@ -151,7 +186,7 @@ function ListeningHistory() {
                 <IconButton
                   className="action-button"
                   color="inherit"
-                  onClick={toggleDrawer}
+                  onClick={ingestAppleMusicFromDataExportFile}
                 >
                   <InputIcon />
                   <Typography>Ingest history from data export file</Typography>
@@ -160,7 +195,7 @@ function ListeningHistory() {
                 <IconButton
                   className="action-button"
                   color="inherit"
-                  onClick={toggleDrawer}
+                  onClick={ingestAppleMusicViaAPI}
                 >
                   <InputIcon />
                   <Typography>Ingest history via API</Typography>

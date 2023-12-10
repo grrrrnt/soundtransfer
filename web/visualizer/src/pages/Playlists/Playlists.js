@@ -37,6 +37,66 @@ function Playlists() {
     getPlaylistsFromAPI();
   }, []);
 
+  const ingestSpotifyFromDataExportFile = async () => {
+    // TODO
+    console.log("TODO");
+  };
+
+  const ingestSpotifyViaAPI = async () => {
+    // TODO
+    console.log("TODO");
+  };
+
+  const exportSpotifyViaAPI = async () => {
+    // TODO
+    console.log("TODO");
+  };
+
+  const ingestAppleMusicFromDataExportFile = async () => {
+    const instance = window.MusicKit.getInstance();
+
+    const req = await fetch("/api/ingest/apple-music-data-export", {
+      method: "POST",
+      body: JSON.stringify({
+        ingestTypes: ["playlists"],
+        userMusicToken: instance.musicUserToken,
+        devToken: instance.developerToken,
+      }),
+    });
+
+    console.log(await req.json());
+  };
+
+  const ingestAppleMusicViaAPI = async () => {
+    const instance = window.MusicKit.getInstance();
+
+    const req = await fetch("/api/ingest/apple-music-api", {
+      method: "POST",
+      body: JSON.stringify({
+        ingestTypes: ["playlists"],
+        userMusicToken: instance.musicUserToken,
+        devToken: instance.developerToken,
+      }),
+    });
+
+    console.log(await req.json());
+  };
+
+  const exportAppleMusicViaAPI = async () => {
+    const instance = window.MusicKit.getInstance();
+
+    const req = await fetch("/api/export/apple-music-api", {
+      method: "POST",
+      body: JSON.stringify({
+        exportTypes: ["playlists"],
+        userMusicToken: instance.musicUserToken,
+        devToken: instance.developerToken,
+      }),
+    });
+
+    console.log(await req.json());
+  };
+
   return (
     <ThemeProvider theme={defaultTheme}>
       <Box sx={{ display: "flex" }}>
@@ -106,7 +166,7 @@ function Playlists() {
                 <IconButton
                   className="action-button"
                   color="inherit"
-                  onClick={toggleDrawer}
+                  onClick={ingestSpotifyFromDataExportFile}
                 >
                   <InputIcon />
                   <Typography>
@@ -117,7 +177,7 @@ function Playlists() {
                 <IconButton
                   className="action-button"
                   color="inherit"
-                  onClick={toggleDrawer}
+                  onClick={ingestSpotifyViaAPI}
                 >
                   <InputIcon />
                   <Typography>Ingest playlists via API</Typography>
@@ -126,7 +186,7 @@ function Playlists() {
                 <IconButton
                   className="action-button"
                   color="inherit"
-                  onClick={toggleDrawer}
+                  onClick={exportSpotifyViaAPI}
                 >
                   <OutputIcon />
                   <Typography>Export playlists via API</Typography>
@@ -151,7 +211,7 @@ function Playlists() {
                 <IconButton
                   className="action-button"
                   color="inherit"
-                  onClick={toggleDrawer}
+                  onClick={ingestAppleMusicFromDataExportFile}
                 >
                   <InputIcon />
                   <Typography>
@@ -162,7 +222,7 @@ function Playlists() {
                 <IconButton
                   className="action-button"
                   color="inherit"
-                  onClick={toggleDrawer}
+                  onClick={ingestAppleMusicViaAPI}
                 >
                   <InputIcon />
                   <Typography>Ingest playlists via API</Typography>
@@ -171,7 +231,7 @@ function Playlists() {
                 <IconButton
                   className="action-button"
                   color="inherit"
-                  onClick={toggleDrawer}
+                  onClick={exportAppleMusicViaAPI}
                 >
                   <OutputIcon />
                   <Typography>Export playlists via API</Typography>

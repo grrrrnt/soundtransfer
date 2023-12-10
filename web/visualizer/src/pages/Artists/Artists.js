@@ -37,6 +37,51 @@ function Artists() {
     getArtistsFromAPI();
   }, []);
 
+  const ingestSpotifyFromDataExportFile = async () => {
+    // TODO
+    console.log("TODO");
+  };
+
+  const ingestSpotifyViaAPI = async () => {
+    // TODO
+    console.log("TODO");
+  };
+
+  const exportSpotifyViaAPI = async () => {
+    // TODO
+    console.log("TODO");
+  };
+
+  const ingestAppleMusicFromDataExportFile = async () => {
+    const instance = window.MusicKit.getInstance();
+
+    const req = await fetch("/api/ingest/apple-music-data-export", {
+      method: "POST",
+      body: JSON.stringify({
+        ingestTypes: ["artists"],
+        userMusicToken: instance.musicUserToken,
+        devToken: instance.developerToken,
+      }),
+    });
+
+    console.log(await req.json());
+  };
+
+  const ingestAppleMusicViaAPI = async () => {
+    const instance = window.MusicKit.getInstance();
+
+    const req = await fetch("/api/ingest/apple-music-api", {
+      method: "POST",
+      body: JSON.stringify({
+        ingestTypes: ["artists"],
+        userMusicToken: instance.musicUserToken,
+        devToken: instance.developerToken,
+      }),
+    });
+
+    console.log(await req.json());
+  };
+
   return (
     <ThemeProvider theme={defaultTheme}>
       <Box sx={{ display: "flex" }}>
@@ -106,7 +151,7 @@ function Artists() {
                 <IconButton
                   className="action-button"
                   color="inherit"
-                  onClick={toggleDrawer}
+                  onClick={ingestSpotifyFromDataExportFile}
                 >
                   <InputIcon />
                   <Typography>Ingest artists from data export file</Typography>
@@ -115,7 +160,7 @@ function Artists() {
                 <IconButton
                   className="action-button"
                   color="inherit"
-                  onClick={toggleDrawer}
+                  onClick={ingestSpotifyViaAPI}
                 >
                   <InputIcon />
                   <Typography>Ingest artists via API</Typography>
@@ -124,7 +169,7 @@ function Artists() {
                 <IconButton
                   className="action-button"
                   color="inherit"
-                  onClick={toggleDrawer}
+                  onClick={exportSpotifyViaAPI}
                 >
                   <OutputIcon />
                   <Typography>Export artists via API</Typography>
@@ -149,7 +194,7 @@ function Artists() {
                 <IconButton
                   className="action-button"
                   color="inherit"
-                  onClick={toggleDrawer}
+                  onClick={ingestAppleMusicFromDataExportFile}
                 >
                   <InputIcon />
                   <Typography>Ingest artists from data export file</Typography>
@@ -158,7 +203,7 @@ function Artists() {
                 <IconButton
                   className="action-button"
                   color="inherit"
-                  onClick={toggleDrawer}
+                  onClick={ingestAppleMusicViaAPI}
                 >
                   <InputIcon />
                   <Typography>Ingest artists via API</Typography>
