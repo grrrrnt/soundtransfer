@@ -29,25 +29,13 @@ function Songs() {
     setOpen(!open);
   };
 
-  React.useEffect(() => {
-    getSongsFromAPI();
+  React.useEffect(async () => {
+    await getSongsFromAPI();
   }, []);
 
-  const getSongsFromAPI = () => {
-    // TODO: get songs from API
-    const songsFromAPI = [];
-    for (let i = 0; i < 100; i++) {
-      songsFromAPI.push({
-        _id: i,
-        title: "This Song",
-        artists: ["This Artist", "That Artist"],
-        album: "This Album",
-        duration: 300000,
-        year: "2024",
-        isrc: "123456ABCDEF",
-      });
-    }
-    setSongs(songsFromAPI);
+  const getSongsFromAPI = async () => {
+    const req = await fetch('/api/songs');
+    setSongs(await req.json());
   };
 
   const formatDuration = (duration) => {

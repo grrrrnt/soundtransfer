@@ -82,6 +82,7 @@ export const listen = _.once(
 app.get('/*', (req, res, next) => {
   if (req.path.startsWith('/api') || req.path.includes('.')) {
     next();
+    return;
   }
 
   res.sendFile(path.join(__dirname, 'visualizer', 'build', 'index.html'));
