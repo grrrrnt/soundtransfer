@@ -6,7 +6,8 @@
   "scripts": {
     "start": "ts-node index.ts",
     "typecheck": "tsc --noEmit",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "run-unix": "(cd web/visualizer && npm run build) && npm start"
   },
   "repository": {
     "type": "git",
