@@ -67,7 +67,7 @@ const app = express();
 
 app.use(express.json());
 // app.use(morgan("combined"));
-app.use(express.static(path.join(__dirname, 'static')));
+app.use(express.static(path.join(__dirname, 'visualizer', 'build')));
 
 export const listen = _.once(
   async () =>
@@ -78,6 +78,14 @@ export const listen = _.once(
       });
     }),
 );
+
+app.get('/*', (req, res, next) => {
+  if (req.path.startsWith('/api') || req.path.includes('.')) {
+    next();
+  }
+
+  res.sendFile(path.join(__dirname, 'visualizer', 'build', 'index.html'));
+});
 
 // GET /api/spotify/user-auth -> redirect to Spotify login page
 app.get('/api/spotify/user-auth', function (req, res) {

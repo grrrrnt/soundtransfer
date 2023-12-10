@@ -114,8 +114,19 @@ function App() {
     // TODO
   };
 
-  const ingestAppleMusicViaAPI = () => {
-    // TODO
+  const ingestAppleMusicViaAPI = async () => {
+    const instance = window.MusicKit.getInstance();
+
+    const req = await fetch('/api/ingest/apple-music-api', {
+      method: 'POST',
+      body: JSON.stringify({
+        ingestTypes: ['listening-history'], // FIXME
+        userMusicToken: instance.musicUserToken,
+        devToken: instance.developerToken,
+      }),
+    });
+
+    console.log(await req.json());
   };
 
   const exportAppleMusicViaAPI = () => {
