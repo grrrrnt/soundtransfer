@@ -42,24 +42,25 @@ function App() {
     const issuer = issuerId.trim();
 
     if (!kid || kid.length !== 10) {
-      alert('Please enter valid 10-digit key ID');
+      alert("Please enter valid 10-digit key ID");
       return;
     }
 
     if (!issuer.trim()) {
-      alert('Please enter valid issuer ID');
+      alert("Please enter valid issuer ID");
       return;
     }
 
     if (!privateKeyFile) {
-      alert('Please select valid private key file');
+      alert("Please select valid private key file");
       return;
     }
 
     let privateKey = undefined;
     try {
-      const pkcs8 = new TextDecoder()
-        .decode(await privateKeyFile.arrayBuffer());
+      const pkcs8 = new TextDecoder().decode(
+        await privateKeyFile.arrayBuffer()
+      );
       privateKey = await jose.importPKCS8(pkcs8, alg);
     } catch (e) {
       alert(`Invalid private key file: ${e}`);
@@ -307,14 +308,52 @@ function App() {
                     </IconButton>
                   </div>
                 ) : (
-                  <Button
-                    onClick={logIntoSpotify}
-                    sx={{ flex: 1, alignSelf: "center" }}
-                  >
-                    <Typography className="sign-in-button-text">
-                      Sign into Spotify
-                    </Typography>
-                  </Button>
+                  <div style={{ display: "flex", flexDirection: "column" }}>
+                    <div
+                      style={{
+                        display: "flex",
+                        flexDirection: "row",
+                        gap: "10px",
+                      }}
+                    >
+                      1.{" "}
+                      <Input
+                        placeholder="Client ID"
+                        value={keyId}
+                        onChange={(e) => setKeyId(e.target.value)}
+                      ></Input>
+                    </div>
+                    <div
+                      style={{
+                        display: "flex",
+                        flexDirection: "row",
+                        gap: "10px",
+                      }}
+                    >
+                      2.{" "}
+                      <Input
+                        placeholder="Client Secret"
+                        value={issuerId}
+                        onChange={(e) => setIssuerId(e.target.value)}
+                      ></Input>
+                    </div>
+                    <div
+                      style={{
+                        display: "flex",
+                        flexDirection: "row",
+                      }}
+                    >
+                      3.
+                      <Button
+                        onClick={logIntoSpotify}
+                        sx={{ flex: 1, alignSelf: "center" }}
+                      >
+                        <Typography className="sign-in-button-text">
+                          Sign into Spotify
+                        </Typography>
+                      </Button>
+                    </div>
+                  </div>
                 )}
               </Paper>
             </Container>
@@ -374,23 +413,34 @@ function App() {
                       style={{
                         display: "flex",
                         flexDirection: "row",
+                        gap: "10px",
                       }}
                     >
                       1.
-                      <div style={{
-                        display: 'flex',
-                        flexDirection: "column",
-                      }}>
+                      <div
+                        style={{
+                          display: "flex",
+                          flexDirection: "column",
+                        }}
+                      >
                         <Button
-                          sx={{flex: 1, alignSelf: "center"}}
+                          sx={{ flex: 1, alignSelf: "center" }}
                           component="label"
                         >
                           <Typography className="sign-in-button-text">
                             Upload private key file
                           </Typography>
-                          <input type="file" onChange={evt => setPrivateKeyFile(evt.target.files[0])} hidden/>
+                          <input
+                            type="file"
+                            onChange={(evt) =>
+                              setPrivateKeyFile(evt.target.files[0])
+                            }
+                            hidden
+                          />
                         </Button>
-                        {privateKeyFile ? privateKeyFile.name : 'No file selected'}
+                        {privateKeyFile
+                          ? privateKeyFile.name
+                          : "No file selected"}
                       </div>
                     </div>
                     <div
@@ -400,7 +450,12 @@ function App() {
                         gap: "10px",
                       }}
                     >
-                      2. <Input placeholder="Key ID" value={keyId} onChange={e => setKeyId(e.target.value)}></Input>
+                      2.{" "}
+                      <Input
+                        placeholder="Key ID"
+                        value={keyId}
+                        onChange={(e) => setKeyId(e.target.value)}
+                      ></Input>
                     </div>
                     <div
                       style={{
@@ -410,8 +465,11 @@ function App() {
                       }}
                     >
                       3.{" "}
-                      <Input placeholder="Issuer ID (Team ID)" value={issuerId}
-                             onChange={e => setIssuerId(e.target.value)}></Input>
+                      <Input
+                        placeholder="Issuer ID (Team ID)"
+                        value={issuerId}
+                        onChange={(e) => setIssuerId(e.target.value)}
+                      ></Input>
                     </div>
                     <div
                       style={{
