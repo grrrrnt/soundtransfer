@@ -132,22 +132,18 @@ function ListeningHistory() {
                   <Typography>Ingest history from data export file</Typography>
                 </IconButton>
 
-                <IconButton
-                  className="action-button"
-                  color="inherit"
-                  onClick={toggleDrawer}
-                >
+                <IconButton className="action-button" color="inherit" disabled>
                   <InputIcon />
-                  <Typography>Ingest history via API</Typography>
+                  <Typography>
+                    Ingest history via API (Not available)
+                  </Typography>
                 </IconButton>
 
-                <IconButton
-                  className="action-button"
-                  color="inherit"
-                  onClick={toggleDrawer}
-                >
+                <IconButton className="action-button" color="inherit" disabled>
                   <OutputIcon />
-                  <Typography>Export history via API</Typography>
+                  <Typography>
+                    Export history via API (Not available)
+                  </Typography>
                 </IconButton>
               </Paper>
             </Container>
@@ -184,13 +180,11 @@ function ListeningHistory() {
                   <Typography>Ingest history via API</Typography>
                 </IconButton>
 
-                <IconButton
-                  className="action-button"
-                  color="inherit"
-                  onClick={toggleDrawer}
-                >
+                <IconButton className="action-button" color="inherit" disabled>
                   <OutputIcon />
-                  <Typography>Export history via API</Typography>
+                  <Typography>
+                    Export history via API (Not available)
+                  </Typography>
                 </IconButton>
               </Paper>
             </Container>

@@ -172,13 +172,11 @@ function Artists() {
                   <Typography>Ingest artists via API</Typography>
                 </IconButton>
 
-                <IconButton
-                  className="action-button"
-                  color="inherit"
-                  onClick={toggleDrawer}
-                >
+                <IconButton className="action-button" color="inherit" disabled>
                   <OutputIcon />
-                  <Typography>Export artists via API</Typography>
+                  <Typography>
+                    Export artists via API (Not available)
+                  </Typography>
                 </IconButton>
               </Paper>
             </Container>
