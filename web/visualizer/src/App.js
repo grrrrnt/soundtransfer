@@ -358,7 +358,6 @@ function App() {
                   <div style={{ display: "flex", flexDirection: "column" }}>
                     <Button
                       component={Link} to='/spotify-auth'
-
                       sx={{ flex: 1, alignSelf: "center" }}
                     >
                       <Typography className="sign-in-button-text">

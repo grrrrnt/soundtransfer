@@ -48,7 +48,6 @@ const SpotifyAuth = () => {
       display: 'flex', flexDirection: 'column', alignItems: 'center', justifyItems: 'center', paddingTop: '50px',
     }}>
       <CircularProgress style={{padding: '20px 0'}}/>
-
       {accessToken ? <>
         <p>Access token received</p>
         <code>
