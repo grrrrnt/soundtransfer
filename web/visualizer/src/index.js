@@ -6,6 +6,7 @@ import Songs from "./pages/Songs/Songs";
 import Artists from "./pages/Artists/Artists";
 import Albums from "./pages/Albums/Albums";
 import Playlists from "./pages/Playlists/Playlists";
+import SpotifyAuth from "./pages/SpotifyAuth/SpotifyAuth";
 import ListeningHistory from "./pages/ListeningHistory/ListeningHistory";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import reportWebVitals from "./reportWebVitals";
@@ -34,6 +35,10 @@ const router = createBrowserRouter([
   {
     path: "/listening-history",
     element: <ListeningHistory />,
+  },
+  {
+    path: "/spotify-auth",
+    element: <SpotifyAuth />
   },
 ]);
 

@@ -16,49 +16,23 @@ import { Button, Input } from "@mui/material";
 import AppBar from "./components/AppBar";
 import Drawer from "./components/Drawer";
 import Copyright from "./components/Copyright";
+import {Link} from "react-router-dom";
 
 const defaultTheme = createTheme();
 const drawerWidth = 240;
 
 function App() {
+  const searchParams = new URLSearchParams(window.location.search);
+  const spotifyAccessToken = searchParams.get('spotifyAccessToken');
+
   const [open, setOpen] = React.useState(false);
-  const [signedIntoSpotify, setSignedIntoSpotify] = React.useState(false);
+  const [signedIntoSpotify, setSignedIntoSpotify] = React.useState(searchParams.has('spotifyAccessToken'));
   const [signedIntoAppleMusic, setSignedIntoAppleMusic] = React.useState(false);
   const [privateKeyFile, setPrivateKeyFile] = React.useState(undefined);
-  const [clientId, setClientId] = React.useState("");
-  const [clientSecret, setClientSecret] = React.useState("");
   const [keyId, setKeyId] = React.useState("");
   const [issuerId, setIssuerId] = React.useState("");
   const toggleDrawer = () => {
     setOpen(!open);
-  };
-
-  const logIntoSpotify = async () => {
-    const generateRandomString = (length) => {
-      const possible =
-        'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-      const values = window.crypto.getRandomValues(new Uint8Array(length));
-      return values.reduce((acc, x) => acc + possible[x % possible.length], '');
-    };
-
-    const state = generateRandomString(16);
-    const  scope =
-      'user-read-private user-read-email user-follow-read user-follow-modify user-library-read user-library-modify playlist-read-private playlist-read-collaborative playlist-modify-public playlist-modify-private';
-    const redirectUri = 'http://localhost:8080/api/spotify/user-auth-callback';
-    const apiUrl = new URL('https://accounts.spotify.com/authorize');
-    const queryParams = {
-      response_type: 'code',
-      client_id: clientId,
-      scope: scope,
-      redirect_uri: redirectUri,
-      state: state,
-    };
-
-    for (const key of Object.keys(queryParams)) {
-      apiUrl.searchParams.set(key, queryParams[key]);
-    }
-
-    window.location.href = apiUrl.toString();
   };
 
   const logIntoAppleMusic = async () => {
@@ -382,50 +356,15 @@ function App() {
                   </div>
                 ) : (
                   <div style={{ display: "flex", flexDirection: "column" }}>
-                    <div
-                      style={{
-                        display: "flex",
-                        flexDirection: "row",
-                        gap: "10px",
-                      }}
+                    <Button
+                      component={Link} to='/spotify-auth'
+
+                      sx={{ flex: 1, alignSelf: "center" }}
                     >
-                      1.{" "}
-                      <Input
-                        placeholder="Client ID"
-                        value={clientId}
-                        onChange={(e) => setClientId(e.target.value)}
-                      ></Input>
-                    </div>
-                    <div
-                      style={{
-                        display: "flex",
-                        flexDirection: "row",
-                        gap: "10px",
-                      }}
-                    >
-                      2.{" "}
-                      <Input
-                        placeholder="Client Secret"
-                        value={clientSecret}
-                        onChange={(e) => setClientSecret(e.target.value)}
-                      ></Input>
-                    </div>
-                    <div
-                      style={{
-                        display: "flex",
-                        flexDirection: "row",
-                      }}
-                    >
-                      3.
-                      <Button
-                        onClick={logIntoSpotify}
-                        sx={{ flex: 1, alignSelf: "center" }}
-                      >
-                        <Typography className="sign-in-button-text">
-                          Sign into Spotify
-                        </Typography>
-                      </Button>
-                    </div>
+                      <Typography className="sign-in-button-text">
+                        Sign into Spotify
+                      </Typography>
+                    </Button>
                   </div>
                 )}
               </Paper>
