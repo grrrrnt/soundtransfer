@@ -15,100 +15,41 @@ import {
 
 const BATCH_SIZE = 50;
 
-/*
-  Within the directory, the following JSON files are relevant:
-    1. YourLibrary.json
-    2. StreamingHistory{0..n}.json
-    3. Playlist1.json                 // Unsure if what the "1" is about
-*/
-const ingest = async (args: string[]): Promise<void> => {
-  console.log(`ingesting spotify data export; args = ${args}`);
-  const path: string = args[0];
-  const clientId = args[1];
-  const clientSecret = args[2];
+const libraryFileName = "YourLibrary.json";
+const playlistsFileName = "Playlist1.json";
+const streamingHistoryFilePrefix = "StreamingHistory";
 
-  // Initialize the Spotify API handler
-  await SpotifyAPI.initWithAuthorizationCode(clientId, clientSecret);
-  const api = SpotifyAPI.getInstance();
-
-  // Get the JSON files
-  const libraryJSON = JSON.parse(
-    fs.readFileSync(`${path}/YourLibrary.json`, "utf8")
-  );
-
-  // Find all the streaming history files
-  const streamingHistoryFiles = fs.readdirSync(path).filter((file) => {
-    return file.startsWith("StreamingHistory");
-  });
-
-  // Merge the streaming history files
-  let streamingHistoryJSON: any[] = [];
-  for (const file of streamingHistoryFiles) {
-    const json = JSON.parse(fs.readFileSync(`${path}/${file}`, "utf8"));
-    streamingHistoryJSON = streamingHistoryJSON.concat(json);
-  }
-
-  // Read the playlists
-  const playlistsJSON = JSON.parse(
-    fs.readFileSync(`${path}/Playlist1.json`, "utf8")
-  );
-
-  // Authorize the Spotify API
-  await api.authorizeSpotify();
-
-  // Initialize the library
-  let library: Library = {
-    playlists: [],
-    songs: [],
-    artists: [],
-    albums: [],
-    favourites: [],
-  };
-
-  // Populate the songs
-  const songs: Song[] = await populateSongs(libraryJSON, api);
-  library.songs = songs;
-
-  // Populate the albums
-  const albums: Album[] = await populateAlbums(libraryJSON, api);
-  library.albums = albums;
-
-  // Populate the artists
-  const artists: Artist[] = await populateArtists(libraryJSON, api);
-  library.artists = artists;
-
-  // Populate the playlists
-  const playlists: Playlist[] = await populatePlaylists(playlistsJSON, api);
-  library.playlists = playlists;
-
-  // Populate the listening history
-  const listenHistory: ListenHistory = await populateListenHistory(
-    streamingHistoryJSON,
-    api
-  );
-
-  console.log("Ingested Spotify data export:");
-  console.log("  - Songs: ", library.songs.length);
-  console.log("  - Artists: ", library.artists.length);
-  console.log("  - Albums: ", library.albums.length);
-  console.log("  - Playlists: ", library.playlists.length);
-  console.log("  - Listen history: ", listenHistory.length);
-
-  console.log("Storing library and listening history into MongoDB database...");
-
-  await storeSongs(library.songs);
-  await storeArtists(library.artists);
-  await storeAlbums(library.albums);
-  await storePlaylists(library.playlists);
-  await storeListeningHistory(listenHistory);
-
-  console.log("Completed storing into MongoDB database.");
+export const ingestSongs = async (api: SpotifyAPI, dataRoot: string) => {
+  await storeSongs(await fetchSongs(api, dataRoot));
 };
 
-const populateSongs = async (
-  libraryJSON: any,
-  api: SpotifyAPI
+export const ingestAlbums = async (api: SpotifyAPI, dataRoot: string) => {
+  await storeAlbums(await fetchAlbums(api, dataRoot));
+};
+
+export const ingestArtists = async (api: SpotifyAPI, dataRoot: string) => {
+  await storeArtists(await fetchArtists(api, dataRoot));
+};
+
+export const ingestPlaylists = async (api: SpotifyAPI, dataRoot: string) => {
+  await storePlaylists(await fetchPlaylists(api, dataRoot));
+};
+
+export const ingestListeningHistory = async (
+  api: SpotifyAPI,
+  dataRoot: string
+) => {
+  await storeListeningHistory(await fetchListeningHistory(api, dataRoot));
+};
+
+const fetchSongs = async (
+  api: SpotifyAPI,
+  dataRoot: string
 ): Promise<Song[]> => {
+  const libraryJSON = JSON.parse(
+    fs.readFileSync(`${dataRoot}/${libraryFileName}`, "utf8")
+  );
+
   // Initialize the songs
   let songs: Song[] = [];
 
@@ -138,10 +79,14 @@ const populateSongs = async (
   return songs;
 };
 
-const populateAlbums = async (
-  libraryJSON: any,
-  api: SpotifyAPI
+const fetchAlbums = async (
+  api: SpotifyAPI,
+  dataRoot: string
 ): Promise<Album[]> => {
+  const libraryJSON = JSON.parse(
+    fs.readFileSync(`${dataRoot}/${libraryFileName}`, "utf8")
+  );
+
   // Initialize the albums
   let albums: Album[] = [];
 
@@ -161,10 +106,14 @@ const populateAlbums = async (
   return albums;
 };
 
-const populateArtists = async (
-  libraryJSON: any,
-  api: SpotifyAPI
+const fetchArtists = async (
+  api: SpotifyAPI,
+  dataRoot: string
 ): Promise<Artist[]> => {
+  const libraryJSON = JSON.parse(
+    fs.readFileSync(`${dataRoot}/${libraryFileName}`, "utf8")
+  );
+
   // Initialize the artists
   let artists: Artist[] = [];
 
@@ -178,10 +127,22 @@ const populateArtists = async (
   return artists;
 };
 
-const populateListenHistory = async (
-  streamingHistoryJSON: any,
-  api: SpotifyAPI
+const fetchListeningHistory = async (
+  api: SpotifyAPI,
+  dataRoot: string
 ): Promise<ListenHistory> => {
+  // Find all the streaming history files
+  const streamingHistoryFiles = fs.readdirSync(dataRoot).filter((file) => {
+    return file.startsWith(streamingHistoryFilePrefix);
+  });
+
+  // Merge the streaming history files
+  let streamingHistoryJSON: any[] = [];
+  for (const file of streamingHistoryFiles) {
+    const json = JSON.parse(fs.readFileSync(`${dataRoot}/${file}`, "utf8"));
+    streamingHistoryJSON = streamingHistoryJSON.concat(json);
+  }
+
   // Initialize the listen history
   let listenHistory: ListenHistory = [];
 
@@ -224,10 +185,14 @@ const populateListenHistory = async (
   return listenHistory;
 };
 
-const populatePlaylists = async (
-  playlistsJSON: any,
-  api: SpotifyAPI
+const fetchPlaylists = async (
+  api: SpotifyAPI,
+  dataRoot: string
 ): Promise<Playlist[]> => {
+  const playlistsJSON = JSON.parse(
+    fs.readFileSync(`${dataRoot}/${playlistsFileName}`, "utf8")
+  );
+
   // Initialize the playlists
   let playlists: Playlist[] = [];
 
@@ -285,5 +250,3 @@ const populatePlaylists = async (
 
   return playlists;
 };
-
-export default ingest;

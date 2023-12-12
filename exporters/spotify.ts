@@ -6,24 +6,10 @@ const BATCH_SIZE_20 = 20;
 const BATCH_SIZE_50 = 50;
 const BATCH_SIZE_100 = 100;
 
-const export_ = async (args: string[]): Promise<void> => {
-  console.log(`Exporting data to Spotify; args = ${args}`);
-  const clientId = args[0];
-  const clientSecret = args[1];
-
-  await SpotifyAPI.initWithAuthorizationCode(clientId, clientSecret);
-  const api = SpotifyAPI.getInstance();
-
+export const exportPlaylists = async (api: SpotifyAPI) => {
   const userProfile = await api.getUserProfile();
   const userId = userProfile.id;
 
-  await exportPlaylists(userId, api);
-  await exportSongs(userId, api);
-  await exportAlbums(userId, api);
-  await exportArtists(userId, api);
-};
-
-const exportPlaylists = async (userId: any, api: SpotifyAPI) => {
   const playlists = await getPlaylists();
   for await (const playlist of playlists) {
     console.log(`Exporting playlist ${playlist.name}...`);
@@ -54,7 +40,7 @@ const exportPlaylists = async (userId: any, api: SpotifyAPI) => {
   console.log("Playlist export completed.");
 };
 
-const exportSongs = async (userId: any, api: SpotifyAPI) => {
+export const exportSongs = async (api: SpotifyAPI) => {
   const songs = await getSongs();
   let songIds: string[] = [];
   for await (const song of songs) {
@@ -74,7 +60,7 @@ const exportSongs = async (userId: any, api: SpotifyAPI) => {
   console.log("Song export completed.");
 };
 
-const exportAlbums = async (userId: any, api: SpotifyAPI) => {
+export const exportAlbums = async (api: SpotifyAPI) => {
   const albums = await getAlbums();
   let albumIds: string[] = [];
   for await (const album of albums) {
@@ -92,7 +78,7 @@ const exportAlbums = async (userId: any, api: SpotifyAPI) => {
   }
 };
 
-const exportArtists = async (userId: any, api: SpotifyAPI) => {
+export const exportArtists = async (api: SpotifyAPI) => {
   const artists = await getArtists();
   let artistIds: string[] = [];
   for await (const artist of artists) {
@@ -109,5 +95,3 @@ const exportArtists = async (userId: any, api: SpotifyAPI) => {
     await api.followArtists(artistUrisBatch);
   }
 };
-
-export default export_;

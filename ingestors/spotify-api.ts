@@ -14,66 +14,31 @@ import {
 
 const BATCH_SIZE = 50;
 
-const ingest = async (args: string[]): Promise<void> => {
-  console.log(
-    "ingesting spotify API" + (args.length == 0 ? ";" : `; args = ${args}`)
-  );
-  const clientId = args[0];
-  const clientSecret = args[1];
-
-  // Initialize the Spotify API handler
-  await SpotifyAPI.initWithAuthorizationCode(clientId, clientSecret);
-  const api = SpotifyAPI.getInstance();
-
-  // Populate the songs
-  const library = await populateSongs(api);
-
-  // Populate the playlists
-  const playlists: Playlist[] = await populatePlaylists(api);
-  library.playlists = playlists;
-
-  // Populate the albums
-  const albums: Album[] = await populateAlbums(api);
-  library.albums = albums;
-
-  // Populate the artists
-  const artists: Artist[] = await populateFollowedArtists(api);
-  library.artists = artists;
-
-  console.log("Ingested via Spotify API:");
-  console.log("  - Songs: ", library.songs.length);
-  console.log("  - Artists: ", library.artists.length);
-  console.log("  - Albums: ", library.albums.length);
-  console.log("  - Playlists: ", library.playlists.length);
-
-  console.log("Storing library into MongoDB database...");
-
-  await storeSongs(library.songs);
-  await storeAlbums(library.albums);
-  await storePlaylists(library.playlists);
-  await storeArtists(library.artists);
-
-  console.log("Completed storing into MongoDB database.");
-
-  // console.log(JSON.stringify(library, null, 2));
+export const ingestSongs = async (api: SpotifyAPI) => {
+  await storeSongs(await fetchSongs(api));
 };
 
-const populateSongs = async (api: SpotifyAPI): Promise<Library> => {
-  // Initialize the library
-  let library: Library = {
-    playlists: [],
-    songs: [],
-    artists: [],
-    albums: [],
-    favourites: [],
-  };
+export const ingestPlaylists = async (api: SpotifyAPI) => {
+  await storePlaylists(await fetchPlaylists(api));
+};
+
+export const ingestAlbums = async (api: SpotifyAPI) => {
+  await storeAlbums(await fetchAlbums(api));
+};
+
+export const ingestArtists = async (api: SpotifyAPI) => {
+  await storeArtists(await fetchArtists(api));
+};
+
+const fetchSongs = async (api: SpotifyAPI): Promise<Song[]> => {
+  let songs: Song[] = [];
 
   // Call the Spotify API until all songs are populated
   let nextUrl;
   let apiCallCount = 0; // Used only to prevent hitting API rate limit
   do {
-    const songs = await api.getUsersSavedTracks(nextUrl);
-    songs.items.forEach((song: any) => {
+    const songsFromAPI = await api.getUsersSavedTracks(nextUrl);
+    songsFromAPI.items.forEach((song: any) => {
       const s: Song = {
         __type: "Song",
         isrc: song.track.external_ids.isrc,
@@ -83,16 +48,16 @@ const populateSongs = async (api: SpotifyAPI): Promise<Library> => {
         duration: song.track.duration_ms,
         album: song.track.album.name,
       };
-      library.songs.push(s);
+      songs.push(s);
     });
-    nextUrl = songs.next;
+    nextUrl = songsFromAPI.next;
     if (apiCallCount++ > 1) break; // Used only to prevent hitting API rate limit
   } while (nextUrl !== null);
 
-  return library;
+  return songs;
 };
 
-const populatePlaylists = async (api: SpotifyAPI): Promise<Playlist[]> => {
+const fetchPlaylists = async (api: SpotifyAPI): Promise<Playlist[]> => {
   // Initialize the playlists
   let playlists: Playlist[] = [];
 
@@ -150,7 +115,7 @@ const populatePlaylists = async (api: SpotifyAPI): Promise<Playlist[]> => {
   return playlists;
 };
 
-const populateAlbums = async (api: SpotifyAPI): Promise<Album[]> => {
+const fetchAlbums = async (api: SpotifyAPI): Promise<Album[]> => {
   // Initialize the albums
   let albums: Album[] = [];
 
@@ -174,7 +139,7 @@ const populateAlbums = async (api: SpotifyAPI): Promise<Album[]> => {
   return albums;
 };
 
-const populateFollowedArtists = async (api: SpotifyAPI): Promise<Artist[]> => {
+const fetchArtists = async (api: SpotifyAPI): Promise<Artist[]> => {
   // Initialize the artists
   let artists: Artist[] = [];
 
@@ -197,5 +162,3 @@ const populateFollowedArtists = async (api: SpotifyAPI): Promise<Artist[]> => {
 
   return artists;
 };
-
-export default ingest;
