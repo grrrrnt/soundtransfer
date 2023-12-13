@@ -50,6 +50,11 @@ function App() {
     "spotifyClientSecret"
   );
 
+  const getAppleMusicPrivateKey = () => window.localStorage.getItem('appleMusicPrivateKey');
+  const getAppleMusicIssuerId = () => window.localStorage.getItem('appleMusicIssuerId');
+  const getAppleMusicKeyId = () => window.localStorage.getItem('appleMusicKeyId');
+  const getAppleMusicExpiry = () => window.localStorage.getItem('appleMusicExpiry');
+
   const logIntoAppleMusic = async () => {
     let pkcs8 = undefined;
     const alg = "ES256";
@@ -73,9 +78,14 @@ function App() {
 
     let privateKey = undefined;
     try {
-      pkcs8 = new TextDecoder().decode(
-        await privateKeyFile.arrayBuffer()
-      );
+      if (privateKeyFile) {
+        pkcs8 = new TextDecoder().decode(
+          await privateKeyFile.arrayBuffer()
+        );
+      } else {
+        pkcs8 = getAppleMusicPrivateKey();
+      }
+
       privateKey = await jose.importPKCS8(pkcs8, alg);
     } catch (e) {
       alert(`Invalid private key file: ${e}`);
@@ -252,6 +262,19 @@ function App() {
 
     console.log(await req.json());
   };
+
+  const getAppleMusicPrivateKeyFilePrompt = () => {
+    const localStoragePrivateKey = getAppleMusicPrivateKey();
+    if (!localStoragePrivateKey && !privateKeyFile) {
+      return 'No file selected';
+    }
+
+    if (localStoragePrivateKey) {
+      return `Using cached private key for key ID ${getAppleMusicKeyId()}`;
+    }
+
+    return privateKeyFile.name;
+  }
 
   return (
     <ThemeProvider theme={defaultTheme}>
@@ -534,9 +557,7 @@ function App() {
                             hidden
                           />
                         </Button>
-                        {privateKeyFile
-                          ? privateKeyFile.name
-                          : "No file selected"}
+                        {getAppleMusicPrivateKeyFilePrompt()}
                       </div>
                     </div>
                     <div

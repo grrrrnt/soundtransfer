@@ -27,7 +27,7 @@ const fetchPlaylists = async (api: AppleMusicAPI): Promise<Playlist[]> => {
 
     ret.push({
       name: playlist.attributes.name,
-      description: playlist.attributes.description.standard,
+      description: playlist.attributes.description?.standard ?? undefined,
       lastModifiedDate: new Date(playlist.attributes.lastModifiedDate),
       songs: playlistSongs.map(song => ({song: song})),
       imageUrl: playlist.attributes.artwork?.url,
