@@ -94,14 +94,13 @@ function App() {
       return;
     }
 
-    if (!privateKeyFile) {
+    if (!privateKeyFile && !getAppleMusicPrivateKey()) {
       alert("Please select valid private key file");
       return;
     }
 
     let privateKey = undefined;
     try {
-      pkcs8 = new TextDecoder().decode(await privateKeyFile.arrayBuffer());
       if (privateKeyFile) {
         pkcs8 = new TextDecoder().decode(await privateKeyFile.arrayBuffer());
       } else {
@@ -140,7 +139,7 @@ function App() {
       await music.authorize();
 
       const expiryDate = new Date(tokenIssueDate);
-      expiryDate.setDate(expiryDate.getDay() + 1);
+      expiryDate.setDate(expiryDate.getDate() + 1);
       window.localStorage.setItem("appleMusicPrivateKey", pkcs8);
       window.localStorage.setItem("appleMusicIssuerId", issuer);
       window.localStorage.setItem("appleMusicKeyId", keyId);

@@ -1,5 +1,5 @@
 import * as React from "react";
-import { createTheme, ThemeProvider } from "@mui/material/styles";
+import {createTheme, ThemeProvider} from "@mui/material/styles";
 import CssBaseline from "@mui/material/CssBaseline";
 import Box from "@mui/material/Box";
 import Toolbar from "@mui/material/Toolbar";
@@ -18,6 +18,9 @@ import TableRow from "@mui/material/TableRow";
 import AppBar from "../../components/AppBar";
 import Drawer from "../../components/Drawer";
 import Copyright from "../../components/Copyright";
+import {Alert} from "@mui/material";
+import {Link} from 'react-router-dom';
+import * as jose from "jose";
 
 const defaultTheme = createTheme();
 const drawerWidth = 240;
@@ -44,6 +47,81 @@ function Songs() {
       spotifyAccessToken = tokenWithExpiry.accessToken;
     }
   }
+
+  const [signedIntoSpotify,] = React.useState(
+    !!spotifyAccessToken
+  );
+
+  const getAppleMusicPrivateKey = () =>
+    window.localStorage.getItem("appleMusicPrivateKey");
+  const getAppleMusicIssuerId = () =>
+    window.localStorage.getItem("appleMusicIssuerId");
+  const getAppleMusicKeyId = () =>
+    window.localStorage.getItem("appleMusicKeyId");
+  const getAppleMusicExpiry = () =>
+    window.localStorage.getItem("appleMusicExpiry");
+
+  const [signedIntoAppleMusic, setSignedIntoAppleMusic] = React.useState(false);
+
+  const logIntoAppleMusic = async () => {
+    let pkcs8 = getAppleMusicPrivateKey();
+    const alg = "ES256";
+    const kid = getAppleMusicKeyId();
+    const issuer = getAppleMusicIssuerId();
+
+    if (!kid || kid.length !== 10) {
+      return;
+    }
+
+    if (!issuer.trim()) {
+      return;
+    }
+
+    let privateKey = undefined;
+    try {
+      privateKey = await jose.importPKCS8(pkcs8, alg);
+    } catch (e) {
+      return;
+    }
+
+    try {
+      const tokenIssueDate = new Date();
+      const jwt = await new jose.SignJWT({})
+        .setProtectedHeader({
+          alg,
+          kid,
+        })
+        .setExpirationTime("1d")
+        .setIssuer(issuer)
+        .setIssuedAt(tokenIssueDate)
+        .sign(privateKey);
+
+      await window.MusicKit.configure({
+        developerToken: jwt,
+        app: {
+          name: "Music Streaming Adapter",
+          build: "v0.1",
+        },
+        suppressErrorDialog: false,
+        storefrontId: "US",
+      });
+
+      const music = window.MusicKit.getInstance();
+      await music.authorize();
+
+      setSignedIntoAppleMusic(true);
+      const expiryDate = new Date(tokenIssueDate);
+      expiryDate.setDate(expiryDate.getDay() + 1);
+      window.localStorage.setItem("appleMusicPrivateKey", pkcs8);
+      window.localStorage.setItem("appleMusicIssuerId", issuer);
+      window.localStorage.setItem("appleMusicKeyId", kid);
+      window.localStorage.setItem("appleMusicExpiry", expiryDate.toISOString());
+    } catch (err) {
+      alert(`Error ${err}`);
+    }
+  }
+
+  logIntoAppleMusic();
 
   React.useEffect(() => {
     const getSongsFromAPI = async () => {
@@ -80,8 +158,8 @@ function Songs() {
   const ingestSpotifyViaAPI = async () => {
     const dataExportPath = window.prompt(
       "Please enter path to the Spotify data export folder on your computer.\n\n" +
-        "Paths look like C:\\Users\\username\\Downloads\\Spotify\\MyData " +
-        "or /home/username/Downloads/Spotify/MyData"
+      "Paths look like C:\\Users\\username\\Downloads\\Spotify\\MyData " +
+      "or /home/username/Downloads/Spotify/MyData"
     );
 
     if (!dataExportPath?.trim()) {
@@ -129,8 +207,8 @@ function Songs() {
     const instance = window.MusicKit.getInstance();
     const dataExportPath = window.prompt(
       "Please enter path to the Apple Music data export folder on your computer.\n\n" +
-        "Paths look like C:\\Users\\username\\Downloads\\AppleMediaServices\\Apple_Media_Services\\Apple Music Activity " +
-        "or /home/username/Downloads/AppleMediaServices/Apple_Media_Services/Apple Music Activity"
+      "Paths look like C:\\Users\\username\\Downloads\\AppleMediaServices\\Apple_Media_Services\\Apple Music Activity " +
+      "or /home/username/Downloads/AppleMediaServices/Apple_Media_Services/Apple Music Activity"
     );
 
     if (!dataExportPath?.trim()) {
@@ -195,8 +273,8 @@ function Songs() {
 
   return (
     <ThemeProvider theme={defaultTheme}>
-      <Box sx={{ display: "flex" }}>
-        <CssBaseline />
+      <Box sx={{display: "flex"}}>
+        <CssBaseline/>
         <AppBar
           title="Saved Songs"
           drawerWidth={drawerWidth}
@@ -220,13 +298,13 @@ function Songs() {
             overflow: "auto",
           }}
         >
-          <Toolbar />
+          <Toolbar/>
           <Container
             maxWidth="xl"
-            sx={{ mt: 4, mb: 4 }}
-            style={{ display: "flex", flexDirection: "row" }}
+            sx={{mt: 4, mb: 4}}
+            style={{display: "flex", flexDirection: "row"}}
           >
-            <Container style={{ flex: "1" }}>
+            <Container style={{flex: "1"}}>
               <Paper
                 sx={{
                   p: 2,
@@ -235,18 +313,18 @@ function Songs() {
                   height: "100%",
                 }}
               >
-                <Typography color="text.secondary" sx={{ flex: 1 }}>
+                <Typography color="text.secondary" sx={{flex: 1}}>
                   You've saved
                 </Typography>
                 <Typography component="p" variant="h4">
                   {songs.length}
                 </Typography>
-                <Typography color="text.secondary" sx={{ flex: 1 }}>
+                <Typography color="text.secondary" sx={{flex: 1}}>
                   songs
                 </Typography>
               </Paper>
             </Container>
-            <Container style={{ flex: "1" }}>
+            <Container style={{flex: "1"}}>
               <Paper
                 sx={{
                   p: 2,
@@ -258,13 +336,16 @@ function Songs() {
                 }}
               >
                 <Typography color="text.secondary">Spotify actions</Typography>
-
+                {!signedIntoSpotify && <Alert severity='info'>
+                  Please <Link to='/spotify-auth'>sign in</Link> to ingest or export
+                </Alert>}
                 <IconButton
                   className="action-button"
                   color="inherit"
                   onClick={ingestSpotifyFromDataExportFile}
+                  disabled={!signedIntoSpotify}
                 >
-                  <InputIcon />
+                  <InputIcon/>
                   <Typography>Ingest songs from data export file</Typography>
                 </IconButton>
 
@@ -272,8 +353,9 @@ function Songs() {
                   className="action-button"
                   color="inherit"
                   onClick={ingestSpotifyViaAPI}
+                  disabled={!signedIntoSpotify}
                 >
-                  <InputIcon />
+                  <InputIcon/>
                   <Typography>Ingest songs via API</Typography>
                 </IconButton>
 
@@ -281,13 +363,14 @@ function Songs() {
                   className="action-button"
                   color="inherit"
                   onClick={exportSpotifyViaAPI}
+                  disabled={!signedIntoSpotify}
                 >
-                  <OutputIcon />
+                  <OutputIcon/>
                   <Typography>Export songs via API</Typography>
                 </IconButton>
               </Paper>
             </Container>
-            <Container style={{ flex: "1" }}>
+            <Container style={{flex: "1"}}>
               <Paper
                 sx={{
                   p: 2,
@@ -295,19 +378,24 @@ function Songs() {
                   flexDirection: "column",
                   height: "100%",
                   width: "100%",
-                  alignItems: "start",
+                  alignItems: "flex-start",
                 }}
               >
-                <Typography color="text.secondary" sx={{ flex: 1 }}>
+                <Typography color="text.secondary" sx={{flex: 0}} component={"div"}>
                   Apple Music actions
                 </Typography>
+
+                {!signedIntoAppleMusic && <Alert severity='info'>
+                  Please <Link to='/'>sign in</Link> to ingest or export
+                </Alert>}
 
                 <IconButton
                   className="action-button"
                   color="inherit"
                   onClick={ingestAppleMusicFromDataExportFile}
+                  disabled={!signedIntoAppleMusic}
                 >
-                  <InputIcon />
+                  <InputIcon/>
                   <Typography>Ingest songs from data export file</Typography>
                 </IconButton>
 
@@ -315,8 +403,9 @@ function Songs() {
                   className="action-button"
                   color="inherit"
                   onClick={ingestAppleMusicViaAPI}
+                  disabled={!signedIntoAppleMusic}
                 >
-                  <InputIcon />
+                  <InputIcon/>
                   <Typography>Ingest songs via API</Typography>
                 </IconButton>
 
@@ -324,14 +413,15 @@ function Songs() {
                   className="action-button"
                   color="inherit"
                   onClick={exportAppleMusicViaAPI}
+                  disabled={!signedIntoAppleMusic}
                 >
-                  <OutputIcon />
+                  <OutputIcon/>
                   <Typography>Export songs via API</Typography>
                 </IconButton>
               </Paper>
             </Container>
           </Container>
-          <Container maxWidth="xl" sx={{ mt: 4, mb: 4 }}>
+          <Container maxWidth="xl" sx={{mt: 4, mb: 4}}>
             <Paper
               sx={{
                 p: 2,
@@ -340,20 +430,20 @@ function Songs() {
                 height: "100%",
               }}
             >
-              <Typography sx={{ fontWeight: "bold" }}>Saved Songs</Typography>
+              <Typography sx={{fontWeight: "bold"}}>Saved Songs</Typography>
               <Table size="small">
                 <TableHead>
                   <TableRow>
-                    <TableCell style={{ fontWeight: "bold" }}>Title</TableCell>
-                    <TableCell style={{ fontWeight: "bold" }}>
+                    <TableCell style={{fontWeight: "bold"}}>Title</TableCell>
+                    <TableCell style={{fontWeight: "bold"}}>
                       Artists
                     </TableCell>
-                    <TableCell style={{ fontWeight: "bold" }}>Album</TableCell>
-                    <TableCell style={{ fontWeight: "bold" }}>
+                    <TableCell style={{fontWeight: "bold"}}>Album</TableCell>
+                    <TableCell style={{fontWeight: "bold"}}>
                       Duration
                     </TableCell>
-                    <TableCell style={{ fontWeight: "bold" }}>Year</TableCell>
-                    <TableCell style={{ fontWeight: "bold" }}>ISRC</TableCell>
+                    <TableCell style={{fontWeight: "bold"}}>Year</TableCell>
+                    <TableCell style={{fontWeight: "bold"}}>ISRC</TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
@@ -372,7 +462,7 @@ function Songs() {
             </Paper>
           </Container>
           <Container>
-            <Copyright sx={{ pt: 4 }} />
+            <Copyright sx={{pt: 4}}/>
           </Container>
         </Box>
       </Box>
