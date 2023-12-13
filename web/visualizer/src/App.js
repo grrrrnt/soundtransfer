@@ -40,8 +40,8 @@ function App() {
   );
   const [signedIntoAppleMusic, setSignedIntoAppleMusic] = React.useState(false);
   const [privateKeyFile, setPrivateKeyFile] = React.useState(undefined);
-  const [keyId, setKeyId] = React.useState("");
-  const [issuerId, setIssuerId] = React.useState("");
+  const [keyId, setKeyId] = React.useState(window.localStorage.getItem('appleMusicKeyId') ?? '');
+  const [issuerId, setIssuerId] = React.useState(window.localStorage.getItem('appleMusicIssuerId') ?? '');
   const toggleDrawer = () => {
     setOpen(!open);
   };
@@ -51,6 +51,7 @@ function App() {
   );
 
   const logIntoAppleMusic = async () => {
+    let pkcs8 = undefined;
     const alg = "ES256";
     const kid = keyId.trim();
     const issuer = issuerId.trim();
@@ -72,7 +73,7 @@ function App() {
 
     let privateKey = undefined;
     try {
-      const pkcs8 = new TextDecoder().decode(
+      pkcs8 = new TextDecoder().decode(
         await privateKeyFile.arrayBuffer()
       );
       privateKey = await jose.importPKCS8(pkcs8, alg);
@@ -82,6 +83,7 @@ function App() {
     }
 
     try {
+      const tokenIssueDate = new Date();
       const jwt = await new jose.SignJWT({})
         .setProtectedHeader({
           alg,
@@ -89,7 +91,7 @@ function App() {
         })
         .setExpirationTime("1d")
         .setIssuer(issuer)
-        .setIssuedAt(new Date())
+        .setIssuedAt(tokenIssueDate)
         .sign(privateKey);
 
       await window.MusicKit.configure({
@@ -104,6 +106,13 @@ function App() {
 
       const music = window.MusicKit.getInstance();
       await music.authorize();
+
+      const expiryDate = new Date(tokenIssueDate);
+      expiryDate.setDate(expiryDate.getDay() + 1);
+      window.localStorage.setItem('appleMusicPrivateKey', pkcs8);
+      window.localStorage.setItem('appleMusicIssuerId', issuer);
+      window.localStorage.setItem('appleMusicKeyId', keyId);
+      window.localStorage.setItem('appleMusicExpiry', expiryDate.toISOString());
     } catch (err) {
       alert(`Error ${err}`);
       return;
@@ -171,6 +180,14 @@ function App() {
 
   const ingestAppleMusicFromDataExportFile = async () => {
     const instance = window.MusicKit.getInstance();
+    const dataExportPath = window.prompt('Please enter path to data export on your computer.\n\n' +
+      'Paths look like C:\\Users\\username\\Downloads\\AppleMediaServices\\Apple_Media_Services\\Apple Music Activity ' +
+      'or /home/username/Downloads/AppleMediaServices\\Apple_Media_Services\\Apple Music Activity');
+
+    if (!dataExportPath?.trim()) {
+      alert('Invalid path');
+      return;
+    }
 
     const req = fetch("/api/ingest/apple-music-data-export", {
       method: "POST",
@@ -184,6 +201,7 @@ function App() {
         ],
         userMusicToken: instance.musicUserToken,
         devToken: instance.developerToken,
+        dataExportPath,
       }),
       headers: {
         "Content-Type": "application/json",
