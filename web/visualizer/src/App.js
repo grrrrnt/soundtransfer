@@ -23,11 +23,13 @@ const drawerWidth = 240;
 
 function App() {
   let spotifyAccessToken = undefined;
-  const tokenWithExpiryString = window.localStorage.getItem('spotifyTokenWithExpiry');
+  const tokenWithExpiryString = window.localStorage.getItem(
+    "spotifyAccessTokenWithExpiry"
+  );
 
   if (tokenWithExpiryString) {
     const tokenWithExpiry = JSON.parse(tokenWithExpiryString);
-    if (new Date() > new Date(tokenWithExpiry.expiry)) {
+    if (new Date() < new Date(tokenWithExpiry.expiry)) {
       spotifyAccessToken = tokenWithExpiry.accessToken;
     }
   }
