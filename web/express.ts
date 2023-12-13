@@ -191,6 +191,10 @@ app.post("/api/ingest/spotify-data-export", async (req, res) => {
         throw new Error(`Unknown ingestType ${ingestType}`);
     }
   }
+
+  res.json({
+    done: true,
+  });
 });
 
 app.post("/api/ingest/spotify-api", async (req, res) => {
@@ -220,6 +224,10 @@ app.post("/api/ingest/spotify-api", async (req, res) => {
         throw new Error(`Unknown ingestType ${ingestType}`);
     }
   }
+
+  res.json({
+    done: true,
+  });
 });
 
 app.post("/api/export/apple-music", async (req, res) => {
@@ -281,6 +289,10 @@ app.post("/api/export/spotify", async (req, res) => {
         throw new Error(`Unknown ingestType ${ingestType}`);
     }
   }
+
+  res.json({
+    done: true,
+  });
 });
 
 app.get("/api/songs", async (req, res) => {

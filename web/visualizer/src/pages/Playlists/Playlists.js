@@ -62,6 +62,9 @@ function Playlists() {
         userMusicToken: instance.musicUserToken,
         devToken: instance.developerToken,
       }),
+      headers: {
+        "Content-Type": "application/json",
+      },
     });
 
     console.log(await req.json());
@@ -77,6 +80,9 @@ function Playlists() {
         userMusicToken: instance.musicUserToken,
         devToken: instance.developerToken,
       }),
+      headers: {
+        "Content-Type": "application/json",
+      },
     });
 
     console.log(await req.json());
@@ -92,6 +98,9 @@ function Playlists() {
         userMusicToken: instance.musicUserToken,
         devToken: instance.developerToken,
       }),
+      headers: {
+        "Content-Type": "application/json",
+      },
     });
 
     console.log(await req.json());

@@ -62,6 +62,9 @@ function Artists() {
         userMusicToken: instance.musicUserToken,
         devToken: instance.developerToken,
       }),
+      headers: {
+        "Content-Type": "application/json",
+      },
     });
 
     console.log(await req.json());
@@ -77,6 +80,9 @@ function Artists() {
         userMusicToken: instance.musicUserToken,
         devToken: instance.developerToken,
       }),
+      headers: {
+        "Content-Type": "application/json",
+      },
     });
 
     console.log(await req.json());

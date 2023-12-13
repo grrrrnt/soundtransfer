@@ -45,6 +45,10 @@ function App() {
   const toggleDrawer = () => {
     setOpen(!open);
   };
+  const spotifyClientId = window.localStorage.getItem("spotifyClientId");
+  const spotifyClientSecret = window.localStorage.getItem(
+    "spotifyClientSecret"
+  );
 
   const logIntoAppleMusic = async () => {
     const alg = "ES256";
@@ -109,7 +113,6 @@ function App() {
   };
 
   const ingestSpotifyFromDataExportFile = async () => {
-    // TODO: WIP
     const req = await fetch("/api/ingest/spotify-data-export", {
       method: "POST",
       body: JSON.stringify({
@@ -122,19 +125,52 @@ function App() {
         ],
         accessToken: spotifyAccessToken,
       }),
+      headers: {
+        "Content-Type": "application/json",
+      },
     });
 
     console.log(await req.json());
   };
 
   const ingestSpotifyViaAPI = async () => {
-    // TODO
-    console.log("TODO");
+    const req = await fetch("/api/ingest/spotify-api", {
+      method: "POST",
+      body: JSON.stringify({
+        ingestTypes: [
+          "songs",
+          "albums",
+          "artists",
+          "playlists",
+          "listening-history",
+        ],
+        accessToken: spotifyAccessToken,
+        clientId: spotifyClientId,
+        clientSecret: spotifyClientSecret,
+      }),
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+
+    console.log(await req.json());
   };
 
   const exportSpotifyViaAPI = async () => {
-    // TODO
-    console.log("TODO");
+    const req = await fetch("/api/export/spotify-api", {
+      method: "POST",
+      body: JSON.stringify({
+        exportTypes: ["songs", "albums", "artists", "playlists"],
+        accessToken: spotifyAccessToken,
+        clientId: spotifyClientId,
+        clientSecret: spotifyClientSecret,
+      }),
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+
+    console.log(await req.json());
   };
 
   const ingestAppleMusicFromDataExportFile = async () => {
@@ -153,6 +189,9 @@ function App() {
         userMusicToken: instance.musicUserToken,
         devToken: instance.developerToken,
       }),
+      headers: {
+        "Content-Type": "application/json",
+      },
     });
 
     console.log(await req.json());
@@ -174,6 +213,9 @@ function App() {
         userMusicToken: instance.musicUserToken,
         devToken: instance.developerToken,
       }),
+      headers: {
+        "Content-Type": "application/json",
+      },
     });
 
     console.log(await req.json());
@@ -189,6 +231,9 @@ function App() {
         userMusicToken: instance.musicUserToken,
         devToken: instance.developerToken,
       }),
+      headers: {
+        "Content-Type": "application/json",
+      },
     });
 
     console.log(await req.json());
