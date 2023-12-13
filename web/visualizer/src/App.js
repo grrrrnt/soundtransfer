@@ -169,6 +169,7 @@ function App() {
     });
 
     console.log(await req.json());
+    window.location.reload();
   };
 
   const ingestSpotifyViaAPI = async () => {
@@ -186,6 +187,7 @@ function App() {
     });
 
     console.log(await req.json());
+    window.location.reload();
   };
 
   const exportSpotifyViaAPI = async () => {
@@ -203,6 +205,7 @@ function App() {
     });
 
     console.log(await req.json());
+    alert("Exported songs, albums, artists and playlists to Spotify!");
   };
 
   const ingestAppleMusicFromDataExportFile = async () => {
@@ -238,6 +241,7 @@ function App() {
     });
 
     console.log(await req.json());
+    window.location.reload();
   };
 
   const ingestAppleMusicViaAPI = async () => {
@@ -262,6 +266,7 @@ function App() {
     });
 
     console.log(await req.json());
+    window.location.reload();
   };
 
   const exportAppleMusicViaAPI = async () => {
@@ -280,6 +285,7 @@ function App() {
     });
 
     console.log(await req.json());
+    alert("Exported songs, albums, artists and playlists to Apple Music!");
   };
 
   const getAppleMusicPrivateKeyFilePrompt = () => {

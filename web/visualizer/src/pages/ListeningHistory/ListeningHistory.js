@@ -86,6 +86,7 @@ function ListeningHistory() {
     });
 
     console.log(await req.json());
+    window.location.reload();
   };
 
   const ingestAppleMusicFromDataExportFile = async () => {
@@ -115,6 +116,7 @@ function ListeningHistory() {
     });
 
     console.log(await req.json());
+    window.location.reload();
   };
 
   const ingestAppleMusicViaAPI = async () => {
@@ -133,6 +135,7 @@ function ListeningHistory() {
     });
 
     console.log(await req.json());
+    window.location.reload();
   };
 
   return (

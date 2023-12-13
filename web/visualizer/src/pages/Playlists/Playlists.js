@@ -80,6 +80,7 @@ function Playlists() {
     });
 
     console.log(await req.json());
+    window.location.reload();
   };
 
   const ingestSpotifyViaAPI = async () => {
@@ -97,6 +98,7 @@ function Playlists() {
     });
 
     console.log(await req.json());
+    window.location.reload();
   };
 
   const exportSpotifyViaAPI = async () => {
@@ -114,6 +116,7 @@ function Playlists() {
     });
 
     console.log(await req.json());
+    alert("Exported playlists to Spotify!");
   };
 
   const ingestAppleMusicFromDataExportFile = async () => {
@@ -143,6 +146,7 @@ function Playlists() {
     });
 
     console.log(await req.json());
+    window.location.reload();
   };
 
   const ingestAppleMusicViaAPI = async () => {
@@ -161,6 +165,7 @@ function Playlists() {
     });
 
     console.log(await req.json());
+    window.location.reload();
   };
 
   const exportAppleMusicViaAPI = async () => {
@@ -179,6 +184,7 @@ function Playlists() {
     });
 
     console.log(await req.json());
+    alert("Exported playlists to Apple Music!");
   };
 
   return (
