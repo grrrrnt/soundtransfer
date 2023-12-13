@@ -52,6 +52,15 @@ function App() {
     "spotifyClientSecret"
   );
 
+  // States to maintain counts
+  const [counts, setCounts] = React.useState({
+    songs: 0,
+    albums: 0,
+    artists: 0,
+    playlists: 0,
+    history: 0,
+  });
+
   const getAppleMusicPrivateKey = () =>
     window.localStorage.getItem("appleMusicPrivateKey");
   // const getAppleMusicIssuerId = () =>
@@ -60,6 +69,14 @@ function App() {
     window.localStorage.getItem("appleMusicKeyId");
   // const getAppleMusicExpiry = () =>
   //   window.localStorage.getItem("appleMusicExpiry");
+
+  React.useEffect(() => {
+    const getCountsFromAPI = async () => {
+      const req = await fetch("/api/counts");
+      setCounts(await req.json());
+    };
+    getCountsFromAPI();
+  }, []);
 
   const logIntoAppleMusic = async () => {
     let pkcs8 = undefined;
@@ -347,7 +364,7 @@ function App() {
                   You've saved
                 </Typography>
                 <Typography component="p" variant="h4">
-                  100
+                  {counts.songs}
                 </Typography>
                 <Typography color="text.secondary" sx={{ flex: 1 }}>
                   songs
@@ -367,7 +384,7 @@ function App() {
                   You've saved
                 </Typography>
                 <Typography component="p" variant="h4">
-                  100
+                  {counts.albums}
                 </Typography>
                 <Typography color="text.secondary" sx={{ flex: 1 }}>
                   albums
@@ -387,7 +404,7 @@ function App() {
                   You've followed
                 </Typography>
                 <Typography component="p" variant="h4">
-                  100
+                  {counts.artists}
                 </Typography>
                 <Typography color="text.secondary" sx={{ flex: 1 }}>
                   artists
@@ -407,7 +424,7 @@ function App() {
                   You have
                 </Typography>
                 <Typography component="p" variant="h4">
-                  100
+                  {counts.playlists}
                 </Typography>
                 <Typography color="text.secondary" sx={{ flex: 1 }}>
                   playlists
@@ -427,7 +444,7 @@ function App() {
                   Your listening history has
                 </Typography>
                 <Typography component="p" variant="h4">
-                  100
+                  {counts.history}
                 </Typography>
                 <Typography color="text.secondary" sx={{ flex: 1 }}>
                   records

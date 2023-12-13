@@ -1,4 +1,4 @@
-import { Collection, FindCursor, MongoClient, WithId } from 'mongodb';
+import { Collection, FindCursor, MongoClient, WithId } from "mongodb";
 
 const url = "mongodb://localhost:27017";
 const client = new MongoClient(url);
@@ -11,9 +11,7 @@ const AlbumCollection = "userAlbums";
 const ArtistCollection = "userArtists";
 const SongCollection = "userSongs";
 
-const getCollection = async (
-  collectionName: string
-): Promise<Collection> => {
+const getCollection = async (collectionName: string): Promise<Collection> => {
   await client.connect();
   const db = client.db(dbName);
   return db.collection(collectionName);
@@ -75,6 +73,21 @@ export const storeSongs = async (songs: Song[]) => {
 export const getSongs = async () => {
   const collection = await getCollection(SongCollection);
   return collection.find() as FindCursor<WithId<Song>>;
+};
+
+export const getCounts = async () => {
+  const songs = await getCollection(SongCollection);
+  const artists = await getCollection(ArtistCollection);
+  const albums = await getCollection(AlbumCollection);
+  const playlists = await getCollection(PlaylistCollection);
+  const history = await getCollection(HistoryCollection);
+  return {
+    songs: await songs.countDocuments(),
+    artists: await artists.countDocuments(),
+    albums: await albums.countDocuments(),
+    playlists: await playlists.countDocuments(),
+    history: await history.countDocuments(),
+  };
 };
 
 // For caching Apple Music songs to prevent hitting API rate limit

@@ -12,6 +12,7 @@ import * as SpotifyExporter from "../exporters/spotify";
 import {
   getAlbums,
   getArtists,
+  getCounts,
   getListeningHistory,
   getPlaylists,
   getSongs,
@@ -333,4 +334,9 @@ app.get("/api/playlists", async (req, res) => {
     ret.push(playlist);
   }
   res.json(ret);
+});
+
+app.get("/api/counts", async (req, res) => {
+  const counts = await getCounts();
+  res.json(counts);
 });
