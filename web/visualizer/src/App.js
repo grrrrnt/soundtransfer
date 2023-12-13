@@ -16,20 +16,24 @@ import { Button, Input } from "@mui/material";
 import AppBar from "./components/AppBar";
 import Drawer from "./components/Drawer";
 import Copyright from "./components/Copyright";
-import {Link} from "react-router-dom";
+import { Link } from "react-router-dom";
 
 const defaultTheme = createTheme();
 const drawerWidth = 240;
 
 function App() {
-  const tokenWithExpiry = JSON.parse(window.localStorage.getItem('spotifyTokenWithExpiry'));
+  const tokenWithExpiry = JSON.parse(
+    window.localStorage.getItem("spotifyTokenWithExpiry")
+  );
   let spotifyAccessToken = undefined;
   if (new Date() > new Date(tokenWithExpiry.expiry)) {
     spotifyAccessToken = tokenWithExpiry.accessToken;
   }
 
   const [open, setOpen] = React.useState(false);
-  const [signedIntoSpotify, setSignedIntoSpotify] = React.useState(!!spotifyAccessToken);
+  const [signedIntoSpotify, setSignedIntoSpotify] = React.useState(
+    !!spotifyAccessToken
+  );
   const [signedIntoAppleMusic, setSignedIntoAppleMusic] = React.useState(false);
   const [privateKeyFile, setPrivateKeyFile] = React.useState(undefined);
   const [keyId, setKeyId] = React.useState("");
@@ -101,8 +105,22 @@ function App() {
   };
 
   const ingestSpotifyFromDataExportFile = async () => {
-    // TODO
-    console.log("TODO");
+    // TODO: WIP
+    const req = await fetch("/api/ingest/spotify-data-export", {
+      method: "POST",
+      body: JSON.stringify({
+        ingestTypes: [
+          "songs",
+          "albums",
+          "artists",
+          "playlists",
+          "listening-history",
+        ],
+        accessToken: spotifyAccessToken,
+      }),
+    });
+
+    console.log(await req.json());
   };
 
   const ingestSpotifyViaAPI = async () => {
@@ -360,7 +378,8 @@ function App() {
                 ) : (
                   <div style={{ display: "flex", flexDirection: "column" }}>
                     <Button
-                      component={Link} to='/spotify-auth'
+                      component={Link}
+                      to="/spotify-auth"
                       sx={{ flex: 1, alignSelf: "center" }}
                     >
                       <Typography className="sign-in-button-text">
