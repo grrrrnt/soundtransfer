@@ -58,12 +58,10 @@ function Songs() {
     window.localStorage.getItem("appleMusicIssuerId");
   const getAppleMusicKeyId = () =>
     window.localStorage.getItem("appleMusicKeyId");
-  const getAppleMusicExpiry = () =>
-    window.localStorage.getItem("appleMusicExpiry");
 
   const [signedIntoAppleMusic, setSignedIntoAppleMusic] = React.useState(false);
 
-  const logIntoAppleMusic = async () => {
+  (async () => {
     let pkcs8 = getAppleMusicPrivateKey();
     const alg = "ES256";
     const kid = getAppleMusicKeyId();
@@ -119,9 +117,7 @@ function Songs() {
     } catch (err) {
       alert(`Error ${err}`);
     }
-  }
-
-  logIntoAppleMusic();
+  })();
 
   React.useEffect(() => {
     const getSongsFromAPI = async () => {

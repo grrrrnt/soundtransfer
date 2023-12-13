@@ -18,6 +18,9 @@ import TableRow from "@mui/material/TableRow";
 import AppBar from "../../components/AppBar";
 import Drawer from "../../components/Drawer";
 import Copyright from "../../components/Copyright";
+import * as jose from "jose";
+import {Alert} from "@mui/material";
+import {Link} from "react-router-dom";
 
 const defaultTheme = createTheme();
 const drawerWidth = 240;
@@ -44,6 +47,77 @@ function Albums() {
       spotifyAccessToken = tokenWithExpiry.accessToken;
     }
   }
+
+  const [signedIntoSpotify,] = React.useState(
+    !!spotifyAccessToken
+  );
+
+  const getAppleMusicPrivateKey = () =>
+    window.localStorage.getItem("appleMusicPrivateKey");
+  const getAppleMusicIssuerId = () =>
+    window.localStorage.getItem("appleMusicIssuerId");
+  const getAppleMusicKeyId = () =>
+    window.localStorage.getItem("appleMusicKeyId");
+
+  const [signedIntoAppleMusic, setSignedIntoAppleMusic] = React.useState(false);
+
+  (async () => {
+    let pkcs8 = getAppleMusicPrivateKey();
+    const alg = "ES256";
+    const kid = getAppleMusicKeyId();
+    const issuer = getAppleMusicIssuerId();
+
+    if (!kid || kid.length !== 10) {
+      return;
+    }
+
+    if (!issuer.trim()) {
+      return;
+    }
+
+    let privateKey = undefined;
+    try {
+      privateKey = await jose.importPKCS8(pkcs8, alg);
+    } catch (e) {
+      return;
+    }
+
+    try {
+      const tokenIssueDate = new Date();
+      const jwt = await new jose.SignJWT({})
+        .setProtectedHeader({
+          alg,
+          kid,
+        })
+        .setExpirationTime("1d")
+        .setIssuer(issuer)
+        .setIssuedAt(tokenIssueDate)
+        .sign(privateKey);
+
+      await window.MusicKit.configure({
+        developerToken: jwt,
+        app: {
+          name: "Music Streaming Adapter",
+          build: "v0.1",
+        },
+        suppressErrorDialog: false,
+        storefrontId: "US",
+      });
+
+      const music = window.MusicKit.getInstance();
+      await music.authorize();
+
+      setSignedIntoAppleMusic(true);
+      const expiryDate = new Date(tokenIssueDate);
+      expiryDate.setDate(expiryDate.getDay() + 1);
+      window.localStorage.setItem("appleMusicPrivateKey", pkcs8);
+      window.localStorage.setItem("appleMusicIssuerId", issuer);
+      window.localStorage.setItem("appleMusicKeyId", kid);
+      window.localStorage.setItem("appleMusicExpiry", expiryDate.toISOString());
+    } catch (err) {
+      alert(`Error ${err}`);
+    }
+  })();
 
   React.useEffect(() => {
     const getAlbumsFromAPI = async () => {
@@ -252,10 +326,13 @@ function Albums() {
                 }}
               >
                 <Typography color="text.secondary">Spotify actions</Typography>
-
+                {!signedIntoSpotify && <Alert severity='info'>
+                  Please <Link to='/spotify-auth'>sign in</Link> to ingest or export
+                </Alert>}
                 <IconButton
                   className="action-button"
                   color="inherit"
+                  disabled={!signedIntoSpotify}
                   onClick={ingestSpotifyFromDataExportFile}
                 >
                   <InputIcon />
@@ -266,6 +343,7 @@ function Albums() {
                   className="action-button"
                   color="inherit"
                   onClick={ingestSpotifyViaAPI}
+                  disabled={!signedIntoSpotify}
                 >
                   <InputIcon />
                   <Typography>Ingest albums via API</Typography>
@@ -275,6 +353,7 @@ function Albums() {
                   className="action-button"
                   color="inherit"
                   onClick={exportSpotifyViaAPI}
+                  disabled={!signedIntoSpotify}
                 >
                   <OutputIcon />
                   <Typography>Export albums via API</Typography>
@@ -292,23 +371,26 @@ function Albums() {
                   alignItems: "start",
                 }}
               >
-                <Typography color="text.secondary" sx={{ flex: 1 }}>
+                <Typography color="text.secondary" sx={{ flex: 0 }}>
                   Apple Music actions
                 </Typography>
-
+                {!signedIntoAppleMusic && <Alert severity='info'>
+                  Please <Link to='/'>sign in</Link> to ingest or export
+                </Alert>}
                 <IconButton
                   className="action-button"
                   color="inherit"
                   onClick={ingestAppleMusicFromDataExportFile}
+                  disabled={!signedIntoAppleMusic}
                 >
                   <InputIcon />
                   <Typography>Ingest albums from data export file</Typography>
                 </IconButton>
-
                 <IconButton
                   className="action-button"
                   color="inherit"
                   onClick={ingestAppleMusicViaAPI}
+                  disabled={!signedIntoAppleMusic}
                 >
                   <InputIcon />
                   <Typography>Ingest albums via API</Typography>
@@ -318,6 +400,7 @@ function Albums() {
                   className="action-button"
                   color="inherit"
                   onClick={exportAppleMusicViaAPI}
+                  disabled={!signedIntoAppleMusic}
                 >
                   <OutputIcon />
                   <Typography>Export albums via API</Typography>
