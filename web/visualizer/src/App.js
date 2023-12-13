@@ -40,8 +40,12 @@ function App() {
   );
   const [signedIntoAppleMusic, setSignedIntoAppleMusic] = React.useState(false);
   const [privateKeyFile, setPrivateKeyFile] = React.useState(undefined);
-  const [keyId, setKeyId] = React.useState(window.localStorage.getItem('appleMusicKeyId') ?? '');
-  const [issuerId, setIssuerId] = React.useState(window.localStorage.getItem('appleMusicIssuerId') ?? '');
+  const [keyId, setKeyId] = React.useState(
+    window.localStorage.getItem("appleMusicKeyId") ?? ""
+  );
+  const [issuerId, setIssuerId] = React.useState(
+    window.localStorage.getItem("appleMusicIssuerId") ?? ""
+  );
   const toggleDrawer = () => {
     setOpen(!open);
   };
@@ -50,10 +54,14 @@ function App() {
     "spotifyClientSecret"
   );
 
-  const getAppleMusicPrivateKey = () => window.localStorage.getItem('appleMusicPrivateKey');
-  const getAppleMusicIssuerId = () => window.localStorage.getItem('appleMusicIssuerId');
-  const getAppleMusicKeyId = () => window.localStorage.getItem('appleMusicKeyId');
-  const getAppleMusicExpiry = () => window.localStorage.getItem('appleMusicExpiry');
+  const getAppleMusicPrivateKey = () =>
+    window.localStorage.getItem("appleMusicPrivateKey");
+  const getAppleMusicIssuerId = () =>
+    window.localStorage.getItem("appleMusicIssuerId");
+  const getAppleMusicKeyId = () =>
+    window.localStorage.getItem("appleMusicKeyId");
+  const getAppleMusicExpiry = () =>
+    window.localStorage.getItem("appleMusicExpiry");
 
   const logIntoAppleMusic = async () => {
     let pkcs8 = undefined;
@@ -78,10 +86,9 @@ function App() {
 
     let privateKey = undefined;
     try {
+      pkcs8 = new TextDecoder().decode(await privateKeyFile.arrayBuffer());
       if (privateKeyFile) {
-        pkcs8 = new TextDecoder().decode(
-          await privateKeyFile.arrayBuffer()
-        );
+        pkcs8 = new TextDecoder().decode(await privateKeyFile.arrayBuffer());
       } else {
         pkcs8 = getAppleMusicPrivateKey();
       }
@@ -119,10 +126,10 @@ function App() {
 
       const expiryDate = new Date(tokenIssueDate);
       expiryDate.setDate(expiryDate.getDay() + 1);
-      window.localStorage.setItem('appleMusicPrivateKey', pkcs8);
-      window.localStorage.setItem('appleMusicIssuerId', issuer);
-      window.localStorage.setItem('appleMusicKeyId', keyId);
-      window.localStorage.setItem('appleMusicExpiry', expiryDate.toISOString());
+      window.localStorage.setItem("appleMusicPrivateKey", pkcs8);
+      window.localStorage.setItem("appleMusicIssuerId", issuer);
+      window.localStorage.setItem("appleMusicKeyId", keyId);
+      window.localStorage.setItem("appleMusicExpiry", expiryDate.toISOString());
     } catch (err) {
       alert(`Error ${err}`);
       return;
@@ -132,6 +139,17 @@ function App() {
   };
 
   const ingestSpotifyFromDataExportFile = async () => {
+    const dataExportPath = window.prompt(
+      "Please enter path to the Spotify data export folder on your computer.\n\n" +
+        "Paths look like C:\\Users\\username\\Downloads\\Spotify\\MyData " +
+        "or /home/username/Downloads/Spotify/MyData"
+    );
+
+    if (!dataExportPath?.trim()) {
+      alert("Invalid path");
+      return;
+    }
+
     const req = await fetch("/api/ingest/spotify-data-export", {
       method: "POST",
       body: JSON.stringify({
@@ -145,6 +163,7 @@ function App() {
         accessToken: spotifyAccessToken,
         clientId: spotifyClientId,
         clientSecret: spotifyClientSecret,
+        dataExportPath,
       }),
       headers: {
         "Content-Type": "application/json",
@@ -190,12 +209,14 @@ function App() {
 
   const ingestAppleMusicFromDataExportFile = async () => {
     const instance = window.MusicKit.getInstance();
-    const dataExportPath = window.prompt('Please enter path to data export on your computer.\n\n' +
-      'Paths look like C:\\Users\\username\\Downloads\\AppleMediaServices\\Apple_Media_Services\\Apple Music Activity ' +
-      'or /home/username/Downloads/AppleMediaServices\\Apple_Media_Services\\Apple Music Activity');
+    const dataExportPath = window.prompt(
+      "Please enter path to the Apple Music data export folder on your computer.\n\n" +
+        "Paths look like C:\\Users\\username\\Downloads\\AppleMediaServices\\Apple_Media_Services\\Apple Music Activity " +
+        "or /home/username/Downloads/AppleMediaServices/Apple_Media_Services/Apple Music Activity"
+    );
 
     if (!dataExportPath?.trim()) {
-      alert('Invalid path');
+      alert("Invalid path");
       return;
     }
 
@@ -266,7 +287,7 @@ function App() {
   const getAppleMusicPrivateKeyFilePrompt = () => {
     const localStoragePrivateKey = getAppleMusicPrivateKey();
     if (!localStoragePrivateKey && !privateKeyFile) {
-      return 'No file selected';
+      return "No file selected";
     }
 
     if (localStoragePrivateKey) {
@@ -274,7 +295,7 @@ function App() {
     }
 
     return privateKeyFile.name;
-  }
+  };
 
   return (
     <ThemeProvider theme={defaultTheme}>

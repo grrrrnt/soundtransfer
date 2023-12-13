@@ -60,6 +60,17 @@ function ListeningHistory() {
   };
 
   const ingestSpotifyFromDataExportFile = async () => {
+    const dataExportPath = window.prompt(
+      "Please enter path to the Spotify data export folder on your computer.\n\n" +
+        "Paths look like C:\\Users\\username\\Downloads\\Spotify\\MyData " +
+        "or /home/username/Downloads/Spotify/MyData"
+    );
+
+    if (!dataExportPath?.trim()) {
+      alert("Invalid path");
+      return;
+    }
+
     const req = await fetch("/api/ingest/spotify-data-export", {
       method: "POST",
       body: JSON.stringify({
@@ -67,6 +78,7 @@ function ListeningHistory() {
         accessToken: spotifyAccessToken,
         clientId: spotifyClientId,
         clientSecret: spotifyClientSecret,
+        dataExportPath,
       }),
       headers: {
         "Content-Type": "application/json",
@@ -78,6 +90,16 @@ function ListeningHistory() {
 
   const ingestAppleMusicFromDataExportFile = async () => {
     const instance = window.MusicKit.getInstance();
+    const dataExportPath = window.prompt(
+      "Please enter path to the Apple Music data export folder on your computer.\n\n" +
+        "Paths look like C:\\Users\\username\\Downloads\\AppleMediaServices\\Apple_Media_Services\\Apple Music Activity " +
+        "or /home/username/Downloads/AppleMediaServices/Apple_Media_Services/Apple Music Activity"
+    );
+
+    if (!dataExportPath?.trim()) {
+      alert("Invalid path");
+      return;
+    }
 
     const req = await fetch("/api/ingest/apple-music-data-export", {
       method: "POST",
@@ -85,6 +107,7 @@ function ListeningHistory() {
         ingestTypes: ["listening-history"],
         userMusicToken: instance.musicUserToken,
         devToken: instance.developerToken,
+        dataExportPath,
       }),
       headers: {
         "Content-Type": "application/json",
