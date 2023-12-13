@@ -29,6 +29,22 @@ function Songs() {
     setOpen(!open);
   };
 
+  const spotifyClientId = window.localStorage.getItem("spotifyClientId");
+  const spotifyClientSecret = window.localStorage.getItem(
+    "spotifyClientSecret"
+  );
+  let spotifyAccessToken = undefined;
+  const tokenWithExpiryString = window.localStorage.getItem(
+    "spotifyAccessTokenWithExpiry"
+  );
+
+  if (tokenWithExpiryString) {
+    const tokenWithExpiry = JSON.parse(tokenWithExpiryString);
+    if (new Date() < new Date(tokenWithExpiry.expiry)) {
+      spotifyAccessToken = tokenWithExpiry.accessToken;
+    }
+  }
+
   React.useEffect(() => {
     const getSongsFromAPI = async () => {
       const req = await fetch("/api/songs");
@@ -44,18 +60,54 @@ function Songs() {
   };
 
   const ingestSpotifyFromDataExportFile = async () => {
-    // TODO
-    console.log("TODO");
+    const req = await fetch("/api/ingest/spotify-data-export", {
+      method: "POST",
+      body: JSON.stringify({
+        ingestTypes: ["songs"],
+        accessToken: spotifyAccessToken,
+        clientId: spotifyClientId,
+        clientSecret: spotifyClientSecret,
+      }),
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+
+    console.log(await req.json());
   };
 
   const ingestSpotifyViaAPI = async () => {
-    // TODO
-    console.log("TODO");
+    const req = await fetch("/api/ingest/spotify-api", {
+      method: "POST",
+      body: JSON.stringify({
+        ingestTypes: ["songs"],
+        accessToken: spotifyAccessToken,
+        clientId: spotifyClientId,
+        clientSecret: spotifyClientSecret,
+      }),
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+
+    console.log(await req.json());
   };
 
   const exportSpotifyViaAPI = async () => {
-    // TODO
-    console.log("TODO");
+    const req = await fetch("/api/export/spotify-api", {
+      method: "POST",
+      body: JSON.stringify({
+        exportTypes: ["songs"],
+        accessToken: spotifyAccessToken,
+        clientId: spotifyClientId,
+        clientSecret: spotifyClientSecret,
+      }),
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+
+    console.log(await req.json());
   };
 
   const ingestAppleMusicFromDataExportFile = async () => {

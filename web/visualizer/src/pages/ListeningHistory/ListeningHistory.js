@@ -29,6 +29,22 @@ function ListeningHistory() {
     setOpen(!open);
   };
 
+  const spotifyClientId = window.localStorage.getItem("spotifyClientId");
+  const spotifyClientSecret = window.localStorage.getItem(
+    "spotifyClientSecret"
+  );
+  let spotifyAccessToken = undefined;
+  const tokenWithExpiryString = window.localStorage.getItem(
+    "spotifyAccessTokenWithExpiry"
+  );
+
+  if (tokenWithExpiryString) {
+    const tokenWithExpiry = JSON.parse(tokenWithExpiryString);
+    if (new Date() < new Date(tokenWithExpiry.expiry)) {
+      spotifyAccessToken = tokenWithExpiry.accessToken;
+    }
+  }
+
   React.useEffect(() => {
     const getHistoryFromAPI = async () => {
       const req = await fetch("/api/listening-history");
@@ -44,8 +60,20 @@ function ListeningHistory() {
   };
 
   const ingestSpotifyFromDataExportFile = async () => {
-    // TODO
-    console.log("TODO");
+    const req = await fetch("/api/ingest/spotify-data-export", {
+      method: "POST",
+      body: JSON.stringify({
+        ingestTypes: ["listening-history"],
+        accessToken: spotifyAccessToken,
+        clientId: spotifyClientId,
+        clientSecret: spotifyClientSecret,
+      }),
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+
+    console.log(await req.json());
   };
 
   const ingestAppleMusicFromDataExportFile = async () => {

@@ -124,6 +124,8 @@ function App() {
           "listening-history",
         ],
         accessToken: spotifyAccessToken,
+        clientId: spotifyClientId,
+        clientSecret: spotifyClientSecret,
       }),
       headers: {
         "Content-Type": "application/json",
