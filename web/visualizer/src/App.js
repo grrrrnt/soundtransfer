@@ -137,13 +137,7 @@ function App() {
     const req = await fetch("/api/ingest/spotify-api", {
       method: "POST",
       body: JSON.stringify({
-        ingestTypes: [
-          "songs",
-          "albums",
-          "artists",
-          "playlists",
-          "listening-history",
-        ],
+        ingestTypes: ["songs", "albums", "artists", "playlists"],
         accessToken: spotifyAccessToken,
         clientId: spotifyClientId,
         clientSecret: spotifyClientSecret,
