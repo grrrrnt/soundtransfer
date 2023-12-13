@@ -22,12 +22,14 @@ const defaultTheme = createTheme();
 const drawerWidth = 240;
 
 function App() {
-  const tokenWithExpiry = JSON.parse(
-    window.localStorage.getItem("spotifyTokenWithExpiry")
-  );
   let spotifyAccessToken = undefined;
-  if (new Date() > new Date(tokenWithExpiry.expiry)) {
-    spotifyAccessToken = tokenWithExpiry.accessToken;
+  const tokenWithExpiryString = window.localStorage.getItem('spotifyTokenWithExpiry');
+
+  if (tokenWithExpiryString) {
+    const tokenWithExpiry = JSON.parse(tokenWithExpiryString);
+    if (new Date() > new Date(tokenWithExpiry.expiry)) {
+      spotifyAccessToken = tokenWithExpiry.accessToken;
+    }
   }
 
   const [open, setOpen] = React.useState(false);
