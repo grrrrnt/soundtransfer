@@ -5,11 +5,7 @@ import TextField from "@mui/material/TextField";
 import {Button, CircularProgress} from "@mui/material";
 import Typography from "@mui/material/Typography";
 
-const getAccessToken = _.once(async (isAuthStage2, redirectUri, setAccessToken) => {
-  if (!isAuthStage2) {
-    return;
-  }
-
+const getAccessToken = _.once(async (redirectUri, setAccessToken) => {
   const queryParams = new URLSearchParams(window.location.search);
   const tokenUrl = new URL('https://accounts.spotify.com/api/token');
   tokenUrl.searchParams.set('code', queryParams.get('code'));
@@ -22,11 +18,17 @@ const getAccessToken = _.once(async (isAuthStage2, redirectUri, setAccessToken) 
       'Content-Type': 'application/x-www-form-urlencoded', Authorization: `Basic ${authToken}`,
     }, method: 'POST',
   });
-  const {access_token} = await response.json();
+  const {access_token, expires_in} = await response.json();
   setAccessToken(access_token);
-  const redirectUrl = new URL('/', window.location.href);
-  redirectUrl.searchParams.set('spotifyAccessToken', access_token);
-  window.location.href = redirectUrl.toString();
+  const expiryDate = new Date();
+  expiryDate.setSeconds(expiryDate.getSeconds() + expires_in);
+
+  window.localStorage.setItem('spotifyAccessTokenWithExpiry', JSON.stringify({
+    accessToken: access_token,
+    expiry: expiryDate.toISOString(),
+  }));
+
+  window.location.href = '/';
 });
 
 const SpotifyAuth = () => {
@@ -40,7 +42,9 @@ const SpotifyAuth = () => {
   const isAuthStage2 = queryParams.has('code') && queryParams.has('state');
 
   useEffect(() => {
-    getAccessToken(isAuthStage2, redirectUri, setAccessToken).catch(alert);
+    if (isAuthStage2) {
+     getAccessToken(redirectUri, setAccessToken).catch(alert);
+    }
   }, []);
 
   if (isAuthStage2) {

@@ -22,11 +22,14 @@ const defaultTheme = createTheme();
 const drawerWidth = 240;
 
 function App() {
-  const searchParams = new URLSearchParams(window.location.search);
-  const spotifyAccessToken = searchParams.get('spotifyAccessToken');
+  const tokenWithExpiry = JSON.parse(window.localStorage.getItem('spotifyTokenWithExpiry'));
+  let spotifyAccessToken = undefined;
+  if (new Date() > new Date(tokenWithExpiry.expiry)) {
+    spotifyAccessToken = tokenWithExpiry.accessToken;
+  }
 
   const [open, setOpen] = React.useState(false);
-  const [signedIntoSpotify, setSignedIntoSpotify] = React.useState(searchParams.has('spotifyAccessToken'));
+  const [signedIntoSpotify, setSignedIntoSpotify] = React.useState(!!spotifyAccessToken);
   const [signedIntoAppleMusic, setSignedIntoAppleMusic] = React.useState(false);
   const [privateKeyFile, setPrivateKeyFile] = React.useState(undefined);
   const [keyId, setKeyId] = React.useState("");
