@@ -323,7 +323,7 @@ function App() {
       <Box sx={{ display: "flex" }}>
         <CssBaseline />
         <AppBar
-          title="Music Streaming Adapter"
+          title="SoundTransfer"
           drawerWidth={drawerWidth}
           open={open}
           toggleDrawer={toggleDrawer}
