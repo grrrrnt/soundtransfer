@@ -35,9 +35,7 @@ function App() {
   }
 
   const [open, setOpen] = React.useState(false);
-  const [signedIntoSpotify, setSignedIntoSpotify] = React.useState(
-    !!spotifyAccessToken
-  );
+  const [signedIntoSpotify] = React.useState(!!spotifyAccessToken);
   const [signedIntoAppleMusic, setSignedIntoAppleMusic] = React.useState(false);
   const [privateKeyFile, setPrivateKeyFile] = React.useState(undefined);
   const [keyId, setKeyId] = React.useState(
@@ -56,12 +54,12 @@ function App() {
 
   const getAppleMusicPrivateKey = () =>
     window.localStorage.getItem("appleMusicPrivateKey");
-  const getAppleMusicIssuerId = () =>
-    window.localStorage.getItem("appleMusicIssuerId");
+  // const getAppleMusicIssuerId = () =>
+  //   window.localStorage.getItem("appleMusicIssuerId");
   const getAppleMusicKeyId = () =>
     window.localStorage.getItem("appleMusicKeyId");
-  const getAppleMusicExpiry = () =>
-    window.localStorage.getItem("appleMusicExpiry");
+  // const getAppleMusicExpiry = () =>
+  //   window.localStorage.getItem("appleMusicExpiry");
 
   const logIntoAppleMusic = async () => {
     let pkcs8 = undefined;
