@@ -100,7 +100,7 @@ function Albums() {
   };
 
   const exportSpotifyViaAPI = async () => {
-    const req = await fetch("/api/export/spotify-api", {
+    const req = await fetch("/api/export/spotify", {
       method: "POST",
       body: JSON.stringify({
         exportTypes: ["albums"],
