@@ -61,8 +61,8 @@ const fetchSongs = async (
 
   for (const chunk of chunks) {
     const spotifyURIs = chunk.map((item: any) => item.uri);
-    const songs = await api.getSongsFromSpotifyURIs(spotifyURIs);
-    songs.tracks.forEach((song: any) => {
+    const songsData = await api.getSongsFromSpotifyURIs(spotifyURIs);
+    songsData.tracks.forEach((song: any) => {
       const s: Song = {
         __type: "Song",
         isrc: song.external_ids.isrc,
