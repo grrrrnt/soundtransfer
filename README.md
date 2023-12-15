@@ -3,7 +3,7 @@
 
 SoundTransfer is a web app that allows users of music streaming services to transfer their music streaming data from one service to another. It currently supports transferring songs, albums, playlists, artists and listening history between Spotify and Apple Music. Do note that our entire web app runs locally on the user's machine. We host only a local server, and we do not ask for, retrieve or store any other user data. This maximises user data privacy and security.
 
-This project was done as part of the [CSCI 2390 (Privacy-Conscious Computer Systems) course](https://cs.brown.edu/courses/info/csci2390/) at Brown University. For more information, see our [final report](https://www.google.com).
+This project was done as part of the [CSCI 2390 (Privacy-Conscious Computer Systems) course](https://cs.brown.edu/courses/info/csci2390/) at Brown University. For more information, see our [final report](./report.pdf).
 
 ## Running locally
 
