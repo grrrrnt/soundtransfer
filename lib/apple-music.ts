@@ -522,5 +522,21 @@ export class AppleMusicAPI {
 
     return await response.json() as AppleMusicSearchResponse;
   }
+
+  async getRecentlyPlayedTracks(): Promise<AppleMusicCatalogSong[]> {
+    const url = new URL(`https://api.music.apple.com/v1/me/recent/played/tracks`);
+
+    const response = await fetch(url, {
+      headers: {
+        Authorization: `Bearer ${this.getDevToken()}`,
+        'Music-User-Token': this.getUserMusicToken(),
+      },
+    });
+
+    await AppleMusicAPI.throwErrorIfResponseNotOkay(response);
+
+    const body = await response.json() as AppleMusicGetCatalogSongResponse;
+    return body.data;
+  }
 }
 

@@ -1,5 +1,5 @@
 import { AppleMusicAPI } from '../lib/apple-music';
-import { storeAlbums, storeArtists, storePlaylists, storeSongs } from '../lib/mongo';
+import { storeAlbums, storeArtists, storeListeningHistory, storePlaylists, storeSongs } from '../lib/mongo';
 
 const fetchPlaylists = async (api: AppleMusicAPI): Promise<Playlist[]> => {
   const ret: Playlist[] = [];
@@ -79,7 +79,20 @@ export const ingestAlbums = async (api: AppleMusicAPI) => {
 }
 
 export const ingestListeningHistory = async (api: AppleMusicAPI) => {
-  // TODO
+  const recentTracks = await api.getRecentlyPlayedTracks();
+  await storeListeningHistory(recentTracks.map(track => ({
+    song: {
+      title: track.attributes.name,
+      year: new Date(track.attributes.releaseDate).getFullYear(),
+      artists: [track.attributes.artistName],
+      duration: track.attributes.durationInMillis,
+      isrc: track.attributes.isrc,
+      album: track.attributes.albumName,
+      __type: 'Song',
+    },
+    durationPlayedMs: track.attributes.durationInMillis,
+    timeStamp: new Date(0),
+  })));
 }
 
 export const ingestSongs = async (api: AppleMusicAPI) => {
